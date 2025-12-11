@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Login } from './pages/login';
 import { SeleccionPerfil } from './pages/seleccion-perfil';
 import { RegistroCandidato } from './pages/registro-candidato';
+import { RegistroReclutador } from './pages/registro-reclutador';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/seleccion-de-perfil" element={<SeleccionPerfil />} />
         <Route path="/registro-candidato" element={<RegistroCandidato />} />
+        <Route path="/registro-reclutador" element={<RegistroReclutador />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

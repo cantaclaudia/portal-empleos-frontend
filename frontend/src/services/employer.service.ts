@@ -1,9 +1,9 @@
 import { apiService } from './api.service';
 import { API_CONFIG } from '../config/api.config';
-import type { RegisterCandidateRequest, RegisterCandidateResponse } from '../types/candidato.types';
+import type { RegisterEmployerRequest, RegisterEmployerResponse } from '../types/employer.types';
 
-class CandidateService {
-  async registerCandidate(data: RegisterCandidateRequest): Promise<RegisterCandidateResponse> {
+class EmployerService {
+  async registerEmployer(data: RegisterEmployerRequest): Promise<RegisterEmployerResponse> {
     try {
       if (data.name.length > 20) {
         throw new Error('El nombre no puede exceder 20 caracteres');
@@ -17,12 +17,9 @@ class CandidateService {
       if (data.password.length > 30) {
         throw new Error('La contraseña no puede exceder 30 caracteres');
       }
-      if (data.resume_url.length > 100) {
-        throw new Error('La URL del currículum no puede exceder 100 caracteres');
-      }
 
-      const response = await apiService.post<RegisterCandidateResponse>(
-        API_CONFIG.ENDPOINTS.REGISTER_CANDIDATE,
+      const response = await apiService.post<RegisterEmployerResponse>(
+        API_CONFIG.ENDPOINTS.REGISTER_EMPLOYER,
         data
       );
 
@@ -33,10 +30,10 @@ class CandidateService {
       switch (response.code) {
         case '0400':
           throw new Error('Solicitud incorrecta. Verifica los datos ingresados');
+        case '0404':
+          throw new Error('Empresa no encontrada');
         case '0410':
           throw new Error('El usuario ya está registrado');
-        case '0411':
-          throw new Error('Longitud de datos incorrecta');
         case '0500':
           throw new Error('Error interno del servidor. Intenta nuevamente más tarde');
         default:
@@ -51,4 +48,4 @@ class CandidateService {
   }
 }
 
-export default new CandidateService();
+export default new EmployerService();

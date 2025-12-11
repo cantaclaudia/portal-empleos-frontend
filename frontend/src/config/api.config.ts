@@ -5,6 +5,7 @@ export const API_CONFIG = {
     GET_TOKEN: '/getToken',
     LOGIN: '/login',
     REGISTER_CANDIDATE: '/registerCandidateUser',
+    REGISTER_EMPLOYER: '/registerEmployerUser',
   },
   AUTH_CREDENTIALS: {
     USERNAME: import.meta.env.VITE_API_USERNAME || '',
