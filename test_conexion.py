@@ -6,7 +6,7 @@ try:
         host="localhost",
         port="3306",
         user="root",
-        password="pUF12M9LeXHEMpMEMuRQastN5.",
+        password="root",
         database="portal_empleos"
     )
     print("Conexión exitosa")

@@ -1,0 +1,1 @@
+export { RegistroCandidato } from "./RegistroCandidato";

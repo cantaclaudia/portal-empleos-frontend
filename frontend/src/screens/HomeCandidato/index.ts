@@ -1,0 +1,1 @@
+export { HomeCandidato } from "./HomeCandidato";
