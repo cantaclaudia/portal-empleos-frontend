@@ -1,1 +1,0 @@
-export { HomeCandidato } from "./HomeCandidato";

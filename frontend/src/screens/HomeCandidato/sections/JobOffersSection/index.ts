@@ -1,1 +1,0 @@
-export { JobOffersSection } from "./JobOffers";

@@ -1,1 +1,0 @@
-export { RegistroReclutador } from "./RegistroReclutador";

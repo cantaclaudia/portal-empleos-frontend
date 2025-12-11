@@ -12,7 +12,7 @@ class ApiService {
 
     if (API_CONFIG.TOKEN) {
       this.token = API_CONFIG.TOKEN;
-      return this.token;
+      return API_CONFIG.TOKEN; 
     }
 
     try {

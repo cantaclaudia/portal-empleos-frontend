@@ -1,1 +1,0 @@
-export { RegistroCandidato } from "./RegistroCandidato";

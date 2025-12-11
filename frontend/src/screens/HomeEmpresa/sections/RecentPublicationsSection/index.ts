@@ -1,1 +1,0 @@
-export { RecentPublicationsSection } from "./RecentPublicationsSection";
