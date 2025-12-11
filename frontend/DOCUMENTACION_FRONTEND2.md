@@ -1,5 +1,3 @@
-LOGIN:
-
 # Documentación Técnica - Frontend Portal de Empleos
 
 ## Pantalla de Login
@@ -17,7 +15,7 @@ La pantalla de Login (`src/pages/Login.tsx`) es el punto de entrada principal de
    - `employer` → `/home-empresa`
 5. Si hay error, se muestra un mensaje descriptivo
 
---- 
+---
 
 ### 2. Tecnologías Utilizadas
 
@@ -472,3 +470,356 @@ src/
 - Implementar rate limiting en cliente
 - Añadir animaciones de transición entre estados
 - Considerar implementar recordar sesión ("Remember me")
+
+---
+
+## Pantalla de Selección de Perfil
+
+### 1. Descripción General
+
+La pantalla de Selección de Perfil (`src/pages/seleccion-perfil.tsx`) permite a los nuevos usuarios elegir el tipo de cuenta que desean crear: **Candidato** o **Empresa**. Es el punto de partida del flujo de registro.
+
+**Flujo esperado:**
+1. Usuario nuevo hace clic en "Creá tu cuenta" desde la pantalla de Login
+2. Se muestra la pantalla de Selección de Perfil
+3. Usuario selecciona "Candidato" o "Empresa"
+4. Es redirigido a la pantalla de registro correspondiente:
+   - Candidato → `/registro-candidato`
+   - Empresa → `/registro-reclutador`
+5. Puede volver al login usando el enlace "Iniciá sesión"
+
+---
+
+### 2. Estructura del Componente
+
+#### Layout de la Pantalla
+
+La pantalla está organizada en tres secciones principales:
+
+**Header:**
+- Fondo color `#05073c` (azul oscuro)
+- Contiene el logo reutilizable (`HeaderLogo`)
+- Padding horizontal responsive: 24px (mobile) / 50px (desktop)
+
+**Main Content:**
+- Fondo color `#f2f2f2` (gris claro)
+- Centrado vertical y horizontal
+- Contenido organizado en tres bloques:
+  1. Título y subtítulo
+  2. Tarjetas de selección de rol
+  3. Enlace para volver al login
+
+**Footer (implícito):**
+- Enlace "¿Ya tenés cuenta? Iniciá sesión"
+
+#### Estados del Componente
+
+```typescript
+const navigate = useNavigate(); // No hay estados locales, solo navegación
+```
+
+**Nota:** Este componente es completamente estático, no maneja estado local. Solo gestiona navegación mediante `useNavigate()`.
+
+---
+
+### 3. Componentes Reutilizables
+
+#### HeaderLogo (`src/components/ui/header-logo.tsx`)
+- Componente modular que muestra el branding
+- Contiene dos líneas de texto:
+  - "Portal de Empleos" (semibold, 22px)
+  - "Instituto Madero" (medium, 16px)
+- Fuente: Nunito
+- Color: blanco (`text-neutral-50`)
+
+**Uso:**
+```typescript
+<HeaderLogo />
+```
+
+**Beneficio:** Reutilizable en todas las pantallas que necesiten el logo en el header.
+
+#### Card y CardContent (`src/components/ui/role-selector-card.tsx`)
+- Componentes contenedores para tarjetas personalizables
+- `Card`: Wrapper principal con estilos base
+- `CardContent`: Contenedor interior para el contenido
+
+**Props:**
+- `children`: Contenido del componente
+- `className`: Clases CSS adicionales
+- Todas las props de `HTMLDivElement`
+
+**Uso en Selección de Perfil:**
+```typescript
+<Card className="bg-white rounded-lg border border-[#dbdbdb] ...">
+  <CardContent className="px-[30px] py-[50px] flex flex-col ...">
+    <p>{pregunta}</p>
+    <Button>{textoBoton}</Button>
+  </CardContent>
+</Card>
+```
+
+#### Button (`src/components/ui/button.tsx`)
+- Mismo componente reutilizable usado en Login
+- Acepta `variant` y `className` para personalización
+- En esta pantalla se usa con dos variantes:
+  - **Default (Candidato):** fondo naranja `#f46036`
+  - **Outline (Empresa):** borde naranja, texto naranja
+
+---
+
+### 4. Datos y Configuración
+
+#### Interface RoleCard
+
+```typescript
+interface RoleCard {
+  question: string;         // Pregunta mostrada en la tarjeta
+  buttonText: string;       // Texto del botón (Candidato/Empresa)
+  buttonVariant: 'default' | 'outline'; // Variante visual del botón
+  buttonClassName: string;  // Clases CSS específicas del botón
+  navigateTo: string;       // Ruta de destino al hacer clic
+}
+```
+
+#### Configuración de Tarjetas (roleCards)
+
+```typescript
+const roleCards: RoleCard[] = [
+  {
+    question: "¿Estás buscando trabajo o querés postularte a nuevas oportunidades?",
+    buttonText: "Candidato",
+    buttonVariant: "default",
+    buttonClassName: "bg-[#f46036] hover:bg-[#f46036]/90 text-white ...",
+    navigateTo: "/registro-candidato",
+  },
+  {
+    question: "¿Querés publicar búsquedas y encontrar talento para tu equipo?",
+    buttonText: "Empresa",
+    buttonVariant: "outline",
+    buttonClassName: "border-[#f46036] text-[#f46036] hover:bg-[#f46036]/10 ...",
+    navigateTo: "/registro-reclutador",
+  },
+];
+```
+
+**Ventajas de este enfoque:**
+- Fácil agregar nuevos roles sin modificar JSX
+- Configuración centralizada y legible
+- Type-safe mediante TypeScript
+- Fácil de testear
+
+---
+
+### 5. Navegación
+
+#### Rutas de Destino
+
+**Desde Selección de Perfil se puede navegar a:**
+
+1. **`/registro-candidato`**
+   - Trigger: Click en botón "Candidato"
+   - Destino: Formulario de registro para candidatos
+
+2. **`/registro-reclutador`**
+   - Trigger: Click en botón "Empresa"
+   - Destino: Formulario de registro para reclutadores
+
+3. **`/login`**
+   - Trigger: Click en enlace "Iniciá sesión"
+   - Destino: Pantalla de login
+
+#### Integración con React Router
+
+```typescript
+const navigate = useNavigate();
+
+// Navegación dinámica según la tarjeta seleccionada
+onClick={() => navigate(card.navigateTo)}
+
+// Navegación al login
+onClick={() => navigate('/login')}
+```
+
+---
+
+### 6. Diseño Visual
+
+#### Paleta de Colores
+
+| Elemento | Color | Código Hex |
+|----------|-------|------------|
+| Header | Azul oscuro | `#05073c` |
+| Fondo principal | Gris claro | `#f2f2f2` |
+| Tarjetas | Blanco | `#ffffff` |
+| Borde tarjetas | Gris claro | `#dbdbdb` |
+| Texto principal | Gris oscuro | `#333333` |
+| Botón Candidato | Naranja | `#f46036` |
+| Botón Empresa (borde) | Naranja | `#f46036` |
+| Enlace | Azul | `#0088ff` |
+
+#### Tipografía
+
+- **Fuente:** Nunito (Google Fonts)
+- **Pesos utilizados:**
+  - Medium (500): Logo en header
+  - Semibold (600): Logo en header
+  - Bold (700): Título "Seleccioná tu rol"
+  - Regular (400): Preguntas y texto general
+
+#### Espaciado y Tamaños
+
+**Título Principal:**
+- Mobile: 28px
+- Desktop: 32px
+
+**Subtítulo:**
+- Mobile: 18px
+- Desktop: 22px
+
+**Texto de Tarjetas:**
+- Mobile: 18px
+- Desktop: 20px
+
+**Padding de Tarjetas:**
+- Horizontal: 30px
+- Vertical: 50px
+
+**Gap entre Tarjetas:**
+- Mobile: 24px (gap-6)
+- Desktop: 32px (gap-8)
+
+#### Responsive Design
+
+**Breakpoints:**
+- Mobile: < 768px (1 columna)
+- Desktop: ≥ 768px (2 columnas)
+
+**Comportamiento Responsive:**
+- **Header padding:** 24px → 50px
+- **Layout tarjetas:** columna única → dos columnas lado a lado
+- **Tamaños de texto:** se ajustan según breakpoint
+- **Márgenes verticales:** se reducen en mobile para mejor uso del espacio
+
+---
+
+### 7. Decisiones Técnicas
+
+#### Modularidad y Reutilización
+
+**Componentes Creados:**
+1. **HeaderLogo:** Encapsula el branding del portal
+   - Reutilizable en múltiples pantallas
+   - Mantiene consistencia visual
+   - Facilita cambios de branding
+
+2. **Card/CardContent:** Sistema de tarjetas flexible
+   - No atado a un caso de uso específico
+   - Acepta cualquier contenido mediante `children`
+   - Personalizable mediante `className`
+
+**Estructura de Datos:**
+- Array `roleCards` permite agregar nuevos roles sin cambiar código JSX
+- Interface `RoleCard` garantiza type safety
+- Separación de datos y presentación (patrón data-driven)
+
+#### Arquitectura sin Estado
+
+**Por qué no hay estado local:**
+- No hay formularios ni inputs que validar
+- No hay peticiones asíncronas
+- Solo se realiza navegación (no requiere estado)
+- Pantalla puramente presentacional
+
+**Ventajas:**
+- Componente más simple y fácil de mantener
+- No hay re-renders innecesarios
+- Fácil de testear
+
+#### Accesibilidad
+
+**Implementaciones:**
+- Botones semánticos (`<button>`) para acciones clickeables
+- Texto descriptivo en tarjetas
+- Contraste de colores cumple con WCAG AA
+- Hover states claramente visibles
+- Keyboard navigation funcional
+
+---
+
+### 8. Integración con el Flujo de Autenticación
+
+#### Relación con Login
+
+La pantalla de Selección de Perfil es accesible desde Login mediante:
+```typescript
+<button onClick={() => navigate('/seleccion-de-perfil')}>
+  Creá tu cuenta como Candidato o Empresa.
+</button>
+```
+
+#### Próximos Pasos en el Flujo
+
+Después de seleccionar un perfil, el usuario es dirigido a:
+- **`/registro-candidato`**: Formulario de registro para candidatos
+- **`/registro-reclutador`**: Formulario de registro para empresas
+
+**Nota:** Estas pantallas aún no están implementadas en el alcance actual.
+
+---
+
+### 9. Estructura de Archivos
+
+```
+src/
+├── pages/
+│   ├── Login.tsx                    # Pantalla de login
+│   └── seleccion-perfil.tsx         # Pantalla de selección de perfil
+├── components/
+│   └── ui/
+│       ├── button.tsx               # Botón reutilizable (compartido)
+│       ├── header-logo.tsx          # Logo del header (nuevo)
+│       ├── role-selector-card.tsx   # Tarjetas de selección (nuevo)
+│       ├── form-fields.tsx          # Campos de formulario
+│       ├── page-header.tsx          # Encabezados de página
+│       ├── error-message.tsx        # Mensajes de error
+│       ├── separator.tsx            # Separadores
+│       └── link-button.tsx          # Botones estilo link
+```
+
+---
+
+### 10. Dependencias
+
+La pantalla de Selección de Perfil utiliza las mismas dependencias que Login:
+
+```json
+{
+  "react": "^18.3.1",
+  "react-dom": "^18.3.1",
+  "react-router-dom": "^7.10.1"
+}
+```
+
+**Nota:** No requiere `lucide-react` ni servicios de API.
+
+---
+
+### 11. Testing (Pendiente)
+
+**Casos de prueba sugeridos:**
+- Renderizado correcto de ambas tarjetas
+- Navegación al hacer clic en "Candidato"
+- Navegación al hacer clic en "Empresa"
+- Navegación al hacer clic en "Iniciá sesión"
+- Responsive design en diferentes tamaños de pantalla
+- Accesibilidad con teclado
+
+---
+
+### 12. Próximos Pasos
+
+- Implementar pantallas de registro (`/registro-candidato` y `/registro-reclutador`)
+- Agregar animaciones de transición entre pantallas
+- Considerar agregar iconos representativos en las tarjetas
+- Implementar tests unitarios y de integración
