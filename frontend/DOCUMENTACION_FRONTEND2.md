@@ -823,3 +823,597 @@ La pantalla de Selección de Perfil utiliza las mismas dependencias que Login:
 - Agregar animaciones de transición entre pantallas
 - Considerar agregar iconos representativos en las tarjetas
 - Implementar tests unitarios y de integración
+
+---
+
+## Pantalla de Registro de Candidato
+
+### 1. Descripción General
+
+La pantalla de Registro de Candidato (`src/pages/registrocandidato.tsx`) permite a los nuevos usuarios crear una cuenta como candidato en el Portal de Empleos. Esta pantalla es parte del flujo de onboarding y recopila la información necesaria para crear un perfil de candidato.
+
+**Flujo esperado:**
+1. Usuario selecciona "Candidato" en la pantalla de Selección de Perfil
+2. Se muestra el formulario de registro con los campos necesarios
+3. Usuario completa el formulario con sus datos personales, credenciales, CV y habilidades
+4. Se validan todos los campos en tiempo real
+5. Al enviar, la contraseña se encripta con RSA y se envía al backend
+6. Si el registro es exitoso, el usuario es redirigido a la pantalla de login
+7. Si hay error, se muestra un mensaje descriptivo
+
+---
+
+### 2. Tecnologías Utilizadas
+
+- **React 18.3.1**: Librería principal para la UI
+- **TypeScript 5.5.3**: Tipado estático
+- **React Router DOM 7.10.1**: Manejo de navegación
+- **Lucide React 0.344.0**: Iconos para mostrar/ocultar contraseñas
+- **Tailwind CSS 3.4.1**: Framework de estilos
+- **JSEncrypt 3.3.2**: Encriptación RSA de contraseñas
+- **Fetch API**: Cliente HTTP nativo
+
+---
+
+### 3. Estructura del Componente
+
+#### Estados del Componente
+
+```typescript
+// Estados del formulario
+const [name, setName] = useState("");
+const [lastName, setLastName] = useState("");
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+const [confirmPassword, setConfirmPassword] = useState("");
+const [cvLink, setCvLink] = useState("");
+const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+
+// Estados de visualización
+const [showPassword, setShowPassword] = useState(false);
+const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+// Estados de error por campo
+const [nameError, setNameError] = useState(false);
+const [lastNameError, setLastNameError] = useState(false);
+const [emailError, setEmailError] = useState(false);
+const [passwordFormatError, setPasswordFormatError] = useState(false);
+const [passwordMismatchError, setPasswordMismatchError] = useState(false);
+const [cvError, setCvError] = useState(false);
+const [skillsError, setSkillsError] = useState(false);
+
+// Estados globales
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState<string | null>(null);
+```
+
+#### Campos del Formulario
+
+| Campo | Tipo | Longitud Máxima | Obligatorio | Validación Adicional |
+|-------|------|----------------|-------------|---------------------|
+| Nombre | text | 20 caracteres | Sí | No vacío |
+| Apellido | text | 20 caracteres | Sí | No vacío |
+| Email | email | 60 caracteres | Sí | Formato email válido |
+| Contraseña | password | 30 caracteres | Sí | Sin caracteres especiales prohibidos |
+| Repetir contraseña | password | 30 caracteres | Sí | Debe coincidir con contraseña |
+| CV (URL) | url | 100 caracteres | Sí | URL válida (http/https) |
+| Habilidades | multi-select | - | Sí | Al menos 1 habilidad |
+
+**Caracteres prohibidos en contraseña:**
+```
+!"#$%/()=?¡¨*[];:_¿´+{},.><°|¬\~`^Ññ\r\n
+```
+
+---
+
+### 4. Handlers y Funciones Principales
+
+#### `handlePasswordChange(e: React.ChangeEvent<HTMLInputElement>): void`
+- Filtra caracteres especiales prohibidos en tiempo real
+- Limita la longitud a 30 caracteres automáticamente
+- Actualiza el estado de `password`
+
+#### `handleConfirmPasswordChange(e: React.ChangeEvent<HTMLInputElement>): void`
+- Similar a `handlePasswordChange` pero para el campo de confirmación
+- Asegura que ambos campos tengan las mismas restricciones
+
+#### `handleCvLinkChange(e: React.ChangeEvent<HTMLInputElement>): void`
+- Valida que la URL tenga formato correcto (http o https)
+- Muestra error en tiempo real si el formato es inválido
+- Limpia el error si el campo está vacío
+
+#### `handleSkillSelect(value: string): void`
+- Agrega una habilidad a la lista de habilidades seleccionadas
+- Previene duplicados
+
+#### `handleSkillRemove(value: string): void`
+- Elimina una habilidad de la lista de seleccionadas
+- Actualiza la lista de habilidades disponibles
+
+#### `isValidUrl(url: string): boolean`
+- Valida que la URL tenga protocolo http o https
+- Usa el constructor `URL` nativo para validación
+- Retorna `false` si la URL es inválida
+
+#### `encryptPassword(password: string): string`
+- Encripta la contraseña usando RSA con clave pública
+- Usa la librería JSEncrypt
+- Obtiene la clave pública de `VITE_RSA_PUBLIC_KEY` (variable de entorno)
+- Si no hay clave pública, envía la contraseña en texto plano (con advertencia en consola)
+- Si hay error en la encriptación, retorna la contraseña original
+
+**Configuración de la clave pública:**
+```typescript
+const publicKey = import.meta.env.VITE_RSA_PUBLIC_KEY;
+```
+
+#### `handleSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void>`
+1. Previene el comportamiento por defecto del formulario
+2. Limpia errores previos
+3. Valida todos los campos:
+   - Nombre: no vacío y máximo 20 caracteres
+   - Apellido: no vacío y máximo 20 caracteres
+   - Email: no vacío y máximo 60 caracteres
+   - Contraseña: no vacía y máximo 30 caracteres
+   - Confirmación: debe coincidir con contraseña
+   - CV: URL válida y máximo 100 caracteres
+   - Habilidades: al menos 1 seleccionada
+4. Si hay errores, detiene el envío
+5. Establece estado de carga
+6. Encripta la contraseña
+7. Construye el payload del request
+8. Llama al servicio `CandidateService.registerCandidate()`
+9. Si es exitoso: navega a `/login`
+10. Si falla: muestra mensaje de error
+11. Siempre finaliza limpiando el estado de carga
+
+---
+
+### 5. Interacciones con APIs y Servicios
+
+#### CandidateService
+
+**Archivo:** `src/services/candidate.service.ts`
+
+**Método utilizado:**
+
+**`registerCandidate(data: RegisterCandidateRequest): Promise<RegisterCandidateResponse>`**
+- Valida longitudes de campos (redundante con validación frontend)
+- Construye payload `RegisterCandidateRequest`
+- Usa `apiService.post()` para enviar al endpoint `/registerCandidateUser`
+- Maneja códigos de respuesta:
+  - `0200`: Registro exitoso
+  - `0400`: Solicitud incorrecta
+  - `0410`: Usuario ya registrado
+  - `0411`: Longitud de datos incorrecta
+  - `0500`: Error interno del servidor
+  - Otros: Mensaje genérico de error
+- Si hay error de conexión, lanza: "Error de conexión. Verifica tu conexión a internet"
+
+#### Estructura del Request
+
+```typescript
+interface RegisterCandidateRequest {
+  name: string;
+  last_name: string;
+  email: string;
+  password: string;           // Encriptado con RSA
+  resume_url: string;
+  skill_list: number[];       // Array de IDs de habilidades
+}
+```
+
+#### Estructura del Response
+
+```typescript
+interface RegisterCandidateResponse {
+  code: string;               // "0200" para éxito
+  description: string;        // Descripción del resultado
+}
+```
+
+#### Configuración de API
+
+**Endpoint:** `/registerCandidateUser`
+
+**Headers requeridos:**
+- `Content-Type`: `application/json`
+- `x-access-token`: Token obtenido de `/getToken`
+
+**Variables de entorno requeridas:**
+- `VITE_API_BASE_URL`: URL base de la API
+- `VITE_API_TOKEN`: Token estático (opcional)
+- `VITE_API_USERNAME`: Usuario para Basic Auth
+- `VITE_API_PASSWORD`: Contraseña para Basic Auth
+- `VITE_RSA_PUBLIC_KEY`: Clave pública RSA para encriptar contraseñas
+
+---
+
+### 6. Componentes Reutilizables
+
+La pantalla de Registro de Candidato utiliza componentes UI existentes y nuevos:
+
+#### Componentes Existentes (Reutilizados)
+
+**HeaderLogo** (`src/components/ui/header-logo.tsx`)
+- Logo del portal en el header
+- Mantiene consistencia visual con otras pantallas
+
+**Button** (`src/components/ui/button.tsx`)
+- Botón de "Registrarse"
+- Muestra estado de carga ("Registrando...")
+- Se deshabilita durante el proceso
+
+**ErrorMessage** (`src/components/ui/error-message.tsx`)
+- Muestra errores generales del formulario
+- Banner rojo con mensaje descriptivo
+
+#### Componentes Nuevos (Creados para esta pantalla)
+
+**Input** (`src/components/ui/input.tsx`)
+- Campo de entrada básico
+- Hereda todas las props de `HTMLInputElement`
+- Estilos consistentes con el diseño del portal
+- Props principales:
+  - `type`: Tipo de input (text, email, password, etc.)
+  - `placeholder`: Texto placeholder
+  - `maxLength`: Longitud máxima
+  - `disabled`: Deshabilitar input
+  - `className`: Clases CSS adicionales
+
+**Label** (`src/components/ui/label.tsx`)
+- Etiqueta para campos de formulario
+- Hereda todas las props de `HTMLLabelElement`
+- Estilos de texto consistentes
+- Props principales:
+  - `children`: Contenido del label
+  - `className`: Clases CSS adicionales
+
+**Select Components** (`src/components/ui/select.tsx`)
+Sistema completo de componentes para selección desplegable:
+
+**Select**: Contenedor principal
+- Props:
+  - `value`: Valor seleccionado
+  - `onValueChange`: Callback al cambiar valor
+  - `children`: Componentes hijos
+
+**SelectTrigger**: Botón que abre/cierra el dropdown
+- Muestra el valor actual o placeholder
+- Incluye icono chevron animado
+- Props:
+  - `className`: Clases CSS adicionales
+  - `children`: Contenido (generalmente SelectValue)
+
+**SelectValue**: Muestra el valor actual o placeholder
+- Props:
+  - `placeholder`: Texto cuando no hay selección
+
+**SelectContent**: Contenedor del dropdown
+- Se muestra/oculta según el estado `open`
+- Cierra al hacer clic fuera
+- Scroll automático si hay muchas opciones
+- Props:
+  - `children`: Items del dropdown
+
+**SelectItem**: Item individual del dropdown
+- Props:
+  - `value`: Valor del item
+  - `children`: Contenido a mostrar
+
+**Uso del Select en Registro:**
+```typescript
+<Select onValueChange={handleSkillSelect}>
+  <SelectTrigger>
+    <SelectValue placeholder="Seleccioná habilidades" />
+  </SelectTrigger>
+  <SelectContent>
+    {availableSkills.map((option) => (
+      <SelectItem key={option.value} value={option.value}>
+        {option.label}
+      </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
+```
+
+---
+
+### 7. Sistema de Habilidades
+
+#### Datos de Habilidades
+
+```typescript
+const skillOptions = [
+  { value: "1", label: "Adaptabilidad" },
+  { value: "2", label: "Responsabilidad" },
+  { value: "3", label: "Trabajo en equipo" },
+];
+```
+
+**Nota:** Esta lista es estática en el frontend. En una implementación completa, estas habilidades deberían obtenerse dinámicamente desde el backend.
+
+#### Funcionamiento
+
+1. **Selección:** Usuario abre el dropdown y selecciona una habilidad
+2. **Agregado:** La habilidad se agrega a `selectedSkills`
+3. **Visualización:** Se muestra como chip/badge azul con botón de eliminar
+4. **Filtrado:** Las habilidades seleccionadas no aparecen en el dropdown
+5. **Eliminación:** Usuario hace clic en "✕" para remover una habilidad
+6. **Reaparecer:** La habilidad eliminada vuelve al dropdown
+
+#### Chips de Habilidades Seleccionadas
+
+- **Color de fondo:** `#0088FF` (azul)
+- **Texto:** Blanco
+- **Fuente:** Nunito
+- **Botón eliminar:** "✕" con hover effect
+- **Layout:** Flex wrap para múltiples habilidades
+
+---
+
+### 8. Validaciones Implementadas
+
+#### Validaciones del Cliente (Frontend)
+
+| Campo | Reglas | Mensaje de Error |
+|-------|--------|------------------|
+| Nombre | No vacío, máximo 20 caracteres | "Nombre obligatorio, máximo 20 caracteres" |
+| Apellido | No vacío, máximo 20 caracteres | "Apellido obligatorio, máximo 20 caracteres" |
+| Email | No vacío, máximo 60 caracteres, formato email | "Email obligatorio, máximo 60 caracteres" |
+| Contraseña | No vacía, máximo 30 caracteres, sin caracteres prohibidos | "La contraseña debe tener máximo 30 caracteres" |
+| Confirmar contraseña | Debe coincidir con contraseña | "Las contraseñas no coinciden" |
+| CV URL | No vacía, URL válida (http/https), máximo 100 caracteres | "Ingresá un link válido (http o https), máximo 100 caracteres" |
+| Habilidades | Al menos 1 seleccionada | "Debés seleccionar al menos 1 habilidad" |
+
+#### Validaciones en Tiempo Real
+
+- **Contraseña:** Caracteres prohibidos se filtran automáticamente al escribir
+- **CV URL:** Se valida el formato mientras el usuario escribe
+- **Longitud:** Los campos tienen `maxLength` para prevenir excesos
+
+#### Validaciones del Servidor (Backend)
+
+El servicio `CandidateService` realiza validaciones adicionales:
+- Verifica longitudes de todos los campos
+- Comprueba si el email ya está registrado
+- Valida formato de datos
+
+---
+
+### 9. Navegación
+
+#### Rutas de Destino
+
+**Desde Registro de Candidato se puede navegar a:**
+
+1. **`/login`**
+   - Trigger: Registro exitoso (automático)
+   - Trigger: Click en "Iniciá sesión" (manual)
+
+#### Rutas de Origen
+
+**Se puede llegar a Registro de Candidato desde:**
+
+1. **`/seleccion-de-perfil`**
+   - Click en botón "Candidato"
+
+---
+
+### 10. Diseño Visual
+
+#### Paleta de Colores
+
+| Elemento | Color | Código Hex |
+|----------|-------|------------|
+| Header | Azul oscuro | `#05073c` |
+| Fondo principal | Gris claro | `#f2f2f2` |
+| Campos de input | Blanco | `#ffffff` |
+| Borde inputs | Gris | `#d9d9d9` |
+| Texto principal | Azul oscuro | `#05073c` |
+| Labels | Gris oscuro | `#333333` |
+| Placeholder | Gris claro | `#b3b3b3` / `#999999` |
+| Error | Rojo | `#cc2222` |
+| Botón registrar | Naranja | `#f46036` |
+| Habilidades chips | Azul | `#0088FF` |
+| Enlace | Azul | `#0088ff` |
+
+#### Tipografía
+
+- **Fuente principal:** Nunito
+- **Pesos utilizados:**
+  - Normal (400): Labels, texto general
+  - Medium (500): Botones
+  - Semibold (600): Logo en header
+  - Bold (700): Título principal
+
+#### Espaciado
+
+**Título Principal:**
+- Mobile: 28px
+- Desktop: 32px
+
+**Campos del Formulario:**
+- Gap entre campos: 32px (gap-8)
+- Gap entre columnas: 24px (gap-6)
+- Min height inputs: 42px
+
+**Contenedor del Formulario:**
+- Max width: 928px
+- Centrado horizontalmente
+- Padding horizontal: 16px (px-4)
+
+#### Responsive Design
+
+**Breakpoints:**
+- Mobile: < 768px (1 columna)
+- Desktop: ≥ 768px (2 columnas para nombre/apellido y contraseñas)
+
+**Comportamiento Responsive:**
+- Header padding: 24px → 50px
+- Grid de nombre/apellido: 1 columna → 2 columnas
+- Grid de contraseñas: 1 columna → 2 columnas
+- Tamaños de texto: se ajustan según breakpoint
+
+---
+
+### 11. Seguridad
+
+#### Encriptación de Contraseñas
+
+**Método:** RSA con clave pública
+**Librería:** JSEncrypt
+
+**Flujo:**
+1. Usuario ingresa contraseña en texto plano
+2. Al enviar el formulario, se encripta con clave pública RSA
+3. Solo el backend puede desencriptar con la clave privada
+4. La contraseña nunca se envía en texto plano (excepto si no hay clave pública configurada)
+
+**Configuración:**
+```typescript
+const publicKey = import.meta.env.VITE_RSA_PUBLIC_KEY;
+```
+
+**Fallback de seguridad:**
+- Si no hay clave pública: envía en texto plano con advertencia en consola
+- Si falla la encriptación: envía en texto plano con error en consola
+
+#### Filtrado de Caracteres
+
+La contraseña filtra automáticamente caracteres especiales prohibidos para prevenir:
+- Inyección SQL
+- XSS
+- Problemas de encoding
+
+#### Validaciones de Entrada
+
+- Longitudes máximas estrictas
+- Validación de formato de email (HTML5)
+- Validación de URL para CV
+
+---
+
+### 12. Decisiones Técnicas
+
+#### Arquitectura y Organización
+
+**Separación de Responsabilidades:**
+- **Componente RegistroCandidato:** UI y estado local
+- **CandidateService:** Lógica de registro y comunicación con API
+- **ApiService:** Gestión de tokens y peticiones HTTP
+- **Componentes UI:** Reutilizables, sin lógica de negocio
+
+**Componentes Modulares:**
+- Input, Label, Select: Componentes básicos reutilizables
+- HeaderLogo: Consistencia visual entre pantallas
+- ErrorMessage: Manejo uniforme de errores
+
+#### Gestión de Estado
+
+- **Estado local con `useState`:** Suficiente para esta pantalla
+- **Sin Context API:** No hay necesidad de estado global
+- **Validación en tiempo real:** Mejor UX con feedback inmediato
+
+#### Manejo de Errores
+
+**Dos niveles de errores:**
+1. **Errores por campo:** Se muestran debajo de cada input
+2. **Error general:** Banner en la parte superior del formulario
+
+**UX de errores:**
+- Errores se muestran solo después del intento de envío
+- Algunos errores (URL, longitud) se muestran en tiempo real
+- Errores se limpian al corregir el campo o reintentar
+
+#### Encriptación
+
+**Por qué RSA:**
+- Encriptación asimétrica segura
+- Frontend solo necesita clave pública
+- Backend desencripta con clave privada
+
+**Manejo de errores de encriptación:**
+- Fallback a texto plano (no ideal pero funcional)
+- Advertencias en consola para debugging
+
+---
+
+### 13. Estructura de Archivos
+
+```
+src/
+├── pages/
+│   ├── Login.tsx
+│   ├── seleccion-perfil.tsx
+│   └── registrocandidato.tsx        # Nueva pantalla
+├── components/
+│   └── ui/
+│       ├── button.tsx               # Existente (reutilizado)
+│       ├── header-logo.tsx          # Existente (reutilizado)
+│       ├── error-message.tsx        # Existente (reutilizado)
+│       ├── input.tsx                # Nuevo
+│       ├── label.tsx                # Nuevo
+│       └── select.tsx               # Nuevo (Select, SelectTrigger, etc.)
+├── services/
+│   ├── auth.service.ts
+│   ├── api.service.ts
+│   └── candidate.service.ts         # Nuevo
+├── config/
+│   └── api.config.ts                # Actualizado (nuevo endpoint)
+└── types/
+    ├── auth.types.ts
+    └── candidate.types.ts           # Nuevo
+```
+
+---
+
+### 14. Dependencias
+
+**Nuevas dependencias agregadas:**
+```json
+{
+  "jsencrypt": "^3.3.2"
+}
+```
+
+**Dependencias existentes utilizadas:**
+```json
+{
+  "react": "^18.3.1",
+  "react-dom": "^18.3.1",
+  "react-router-dom": "^7.10.1",
+  "lucide-react": "^0.344.0"
+}
+```
+
+---
+
+### 15. Testing (Pendiente)
+
+**Casos de prueba sugeridos:**
+- Renderizado correcto del formulario
+- Validación de cada campo individualmente
+- Validación conjunta del formulario
+- Filtrado de caracteres prohibidos en contraseña
+- Coincidencia de contraseñas
+- Validación de URL del CV
+- Selección y eliminación de habilidades
+- Encriptación de contraseña
+- Manejo de respuesta exitosa (redirección)
+- Manejo de errores del servidor
+- Responsive design
+- Accesibilidad con teclado
+
+---
+
+### 16. Próximos Pasos
+
+- Hacer la lista de habilidades dinámica (obtener desde backend)
+- Agregar validación de formato de email más robusta
+- Implementar subida de archivos para CV (en lugar de URL)
+- Agregar indicador de fortaleza de contraseña
+- Implementar confirmación por email
+- Agregar términos y condiciones
+- Implementar tests unitarios y de integración
+- Mejorar manejo de errores de encriptación
