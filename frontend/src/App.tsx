@@ -1,20 +1,21 @@
-import { Routes, Route } from "react-router-dom";
-import { Login } from "./screens/Login";
-import { HomeCandidato } from "./screens/HomeCandidato";
-import { HomeEmpresa } from "./screens/HomeEmpresa";
-import { SeleccionDePerfil } from "./screens/SeleccionDePerfil";
-import { RegistroCandidato } from "./screens/RegistroCandidato";
-import { RegistroReclutador } from "./screens/RegistroReclutador";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Login } from './screens/Login'; 
+import { HomeCandidato } from './screens/HomeCandidato';
+import { HomeEmpresa } from './screens/HomeEmpresa';
+import { SeleccionDePerfil } from './screens/SeleccionDePerfil';
 
-export default function App() {
+function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/seleccion-de-perfil" element={<SeleccionDePerfil />} />
-      <Route path="/registro-candidato" element={<RegistroCandidato />} />
-      <Route path="/registro-reclutador" element={<RegistroReclutador />} />
-      <Route path="/home-candidato" element={<HomeCandidato />} />
-      <Route path="/home-empresa" element={<HomeEmpresa />} />
-    </Routes>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/home-candidato" element={<HomeCandidato />} />
+        <Route path="/home-empresa" element={<HomeEmpresa />} />
+        <Route path="/seleccion-de-perfil" element={<SeleccionDePerfil />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </Router>
   );
 }
+
+export default App;
