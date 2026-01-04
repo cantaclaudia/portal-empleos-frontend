@@ -1,19 +1,12 @@
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://IP-TEST:PUERTO-TEST/portalEmpleos',
-  TOKEN: import.meta.env.VITE_API_TOKEN || '',
+  BASE_URL: 'http://localhost:5000',
+  TOKEN: 'token_test1234',
+
   ENDPOINTS: {
-    GET_TOKEN: '/getToken',
-    LOGIN: '/login',
-    REGISTER_CANDIDATE: '/registerCandidateUser',
-    REGISTER_EMPLOYER: '/registerEmployerUser',
-  },
-  AUTH_CREDENTIALS: {
-    USERNAME: import.meta.env.VITE_API_USERNAME || '',
-    PASSWORD: import.meta.env.VITE_API_PASSWORD || '',
+    LOGIN: '/portalEmpleos/v1/login',
+    REGISTER_CANDIDATE: '/portalEmpleos/v1/registerCandidateUser',
+    REGISTER_EMPLOYER: '/portalEmpleos/v1/registerEmployerUser',
+    GET_AVAILABLE_JOBS: "/portalEmpleos/v1/getAvailableJobs",
   },
 };
 
-export const getAuthHeader = () => {
-  const credentials = `${API_CONFIG.AUTH_CREDENTIALS.USERNAME}:${API_CONFIG.AUTH_CREDENTIALS.PASSWORD}`;
-  return `Basic ${btoa(credentials)}`;
-};

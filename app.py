@@ -4,8 +4,11 @@ from config import ServerConfig
 import time, datetime
 import json
 from services import Services, Auth
+from flask_cors import CORS
 
 app = Flask(__name__, instance_relative_config=True)
+CORS(app)
+
 #autorizamos el bp de auth y services
 app.register_blueprint(Services.bp)
 app.register_blueprint(Auth.bp)

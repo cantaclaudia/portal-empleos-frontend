@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Separator } from '../components/ui/separator';
@@ -7,6 +7,7 @@ import { FormField } from '../components/ui/form-fields';
 import { LinkButton } from '../components/ui/link-button';
 import { ErrorMessage } from '../components/ui/error-message';
 import AuthService from '../services/auth.service';
+import { ROUTES } from '../routes';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -16,6 +17,16 @@ export const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string>('');
   const [passwordError, setPasswordError] = useState<string>('');
+  const [rememberMe, setRememberMe] = useState(false);
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    const savedRemember = localStorage.getItem('rememberMe');
+    if (savedEmail && savedRemember === 'true') {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   const validateEmail = (value: string): boolean => {
     setEmailError('');
@@ -66,10 +77,18 @@ export const Login: React.FC = () => {
       if (response.data) {
         AuthService.saveUser(response.data);
 
+        if (rememberMe) {
+          localStorage.setItem('rememberedEmail', email);
+          localStorage.setItem('rememberMe', 'true');
+        } else {
+          localStorage.removeItem('rememberedEmail');
+          localStorage.removeItem('rememberMe');
+        }
+
         if (response.data.role === 'candidate') {
-          navigate('/home-candidato');
+          navigate(ROUTES.HOME_CANDIDATO);
         } else if (response.data.role === 'employer') {
-          navigate('/home-empresa');
+          navigate(ROUTES.HOME_CANDIDATO); ////cambiar acaaaaaaaaaaaaaaa
         }
       }
     } catch (err) {
@@ -128,7 +147,19 @@ export const Login: React.FC = () => {
             showPasswordToggle
           />
 
-          <div className="flex w-full max-w-[500px] items-center justify-end px-4 py-1">
+          <div className="flex w-full max-w-[500px] items-center justify-between px-4 py-1">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-[#d9d9d9] text-[#f46036] focus:ring-[#f46036]"
+              />
+              <span className="[font-family:'Nunito',Helvetica] text-sm text-[#333333]">
+                Recordar mi usuario en este dispositivo
+              </span>
+            </label>
+
             <LinkButton>
               ¿Olvidaste tu contraseña?
             </LinkButton>

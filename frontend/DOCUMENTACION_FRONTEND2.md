@@ -1890,3 +1890,602 @@ src/
 - Agregar términos y condiciones
 - Implementar tests unitarios y de integración
 - Agregar información adicional de la empresa en el dropdown (logo, descripción)
+
+
+---
+
+## Pantalla Home Candidato
+
+### 1. Descripción General
+
+La pantalla Home Candidato (`src/pages/homecandidato.tsx`) es el panel principal para usuarios candidatos después de iniciar sesión. Permite buscar ofertas laborales, aplicar filtros y explorar oportunidades disponibles.
+
+**Flujo esperado:**
+1. Usuario ingresa como candidato desde la pantalla de login
+2. Se muestra la página principal con ofertas de trabajo
+3. Usuario puede buscar por área y ubicación
+4. Usuario puede filtrar por sector, provincia, localidad y modalidad
+5. Usuario puede ver detalles de ofertas específicas
+6. Usuario puede cerrar sesión desde la barra de navegación
+
+---
+
+### 2. Tecnologías Utilizadas
+
+- **React 18.3.1**: Librería principal para la UI
+- **TypeScript 5.5.3**: Tipado estático
+- **React Router DOM 7.10.1**: Manejo de navegación
+- **Lucide React 0.344.0**: Iconos de interfaz
+- **Tailwind CSS 3.4.1**: Framework de estilos
+
+---
+
+### 3. Arquitectura de Componentes
+
+La pantalla está dividida en secciones modulares y reutilizables:
+
+#### Componente Principal: HomeCandidato
+
+**Archivo:** `src/pages/homecandidato.tsx`
+
+**Responsabilidades:**
+- Gestiona el estado global de filtros
+- Coordina la comunicación entre secciones
+- Maneja búsquedas y filtros de ofertas
+
+**Estados del componente:**
+
+```typescript
+const [selectedFilters, setSelectedFilters] = useState<{
+  sector: string[];
+  provincia: string[];
+  localidad: string[];
+  modalidad: string[];
+}>({
+  sector: [],
+  provincia: [],
+  localidad: [],
+  modalidad: [],
+});
+
+const [searchFilters, setSearchFilters] = useState<{
+  area: string;
+  location: string;
+}>({
+  area: "",
+  location: "",
+});
+```
+
+#### Secciones
+
+**1. NavigationBarSection** (`src/pages/sections/NavigationBarSection.tsx`)
+- Barra de navegación superior
+- Logo del portal
+- Información del usuario autenticado
+- Botón de cerrar sesión
+- Reutiliza componente HeaderLogo
+
+**2. JobOffersSection** (`src/pages/sections/JobOffersSection.tsx`)
+- Formulario de búsqueda principal
+- Búsqueda por área/puesto
+- Búsqueda por ubicación
+- Muestra ofertas destacadas (3 ofertas iniciales)
+- Botón de búsqueda
+
+**3. JobFiltersSection** (`src/pages/sections/JobFiltersSection.tsx`)
+- Panel lateral de filtros con categorías:
+  - Sector (8 opciones)
+  - Provincia (8 opciones)
+  - Localidad (7 opciones)
+  - Modalidad (3 opciones)
+- Grid de ofertas filtradas (6 ofertas en área principal)
+- Botón de limpiar filtros
+- Indicador de búsqueda activa
+
+**4. FooterSection** (`src/pages/sections/FooterSection.tsx`)
+- Información del portal
+- Enlaces rápidos (Sobre nosotros, Términos, Privacidad, Ayuda)
+- Información de contacto
+- Copyright
+
+---
+
+### 4. Handlers y Funciones Principales
+
+#### `handleFilterChange(category: string, value: string): void`
+- Agrega o remueve filtros de categorías específicas
+- Mantiene múltiples valores por categoría
+- Actualiza el estado de `selectedFilters`
+
+**Lógica:**
+```typescript
+const handleFilterChange = (category: string, value: string) => {
+  setSelectedFilters((prev) => {
+    const categoryKey = category.toLowerCase() as keyof typeof prev;
+    const currentValues = prev[categoryKey];
+    const newValues = currentValues.includes(value)
+      ? currentValues.filter((v) => v !== value)
+      : [...currentValues, value];
+
+    return {
+      ...prev,
+      [categoryKey]: newValues,
+    };
+  });
+};
+```
+
+#### `handleSearchFilterChange(field: 'area' | 'location', value: string): void`
+- Actualiza los campos de búsqueda
+- Permite búsqueda por área de trabajo o ubicación
+- Actualiza el estado de `searchFilters`
+
+---
+
+### 5. Flujo de Navegación
+
+#### Rutas
+
+**Entrada a la pantalla:**
+- **Desde Login:** `/login` → (login exitoso como candidato) → `/homecandidato`
+
+**Salida de la pantalla:**
+- **Cerrar sesión:** Botón en NavigationBarSection → `/login`
+  - Limpia el usuario almacenado
+  - Elimina credenciales de sessionStorage
+
+#### Recordado de Credenciales
+
+**Sistema implementado en Login.tsx:**
+
+**Almacenamiento (al hacer login exitoso):**
+```typescript
+sessionStorage.setItem('loginEmail', email);
+sessionStorage.setItem('loginPassword', password);
+```
+
+**Recuperación (al montar componente Login):**
+```typescript
+useEffect(() => {
+  const savedEmail = sessionStorage.getItem('loginEmail');
+  const savedPassword = sessionStorage.getItem('loginPassword');
+  if (savedEmail) setEmail(savedEmail);
+  if (savedPassword) setPassword(savedPassword);
+}, []);
+```
+
+**Seguridad:**
+- Usa `sessionStorage` (no `localStorage`) para mayor seguridad
+- Los datos se borran al cerrar el navegador
+- Se limpian al hacer logout
+- Solo se usan para mejorar la experiencia si el usuario vuelve atrás
+
+---
+
+### 6. Componentes Reutilizables
+
+#### De la biblioteca UI existente:
+
+**HeaderLogo** (`src/components/ui/header-logo.tsx`)
+- Usado en NavigationBarSection
+- Logo consistente con todas las pantallas
+
+**Input** (`src/components/ui/input.tsx`)
+- Campos de búsqueda en JobOffersSection
+- Mantiene estilos consistentes
+
+**Button** (`src/components/ui/button.tsx`)
+- Botones de búsqueda, filtrar, ver detalles
+- Botón de cerrar sesión
+
+#### Nuevos componentes creados:
+
+**NavigationBarSection**
+- Barra de navegación específica para usuarios autenticados
+- Integra información del usuario desde AuthService
+- Iconos de Lucide React (User, LogOut)
+
+**JobOffersSection**
+- Sección de búsqueda y visualización de ofertas
+- Iconos: Search, MapPin, Briefcase
+- Cards de ofertas con información resumida
+
+**JobFiltersSection**
+- Panel lateral de filtros con acordeones
+- Componente interno FilterCategory para cada categoría
+- Checkboxes para múltiples selecciones
+- Iconos: ChevronDown, ChevronUp
+
+**FooterSection**
+- Pie de página con información corporativa
+- Iconos: Mail, Phone, MapPin
+- Grid responsive de 3 columnas
+
+---
+
+### 7. Sistema de Filtros
+
+#### Tipos de Filtros
+
+**1. Filtros de Búsqueda (searchFilters):**
+- **Área:** Búsqueda libre de texto para puesto/cargo
+- **Ubicación:** Búsqueda libre de texto para provincia/localidad
+
+**2. Filtros por Categoría (selectedFilters):**
+- **Sector:** Array de sectores seleccionados (ej: ["Tecnología", "Salud"])
+- **Provincia:** Array de provincias seleccionadas
+- **Localidad:** Array de localidades seleccionadas
+- **Modalidad:** Array de modalidades seleccionadas (Remoto/Presencial/Híbrido)
+
+#### Opciones de Filtros
+
+**Sectores disponibles:**
+- Tecnología, Salud, Educación, Finanzas, Comercio, Construcción, Turismo, Otros
+
+**Provincias disponibles:**
+- Buenos Aires, Córdoba, Santa Fe, Mendoza, Tucumán, Salta, Neuquén, Otras
+
+**Localidades disponibles:**
+- Capital Federal, La Plata, Rosario, Córdoba Capital, Mendoza Capital, San Miguel de Tucumán, Otras
+
+**Modalidades disponibles:**
+- Remoto, Presencial, Híbrido
+
+#### Comportamiento de Filtros
+
+**Acordeones:**
+- Cada categoría se puede expandir/contraer
+- Estado inicial: todos abiertos
+- Iconos cambian según estado (ChevronUp/ChevronDown)
+
+**Checkboxes:**
+- Multi-selección permitida dentro de cada categoría
+- Click en checkbox ya seleccionado lo deselecciona
+- Hover effect en opciones para mejor UX
+
+**Botón Limpiar Filtros:**
+- Resetea todos los filtros seleccionados
+- Estilo outline con borde naranja
+- Hover invierte colores (fondo naranja, texto blanco)
+
+---
+
+### 8. Visualización de Ofertas
+
+#### Estructura de una Oferta
+
+**Datos mostrados:**
+- Título del puesto (ej: "Desarrollador Full Stack")
+- Nombre de la empresa (ej: "Empresa Tecnológica S.A.")
+- Etiquetas/Tags:
+  - Ubicación (provincia/localidad)
+  - Modalidad de trabajo
+  - Sector
+- Fecha de publicación (formato relativo: "hace X días")
+- Botón "Ver detalles"
+
+#### Diseño Visual de Cards
+
+**JobOffersSection (ofertas destacadas):**
+- Fondo gris claro (#f2f2f2)
+- Borde gris (#d9d9d9)
+- Hover: borde naranja (#f46036)
+- Layout flexible adaptable a mobile/desktop
+
+**JobFiltersSection (ofertas filtradas):**
+- Fondo blanco
+- Sombra suave
+- Borde gris con hover naranja
+- Grid de 1 columna en móvil, 4 columnas en desktop (1 para filtros, 3 para ofertas)
+
+#### Cantidad de Ofertas Mostradas
+
+**Ofertas destacadas:** 3 ofertas iniciales
+**Ofertas filtradas:** 6 ofertas en área principal
+**Total visible inicial:** 9 ofertas
+
+---
+
+### 9. Diseño Visual y Responsive
+
+#### Paleta de Colores
+
+| Elemento | Color | Código Hex |
+|----------|-------|------------|
+| Header | Azul oscuro | `#05073c` |
+| Fondo principal | Blanco | `#ffffff` |
+| Fondo secundario | Gris claro | `#f2f2f2` |
+| Texto principal | Azul oscuro | `#05073c` |
+| Texto secundario | Gris oscuro | `#333333` |
+| Texto terciario | Gris medio | `#666666` |
+| Texto auxiliar | Gris claro | `#999999` |
+| Borde | Gris | `#d9d9d9` |
+| Acento primario | Naranja | `#f46036` |
+| Acento secundario | Azul | `#0088ff` |
+| Footer fondo | Azul oscuro | `#05073c` |
+| Footer texto | Gris claro | `#d9d9d9` |
+
+#### Tipografía
+
+**Fuente:** Nunito (consistente con todas las pantallas)
+
+**Pesos:**
+- Normal (400): Texto general, labels
+- Medium (500): Botones
+- Semibold (600): Subtítulos, nombres de empresas
+- Bold (700): Títulos principales
+
+**Tamaños:**
+- Título principal: 40px (desktop), 32px (mobile)
+- Título sección: 24px
+- Título oferta: 18-20px
+- Texto general: 14-16px
+- Texto pequeño: 12-14px
+
+#### Layout y Espaciado
+
+**Contenedor máximo:** 1200px
+**Padding horizontal:** 24px (6 en Tailwind)
+**Padding vertical:** 48px (12 en Tailwind)
+
+**Gaps:**
+- Entre secciones principales: 48px
+- Entre elementos: 16-24px
+- Dentro de cards: 16px
+
+#### Breakpoints Responsive
+
+**Mobile:** < 768px
+- Layout de 1 columna
+- Filtros y ofertas apilados verticalmente
+- Barra de búsqueda apilada
+
+**Desktop:** ≥ 768px
+- Layout de múltiples columnas
+- Barra de búsqueda horizontal
+- Grid de 4 columnas (1 filtros + 3 ofertas)
+
+**Ancho mínimo:** 1440px (especificado en componente principal)
+
+---
+
+### 10. Integración con Servicios
+
+#### AuthService
+
+**Archivo:** `src/services/auth.service.ts`
+
+**Métodos utilizados:**
+
+**`getUser(): UserData | null`**
+- Obtiene información del usuario autenticado
+- Usado en NavigationBarSection para mostrar nombre
+- Retorna null si no hay usuario
+
+**`logout(): void`**
+- Limpia el usuario almacenado
+- Limpia el token de autenticación
+- Limpia credenciales de sessionStorage
+
+**`saveUser(user: UserData): void`**
+- Almacena información del usuario después del login
+- Usado por Login.tsx al autenticar
+
+#### Estructura del Usuario
+
+```typescript
+interface UserData {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  role: 'candidate' | 'employer';
+}
+```
+
+---
+
+### 11. Interacciones del Usuario
+
+#### Búsqueda
+
+**Acción:** Usuario escribe en campos de búsqueda
+**Efecto:**
+- Se actualiza estado `searchFilters`
+- Se muestra indicador de búsqueda activa en JobFiltersSection
+- Formato: "Resultados para: **[área]** en **[ubicación]**"
+
+**Acción:** Usuario hace click en botón "Buscar"
+**Efecto esperado:** (Pendiente integración con backend)
+- Filtrar ofertas según criterios
+- Actualizar lista de ofertas mostradas
+
+#### Filtrado
+
+**Acción:** Usuario selecciona/deselecciona checkbox de filtro
+**Efecto:**
+- Toggle del valor en array de categoría correspondiente
+- Actualización visual inmediata del checkbox
+- (Pendiente) Filtrado de ofertas según criterios
+
+**Acción:** Usuario hace click en "Limpiar filtros"
+**Efecto esperado:** (Pendiente implementación)
+- Resetear todos los arrays de selectedFilters a vacío
+- Deseleccionar todos los checkboxes
+- Mostrar todas las ofertas
+
+#### Navegación
+
+**Acción:** Usuario hace click en "Ver detalles" de una oferta
+**Efecto esperado:** (Pendiente implementación)
+- Navegar a pantalla de detalle de oferta
+- Mostrar información completa de la oferta
+- Permitir postulación
+
+**Acción:** Usuario hace click en "Cerrar sesión"
+**Efecto:**
+- Llamada a `AuthService.logout()`
+- Limpieza de credenciales en sessionStorage
+- Navegación a `/login`
+
+#### Acordeones de Filtros
+
+**Acción:** Usuario hace click en título de categoría
+**Efecto:**
+- Toggle de estado abierto/cerrado
+- Animación de expansión/contracción
+- Cambio de icono (ChevronUp ↔ ChevronDown)
+
+---
+
+### 12. Estructura de Archivos
+
+```
+src/
+├── pages/
+│   ├── Login.tsx                            # Actualizado (recordar credenciales)
+│   ├── home-candidato.tsx                   # Versión simple existente
+│   ├── homecandidato.tsx                    # Nueva versión completa
+│   └── sections/                            # Nueva carpeta
+│       ├── NavigationBarSection.tsx         # Nuevo componente
+│       ├── JobOffersSection.tsx             # Nuevo componente
+│       ├── JobFiltersSection.tsx            # Nuevo componente
+│       └── FooterSection.tsx                # Nuevo componente
+├── components/
+│   └── ui/
+│       ├── header-logo.tsx                  # Reutilizado
+│       ├── input.tsx                        # Reutilizado
+│       └── button.tsx                       # Reutilizado
+└── services/
+    └── auth.service.ts                      # Utilizado para autenticación
+```
+
+---
+
+### 13. Decisiones Técnicas
+
+#### Arquitectura Modular
+
+**Separación en secciones:**
+- Cada sección es un componente independiente
+- Facilita mantenimiento y testing
+- Permite reutilización en otras pantallas
+- Mejora organización del código
+
+**Ventajas:**
+- Código más legible y mantenible
+- Responsabilidades claras por componente
+- Facilita trabajo en equipo
+- Permite lazy loading futuro
+
+#### Estado Local vs. Global
+
+**Estado local en HomeCandidato:**
+- Filtros y búsquedas son locales a la pantalla
+- No se necesita persistencia entre navegaciones
+- Simplifica la arquitectura
+
+**Futuras consideraciones:**
+- Si se necesita compartir filtros con otras pantallas: usar Context API o Redux
+- Si se necesita persistir filtros: agregar localStorage
+
+#### SessionStorage para Credenciales
+
+**Por qué sessionStorage y no localStorage:**
+- Mayor seguridad: datos se borran al cerrar navegador
+- Suficiente para el caso de uso (volver atrás en la navegación)
+- No persiste entre sesiones
+
+**Alternativas consideradas:**
+- localStorage: más permanente pero menos seguro
+- Cookies: overkill para este caso de uso
+- Context API: no necesario solo para esta funcionalidad
+
+#### Componentes de Sección
+
+**Por qué crear carpeta sections/:**
+- Organización clara de componentes específicos de la página
+- Diferenciación con componentes UI reutilizables
+- Escalabilidad para futuras pantallas con secciones
+
+---
+
+### 14. Pendientes de Implementación
+
+**Integración con Backend:**
+- Conectar búsqueda con API de ofertas
+- Implementar filtrado real de ofertas
+- Cargar ofertas dinámicamente desde backend
+- Implementar paginación
+
+**Funcionalidades:**
+- Limpiar filtros (resetear estado)
+- Ver detalles de oferta (navegación y nueva pantalla)
+- Postularse a ofertas
+- Guardar ofertas favoritas
+- Historial de postulaciones
+
+**Optimizaciones:**
+- Debounce en campos de búsqueda
+- Lazy loading de ofertas
+- Caché de resultados
+- Skeleton loaders durante carga
+
+**Mejoras UX:**
+- Animaciones de transición
+- Loading states
+- Empty states (sin resultados)
+- Toast notifications para acciones
+- Contadores de ofertas por filtro
+
+---
+
+### 15. Testing (Pendiente)
+
+**Casos de prueba sugeridos:**
+
+**Componentes:**
+- Renderizado correcto de todas las secciones
+- NavigationBarSection muestra usuario correcto
+- Filtros se expanden/contraen correctamente
+- Checkboxes funcionan correctamente
+
+**Funcionalidad:**
+- handleFilterChange agrega/remueve valores correctamente
+- handleSearchFilterChange actualiza estado correcto
+- Logout limpia credenciales y navega a login
+- Credenciales se recuperan correctamente al volver
+
+**Responsive:**
+- Layout se adapta a mobile/desktop
+- Todas las secciones son accesibles en mobile
+- Imágenes y textos se ajustan correctamente
+
+**Integración:**
+- AuthService.getUser() retorna datos correctos
+- AuthService.logout() limpia todo correctamente
+- Navegación funciona entre todas las pantallas
+
+---
+
+### 16. Próximos Pasos
+
+**Corto plazo:**
+- Implementar funcionalidad de limpiar filtros
+- Conectar con API real de ofertas
+- Crear pantalla de detalle de oferta
+- Implementar búsqueda y filtrado funcional
+
+**Mediano plazo:**
+- Agregar paginación de resultados
+- Implementar sistema de postulaciones
+- Agregar ofertas favoritas/guardadas
+- Crear perfil de candidato editable
+
+**Largo plazo:**
+- Sistema de recomendaciones personalizadas
+- Notificaciones de nuevas ofertas
+- Chat con reclutadores
+- Sistema de matching inteligente
+

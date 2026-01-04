@@ -62,3 +62,4 @@ zeep==4.0.0
 pip~=22.2.2
 mysql-connector-python~=8.0.33
 Flask-Limiter==3.8.0
+flask-cors
