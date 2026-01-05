@@ -1,5 +1,5 @@
 import { EyeOff, Eye } from "lucide-react";
-import React, { useState, type JSX } from "react";
+import React, { useState, useEffect, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -7,7 +7,7 @@ import { Label } from "../components/ui/label";
 import { HeaderLogo } from "../components/ui/header-logo";
 import { ErrorMessage } from "../components/ui/error-message";
 import JSEncrypt from "jsencrypt";
-import EmployerService from "../services/employer.service";
+import { API_CONFIG } from "../config/api.config";
 
 import {
   Select,
@@ -40,12 +40,60 @@ export const RegistroReclutador = (): JSX.Element => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const companyOptions = [
-    { value: "1", label: "Empresa 1" },
-    { value: "2", label: "Empresa 2" },
-    { value: "3", label: "Empresa 3" },
-    { value: "4", label: "Empresa 4" },
-  ];
+  const [companyOptions, setCompanyOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
+  const [companiesLoadError, setCompaniesLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadCompanies = async () => {
+      try {
+        setLoadingCompanies(true);
+        setCompaniesLoadError(null);
+
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.GET_COMPANIES_LIST}`, {
+          method: 'POST',
+          headers: {
+            'x-access-token': API_CONFIG.TOKEN,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({}),
+        });
+
+        const result = await response.json();
+
+        console.log('Companies API Response:', result);
+
+        if (result.code !== '0200') {
+          console.error('Companies API error code:', result.code, result.description);
+          throw new Error(result.description || 'Error al cargar empresas');
+        }
+
+        if (result.data && Array.isArray(result.data)) {
+          console.log('Companies data received:', result.data);
+
+          const formattedCompanies = result.data.map(
+            (company: { company_id: number; name: string }) => ({
+              value: company.company_id.toString(), // string para Radix Select
+              label: company.name, // ¡ahora coincide con tu API!
+            })
+          );
+
+          console.log('Formatted companies:', formattedCompanies);
+          setCompanyOptions(formattedCompanies);
+        } else {
+          console.error('Invalid companies data format:', result.data);
+          setCompaniesLoadError('No se pudieron cargar las empresas');
+        }
+      } catch (err) {
+        console.error('Error loading companies:', err);
+        setCompaniesLoadError('Error al cargar las empresas. Por favor, recargá la página.');
+      } finally {
+        setLoadingCompanies(false);
+      }
+    };
+
+    loadCompanies();
+  }, []);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -128,13 +176,51 @@ export const RegistroReclutador = (): JSX.Element => {
         last_name: lastName.trim(),
         email: email.trim(),
         password: encryptedPassword,
-        company_id: parseInt(companyId),
+        company_id: companyId,
       };
 
-      await EmployerService.registerEmployer(requestBody);
+      console.log('Sending employer registration:', requestBody);
 
-      navigate('/login');
+      const response = await fetch(`${API_CONFIG.BASE_URL}/registerEmployerUser`, {
+        method: 'POST',
+        headers: {
+          'x-access-token': API_CONFIG.TOKEN,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const result = await response.json();
+
+      console.log('Registration API Response:', result);
+
+      if (result.code === '200') {
+        navigate('/login');
+      } else {
+        let errorMessage = 'Error al registrar usuario';
+
+        switch (result.code) {
+          case '0400':
+            errorMessage = 'Solicitud incorrecta. Verifica los datos ingresados';
+            break;
+          case '0404':
+            errorMessage = 'Empresa no encontrada';
+            break;
+          case '0410':
+            errorMessage = 'El usuario ya está registrado';
+            break;
+          case '0500':
+            errorMessage = 'Error interno del servidor. Intenta nuevamente más tarde';
+            break;
+          default:
+            errorMessage = result.description || 'Error al registrar usuario';
+        }
+
+        console.error('Registration error:', errorMessage);
+        throw new Error(errorMessage);
+      }
     } catch (err) {
+      console.error('Error during registration:', err);
       setError(err instanceof Error ? err.message : 'Error al registrar usuario');
     } finally {
       setLoading(false);
@@ -281,18 +367,36 @@ export const RegistroReclutador = (): JSX.Element => {
             <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
               Empresa <span className="text-[#cc2222]">*</span>
             </Label>
-            <Select value={companyId} onValueChange={setCompanyId}>
-              <SelectTrigger className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-4 py-2 [font-family:'Nunito',Helvetica] font-normal text-base text-[#b3b3b3]">
-                <SelectValue placeholder="Seleccioná tu empresa" />
-              </SelectTrigger>
-              <SelectContent>
-                {companyOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {companiesLoadError ? (
+              <div className="h-auto min-h-[42px] bg-white rounded-lg border border-[#cc2222] px-4 py-2 flex items-center">
+                <p className="[font-family:'Nunito',Helvetica] font-normal text-sm text-[#cc2222]">
+                  {companiesLoadError}
+                </p>
+              </div>
+            ) : (
+              <Select
+                value={companyId || undefined} // undefined permite mostrar placeholder
+                onValueChange={setCompanyId}
+                disabled={loadingCompanies || loading}
+              >
+                <SelectTrigger className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-4 py-2 font-normal text-base text-[#b3b3b3]">
+                  <SelectValue placeholder={loadingCompanies ? "Cargando empresas..." : "Seleccioná tu empresa"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {loadingCompanies ? (
+                    <div className="px-2 py-1.5 text-sm text-[#757575]">Cargando...</div>
+                  ) : companyOptions.length > 0 ? (
+                    companyOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-1.5 text-sm text-[#757575]">No hay empresas disponibles</div>
+                  )}
+                </SelectContent>
+              </Select>
+            )}
             {companyError && <p className="text-[#cc2222] text-sm mt-1">Debés seleccionar una empresa</p>}
           </div>
 
