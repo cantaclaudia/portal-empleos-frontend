@@ -5,24 +5,25 @@ import type { LoginRequest, LoginResponse, UserData } from '../types/auth.types'
 const USER_STORAGE_KEY = 'portal_empleos_user';
 
 class AuthService {
+  // Hacer login
   async login(email: string, password: string): Promise<LoginResponse> {
     if (email.length > 50) {
       throw new Error('El correo electrónico no puede exceder 50 caracteres');
     }
-
     if (password.length > 30) {
       throw new Error('La contraseña no puede exceder 30 caracteres');
     }
 
+    const loginData: LoginRequest = { email, password };
+
     try {
-      const loginData: LoginRequest = { email, password };
       const response = await apiService.post<LoginResponse>(
         API_CONFIG.ENDPOINTS.LOGIN,
         loginData
       );
 
       if (response.code === '0200') {
-        return response;
+        return response; // login exitoso
       } else if (response.code === '0404') {
         throw new Error('Usuario o contraseña incorrectos');
       } else if (response.code === '0400') {

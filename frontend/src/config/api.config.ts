@@ -7,6 +7,7 @@ export const API_CONFIG = {
     REGISTER_CANDIDATE: '/portalEmpleos/v1/registerCandidateUser',
     REGISTER_EMPLOYER: '/portalEmpleos/v1/registerEmployerUser',
     GET_AVAILABLE_JOBS: "/portalEmpleos/v1/getAvailableJobs",
+     GET_SKILLS_LIST: '/portalEmpleos/v1/getSkillsList',
   },
 };
 

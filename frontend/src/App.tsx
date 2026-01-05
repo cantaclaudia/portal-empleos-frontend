@@ -5,6 +5,7 @@ import { SeleccionPerfil } from './pages/seleccion-perfil';
 import { RegistroCandidato } from './pages/registro-candidato';
 import { RegistroReclutador } from './pages/registro-reclutador';
 import { ROUTES } from './routes';
+import { HomeReclutador } from './pages/home-reclutador';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Routes>
         <Route path={ROUTES.LOGIN} element={<Login />} />
         <Route path={ROUTES.HOME_CANDIDATO} element={<HomeCandidato />} />
+        <Route path={ROUTES.HOME_RECLUTADOR} element={<HomeReclutador />} />
         <Route path={ROUTES.SELECCION_PERFIL} element={<SeleccionPerfil />} />
         <Route path={ROUTES.REGISTRO_CANDIDATO} element={<RegistroCandidato />} />
         <Route path={ROUTES.REGISTRO_RECLUTADOR} element={<RegistroReclutador />} />

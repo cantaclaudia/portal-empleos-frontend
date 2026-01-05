@@ -86,10 +86,12 @@ export const Login: React.FC = () => {
         }
 
         if (response.data.role === 'candidate') {
-          navigate(ROUTES.HOME_CANDIDATO);
-        } else if (response.data.role === 'employer') {
-          navigate(ROUTES.HOME_CANDIDATO); ////cambiar acaaaaaaaaaaaaaaa
-        }
+        navigate(ROUTES.HOME_CANDIDATO, { replace: true });
+      } else if (response.data.role === 'employer') {
+        navigate(ROUTES.HOME_RECLUTADOR, { replace: true }); 
+      } 
+      } else {
+        setError('No se recibieron datos del servidor');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');

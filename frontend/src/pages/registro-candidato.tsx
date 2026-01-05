@@ -1,5 +1,5 @@
 import { EyeOff, Eye } from "lucide-react";
-import React, { useState, type JSX } from "react";
+import React, { useState, useEffect, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -7,7 +7,9 @@ import { Label } from "../components/ui/label";
 import { HeaderLogo } from "../components/ui/header-logo";
 import { ErrorMessage } from "../components/ui/error-message";
 import JSEncrypt from "jsencrypt";
-import CandidateService from "../services/candidato.service";
+import CandidatoService from "../services/candidato.service";
+import { apiService } from "../services/api.service";
+import { API_CONFIG } from "../config/api.config";
 
 import {
   Select,
@@ -42,15 +44,55 @@ export const RegistroCandidato = (): JSX.Element => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const skillOptions = [
-    { value: "1", label: "Adaptabilidad" },
-    { value: "2", label: "Responsabilidad" },
-    { value: "3", label: "Trabajo en equipo" },
-  ];
+  const [skillOptions, setSkillOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [loadingSkills, setLoadingSkills] = useState(true);
+  const [skillsLoadError, setSkillsLoadError] = useState<string | null>(null);
 
   const availableSkills = skillOptions.filter(
     (option) => !selectedSkills.includes(option.value)
   );
+
+  interface Skill {
+    skill_id: number;
+    name: string;
+  }
+
+  useEffect(() => {
+  const loadSkills = async () => {
+    try {
+      setLoadingSkills(true);
+      setSkillsLoadError(null);
+
+      const response = await apiService.post<{
+        code: string;
+        description: string;
+        data: Skill[];
+      }>(API_CONFIG.ENDPOINTS.GET_SKILLS_LIST, {});
+
+      console.log('Skills API Response:', response);
+
+      if (response.code !== '0200') {
+        throw new Error(response.description || 'Error al cargar habilidades');
+      }
+
+      if (response.data && Array.isArray(response.data)) {
+        const formattedSkills = response.data.map((skill) => ({
+          value: skill.skill_id.toString(),
+          label: skill.name, // ✅ ahora sí se ve HTML, CSS, etc
+        }));
+        console.log('Formatted skills:', formattedSkills);
+        setSkillOptions(formattedSkills);
+      }
+    } catch (err) {
+      console.error('Error loading skills:', err);
+      setSkillsLoadError('Error al cargar las habilidades. Por favor, recargá la página.');
+    } finally {
+      setLoadingSkills(false);
+    }
+  };
+
+  loadSkills();
+}, []);
 
   const handleSkillSelect = (value: string) => {
     if (!selectedSkills.includes(value)) setSelectedSkills([...selectedSkills, value]);
@@ -166,7 +208,7 @@ export const RegistroCandidato = (): JSX.Element => {
         skill_list: selectedSkills.map((s) => parseInt(s)),
       };
 
-      await CandidateService.registerCandidate(requestBody);
+      await CandidatoService.registerCandidate(requestBody);
 
       navigate('/login');
     } catch (err) {
@@ -210,7 +252,7 @@ export const RegistroCandidato = (): JSX.Element => {
                 maxLength={20}
                 disabled={loading}
               />
-              {nameError && <p className="text-[#cc2222] text-sm mt-1">Nombre obligatorio, máximo 20 caracteres</p>}
+              {nameError && <p className="[font-family:'Nunito',Helvetica] text-[#cc2222] text-sm mt-1">Nombre obligatorio, máximo 20 caracteres</p>}
             </div>
 
             <div className="flex flex-col gap-[5px]">
@@ -225,7 +267,7 @@ export const RegistroCandidato = (): JSX.Element => {
                 maxLength={20}
                 disabled={loading}
               />
-              {lastNameError && <p className="text-[#cc2222] text-sm mt-1">Apellido obligatorio, máximo 20 caracteres</p>}
+              {lastNameError && <p className="[font-family:'Nunito',Helvetica] text-[#cc2222] text-sm mt-1">Apellido obligatorio, máximo 20 caracteres</p>}
             </div>
           </div>
 
@@ -242,7 +284,7 @@ export const RegistroCandidato = (): JSX.Element => {
               maxLength={60}
               disabled={loading}
             />
-            {emailError && <p className="text-[#cc2222] text-sm mt-1">Email obligatorio, máximo 60 caracteres</p>}
+            {emailError && <p className="[font-family:'Nunito',Helvetica] text-[#cc2222] text-sm mt-1">Email obligatorio, máximo 60 caracteres</p>}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -303,7 +345,7 @@ export const RegistroCandidato = (): JSX.Element => {
                 </button>
 
                 {(passwordFormatError || passwordMismatchError) && (
-                  <div className="text-[#cc2222] text-sm mt-1">
+                  <div className="[font-family:'Nunito',Helvetica] text-[#cc2222] text-sm mt-1">
                     {passwordFormatError && <p>La contraseña debe tener máximo 30 caracteres</p>}
                     {passwordMismatchError && <p>Las contraseñas no coinciden</p>}
                   </div>
@@ -324,28 +366,43 @@ export const RegistroCandidato = (): JSX.Element => {
               maxLength={100}
               disabled={loading}
             />
-            {cvError && <p className="text-[#cc2222] text-sm mt-1">Ingresá un link válido (http o https), máximo 100 caracteres</p>}
+            {cvError && <p className="[font-family:'Nunito',Helvetica] text-[#cc2222] text-sm mt-1">Ingresá un link válido (http o https), máximo 100 caracteres</p>}
           </div>
 
           <div className="flex flex-col gap-[5px]">
             <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
               Habilidades <span className="text-[#cc2222]">*</span>
             </Label>
-            <Select onValueChange={handleSkillSelect}>
-              <SelectTrigger className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-4 py-2 [font-family:'Nunito',Helvetica] font-normal text-base text-[#b3b3b3]">
-                <SelectValue placeholder="Seleccioná habilidades" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableSkills.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-                {availableSkills.length === 0 && (
-                  <div className="px-2 py-1.5 text-sm text-[#757575]">Todas las habilidades seleccionadas</div>
-                )}
-              </SelectContent>
-            </Select>
+            {skillsLoadError ? (
+              <div className="h-auto min-h-[42px] bg-white rounded-lg border border-[#cc2222] px-4 py-2 flex items-center">
+                <p className="[font-family:'Nunito',Helvetica] font-normal text-sm text-[#cc2222]">
+                  {skillsLoadError}
+                </p>
+              </div>
+            ) : (
+              <Select onValueChange={handleSkillSelect} disabled={loadingSkills || loading} value="">
+                <SelectTrigger className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-4 py-2 [font-family:'Nunito',Helvetica] font-normal text-base text-[#b3b3b3]">
+                  <SelectValue placeholder={loadingSkills ? "Cargando habilidades..." : "Seleccioná habilidades"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {loadingSkills ? (
+                    <div className="px-2 py-1.5 text-sm text-[#757575] [font-family:'Nunito',Helvetica]">
+                      Cargando...
+                    </div>
+                  ) : availableSkills.length > 0 ? (
+                    availableSkills.map((option) => (
+                      <SelectItem key={option.value} value={option.value} className="[font-family:'Nunito',Helvetica]">
+                        {option.label}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-1.5 text-sm text-[#757575] [font-family:'Nunito',Helvetica]">
+                      {skillOptions.length === 0 ? 'No hay habilidades disponibles' : 'Todas las habilidades seleccionadas'}
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            )}
 
             {selectedSkills.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
@@ -370,7 +427,7 @@ export const RegistroCandidato = (): JSX.Element => {
                 })}
               </div>
             )}
-            {skillsError && <p className="text-[#cc2222] text-sm mt-1">Debés seleccionar al menos 1 habilidad</p>}
+            {skillsError && <p className="[font-family:'Nunito',Helvetica] text-[#cc2222] text-sm mt-1">Debés seleccionar al menos 1 habilidad</p>}
           </div>
 
           <div className="flex flex-col items-center gap-6 mt-4">

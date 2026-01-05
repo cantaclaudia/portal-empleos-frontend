@@ -1,8 +1,8 @@
 import { apiService } from './api.service';
 import { API_CONFIG } from '../config/api.config';
-import type { RegisterCandidateRequest, RegisterCandidateResponse } from '../types/candidato.types';
+import type { RegisterCandidateRequest, RegisterCandidateResponse } from '../types/candidato.types'
 
-class CandidateService {
+class CandidatoService {
   async registerCandidate(data: RegisterCandidateRequest): Promise<RegisterCandidateResponse> {
     try {
       if (data.name.length > 20) {
@@ -51,4 +51,4 @@ class CandidateService {
   }
 }
 
-export default new CandidateService();
+export default new CandidatoService();
