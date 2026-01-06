@@ -10,14 +10,17 @@ import {
   XIcon,
   MapPinIcon,
   PlusIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { InputHomeCandidato } from '../components/ui/input-home-candidato';
-import { Badge } from '../components/ui/bagde';
 import { Card, CardContent } from '../components/ui/card';
 import AuthService from '../services/auth.service';
 import AvailableJobsService from '../services/available-jobs.service';
 import type { AvailableJob } from '../services/available-jobs.service';
+
+const ITEMS_PER_PAGE = 8;
 
 export const HomeCandidato: React.FC = () => {
   const navigate = useNavigate();
@@ -45,6 +48,7 @@ export const HomeCandidato: React.FC = () => {
   const [jobs, setJobs] = useState<AvailableJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const areaRef = useRef<HTMLDivElement>(null);
   const locationRef = useRef<HTMLDivElement>(null);
@@ -154,24 +158,29 @@ export const HomeCandidato: React.FC = () => {
         [categoryKey]: newValues,
       };
     });
+    setCurrentPage(1);
   };
 
   const handleAreaSelect = (value: string) => {
     setAreaInput(value);
     setShowAreaSuggestions(false);
+    setCurrentPage(1);
   };
 
   const handleLocationSelect = (value: string) => {
     setLocationInput(value);
     setShowLocationSuggestions(false);
+    setCurrentPage(1);
   };
 
   const handleAreaClear = () => {
     setAreaInput('');
+    setCurrentPage(1);
   };
 
   const handleLocationClear = () => {
     setLocationInput('');
+    setCurrentPage(1);
   };
 
   const getVisibleOptions = (section: { title: string; options: string[] }) => {
@@ -216,6 +225,11 @@ export const HomeCandidato: React.FC = () => {
     return companyMatch && jobTitleMatch && locationMatch && areaSearchMatch && locationSearchMatch;
   });
 
+  const totalPages = Math.ceil(filteredJobs.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedJobs = filteredJobs.slice(startIndex, endIndex);
+
   const hasActiveFilters = Object.values(selectedFilters).some((arr) => arr.length > 0);
 
   const formatSalary = (salary: string): string => {
@@ -231,6 +245,62 @@ export const HomeCandidato: React.FC = () => {
 
   const handleViewMore = (index: number) => {
     navigate(`/job-details/${index}`);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+
+    return (
+      <div className="flex items-center justify-center gap-2 mt-8">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`w-10 h-10 flex items-center justify-center rounded transition-colors ${
+            currentPage === 1
+              ? 'text-[#757575] cursor-not-allowed'
+              : 'text-[#3351a6] hover:bg-[#f0f4ff] cursor-pointer'
+          }`}
+        >
+          <ChevronLeftIcon className="w-5 h-5" />
+        </button>
+
+        {pages.map((page) => (
+          <button
+            key={page}
+            onClick={() => handlePageChange(page)}
+            className={`w-10 h-10 flex items-center justify-center rounded [font-family:'Nunito',Helvetica] font-semibold text-base transition-colors cursor-pointer ${
+              currentPage === page
+                ? 'bg-[#3351a6] text-white'
+                : 'text-[#3351a6] hover:bg-[#f0f4ff]'
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`w-10 h-10 flex items-center justify-center rounded transition-colors ${
+            currentPage === totalPages
+              ? 'text-[#757575] cursor-not-allowed'
+              : 'text-[#3351a6] hover:bg-[#f0f4ff] cursor-pointer'
+          }`}
+        >
+          <ChevronRightIcon className="w-5 h-5" />
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -426,94 +496,96 @@ export const HomeCandidato: React.FC = () => {
 
       <section className="w-full bg-[#eeeeee] px-[35px] py-8">
         <div className="flex gap-[60px] max-w-[1370px] mx-auto">
-          <aside className="flex flex-col gap-0 bg-white rounded-lg border border-solid border-[#dedede] overflow-hidden">
+          <aside className="flex flex-col gap-0 bg-white rounded-lg border border-solid border-[#dedede] overflow-hidden h-fit max-h-[800px] sticky top-8">
             <div className="flex items-center px-6 py-5 bg-white border-b border-[#dedede]">
               <h2 className="[font-family:'Nunito',Helvetica] font-semibold text-[#333333] text-2xl tracking-[0] leading-[33.6px]">
                 Filtros
               </h2>
             </div>
 
-            {filterSections.map((section, index) => (
-              <div
-                key={section.title}
-                className={`flex flex-col w-[460px] bg-white ${
-                  index > 0 ? 'border-t border-solid border-[#dedede]' : ''
-                }`}
-              >
-                <div className="flex items-center gap-2.5 pt-6 pb-3 px-6">
-                  <h3 className="[font-family:'Nunito',Helvetica] font-semibold text-[#333333] text-xl tracking-[0] leading-[28px]">
-                    {section.title}
-                  </h3>
-                </div>
+            <div className="overflow-y-auto">
+              {filterSections.map((section, index) => (
+                <div
+                  key={section.title}
+                  className={`flex flex-col w-[460px] bg-white ${
+                    index > 0 ? 'border-t border-solid border-[#dedede]' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 pt-6 pb-3 px-6">
+                    <h3 className="[font-family:'Nunito',Helvetica] font-semibold text-[#333333] text-xl tracking-[0] leading-[28px]">
+                      {section.title}
+                    </h3>
+                  </div>
 
-                <div className="flex flex-col pb-4">
-                  {getVisibleOptions(section).map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => handleFilterChange(section.title, option)}
-                      className={`flex items-center gap-3 px-6 py-3 text-left transition-colors ${
-                        isFilterActive(section.title, option)
-                          ? 'bg-[#f0f4ff]'
-                          : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      <div
-                        className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                  <div className="flex flex-col pb-4">
+                    {getVisibleOptions(section).map((option) => (
+                      <button
+                        key={option}
+                        onClick={() => handleFilterChange(section.title, option)}
+                        className={`flex items-center gap-3 px-6 py-3 text-left transition-colors ${
                           isFilterActive(section.title, option)
-                            ? 'border-[#3351a6] bg-[#3351a6]'
-                            : 'border-[#757575] bg-white'
+                            ? 'bg-[#f0f4ff]'
+                            : 'hover:bg-gray-50'
                         }`}
                       >
-                        {isFilterActive(section.title, option) && (
-                          <svg
-                            width="12"
-                            height="10"
-                            viewBox="0 0 12 10"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M1 5L4.5 8.5L11 1"
-                              stroke="white"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        )}
-                      </div>
-                      <span
-                        className={`[font-family:'Nunito',Helvetica] font-normal text-lg tracking-[0] leading-[25.2px] ${
-                          isFilterActive(section.title, option)
-                            ? 'text-[#3351a6] font-medium'
-                            : 'text-[#757575]'
-                        }`}
-                      >
-                        {option}
-                      </span>
-                    </button>
-                  ))}
-
-                  {section.options.length > 4 && (
-                    <button
-                      onClick={() => toggleSection(section.title)}
-                      className="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="w-5 h-5 flex items-center justify-center">
-                        <PlusIcon
-                          className={`w-4 h-4 text-[#757575] transition-transform ${
-                            expandedSections[section.title] ? 'rotate-45' : ''
+                        <div
+                          className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                            isFilterActive(section.title, option)
+                              ? 'border-[#3351a6] bg-[#3351a6]'
+                              : 'border-[#757575] bg-white'
                           }`}
-                        />
-                      </div>
-                      <span className="[font-family:'Nunito',Helvetica] font-normal text-[#757575] text-lg tracking-[0] leading-[25.2px]">
-                        {expandedSections[section.title] ? 'Ver menos' : 'Ver más'}
-                      </span>
-                    </button>
-                  )}
+                        >
+                          {isFilterActive(section.title, option) && (
+                            <svg
+                              width="12"
+                              height="10"
+                              viewBox="0 0 12 10"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M1 5L4.5 8.5L11 1"
+                                stroke="white"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                        <span
+                          className={`[font-family:'Nunito',Helvetica] font-normal text-lg tracking-[0] leading-[25.2px] ${
+                            isFilterActive(section.title, option)
+                              ? 'text-[#3351a6] font-medium'
+                              : 'text-[#757575]'
+                          }`}
+                        >
+                          {option}
+                        </span>
+                      </button>
+                    ))}
+
+                    {section.options.length > 4 && (
+                      <button
+                        onClick={() => toggleSection(section.title)}
+                        className="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <PlusIcon
+                            className={`w-4 h-4 text-[#757575] transition-transform ${
+                              expandedSections[section.title] ? 'rotate-45' : ''
+                            }`}
+                          />
+                        </div>
+                        <span className="[font-family:'Nunito',Helvetica] font-normal text-[#757575] text-lg tracking-[0] leading-[25.2px]">
+                          {expandedSections[section.title] ? 'Ver menos' : 'Ver más'}
+                        </span>
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </aside>
 
           <main className="flex flex-col gap-6 flex-1 pb-[45px]">
@@ -550,50 +622,46 @@ export const HomeCandidato: React.FC = () => {
                 </CardContent>
               </Card>
             ) : (
-              filteredJobs.map((job, index) => (
-                <Card
-                  key={`${job.company_id}-${index}`}
-                  className="bg-white border-0 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <CardContent className="flex flex-col gap-5 px-8 py-7">
-                    <div className="w-full">
-                      <h3 className="[font-family:'Nunito',Helvetica] font-bold text-[#333333] text-2xl tracking-[0] leading-[33.6px] mb-2">
-                        {job.job_title}
-                      </h3>
-                      <p className="[font-family:'Nunito',Helvetica] font-semibold text-[#f46036] text-xl tracking-[0] leading-7">
-                        {job.company_name} • {job.location}
-                      </p>
-                    </div>
-
-                    <div className="w-full">
-                      <p className="[font-family:'Nunito',Helvetica] font-normal text-[#333333] text-lg tracking-[0] leading-[27px]">
-                        {job.job_description}
-                      </p>
-                    </div>
-
-                    <div className="flex w-full items-center justify-between gap-4 pt-2">
-                      <div className="flex flex-col gap-1">
-                        <Button
-                          variant="link"
-                          onClick={() => handleViewMore(index)}
-                          className="h-auto p-0 [font-family:'Nunito',Helvetica] font-bold text-[#3351a6] text-lg tracking-[0] leading-[25.2px] hover:underline"
-                        >
-                          Ver más
-                        </Button>
-                        <span className="[font-family:'Nunito',Helvetica] font-normal text-[#757575] text-sm tracking-[0] leading-[19.6px]">
-                          {getTimeAgo(index)}
-                        </span>
+              <>
+                {paginatedJobs.map((job, index) => (
+                  <Card
+                    key={`${job.company_id}-${startIndex + index}`}
+                    className="bg-white border-0 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <CardContent className="flex flex-col gap-5 px-8 py-7">
+                      <div className="w-full">
+                        <h3 className="[font-family:'Nunito',Helvetica] font-bold text-[#333333] text-2xl tracking-[0] leading-[33.6px] mb-2">
+                          {job.job_title}
+                        </h3>
+                        <p className="[font-family:'Nunito',Helvetica] font-semibold text-[#f46036] text-xl tracking-[0] leading-7">
+                          {job.location} / {formatSalary(job.salary)}
+                        </p>
                       </div>
 
-                      <Badge className="h-auto bg-[#e8f5e9] text-[#2e7d32] border border-solid border-[#4caf50] rounded-[5px] px-4 py-1 hover:bg-[#e8f5e9]">
-                        <span className="[font-family:'Nunito',Helvetica] font-semibold text-base tracking-[0] leading-[22.4px]">
-                          {formatSalary(job.salary)}
+                      <div className="w-full">
+                        <p className="[font-family:'Nunito',Helvetica] font-normal text-[#757575] text-lg tracking-[0] leading-[27px]">
+                          {job.job_description}
+                        </p>
+                      </div>
+
+                      <div className="flex w-full items-center justify-between gap-4 pt-2">
+                        <button
+                          onClick={() => handleViewMore(startIndex + index)}
+                          className="[font-family:'Nunito',Helvetica] font-bold text-[#3351a6] text-lg tracking-[0] leading-[25.2px] hover:opacity-80 transition-opacity cursor-pointer"
+                        >
+                          Ver más
+                        </button>
+
+                        <span className="[font-family:'Nunito',Helvetica] font-normal text-[#757575] text-base tracking-[0] leading-[22.4px]">
+                          {getTimeAgo(startIndex + index)}
                         </span>
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {renderPagination()}
+              </>
             )}
           </main>
         </div>
