@@ -1,11 +1,11 @@
 import React from 'react';
 
-export type InputHomeCandidateProps =
+export type InputHomeCandidatoProps =
   React.InputHTMLAttributes<HTMLInputElement>;
 
-export const InputHomeCandidate = React.forwardRef<
+export const InputHomeCandidato = React.forwardRef<
   HTMLInputElement,
-  InputHomeCandidateProps
+  InputHomeCandidatoProps
 >(({ className = '', type = 'text', ...props }, ref) => {
   return (
     <input
@@ -17,4 +17,4 @@ export const InputHomeCandidate = React.forwardRef<
   );
 });
 
-InputHomeCandidate.displayName = 'InputHomeCandidate';
+InputHomeCandidato.displayName = 'InputHomeCandidato';

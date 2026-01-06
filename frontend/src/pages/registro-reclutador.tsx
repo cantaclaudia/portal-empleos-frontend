@@ -375,7 +375,7 @@ export const RegistroReclutador = (): JSX.Element => {
               </div>
             ) : (
               <Select
-                value={companyId || undefined} // undefined permite mostrar placeholder
+                value={companyId}
                 onValueChange={setCompanyId}
                 disabled={loadingCompanies || loading}
               >
@@ -388,7 +388,7 @@ export const RegistroReclutador = (): JSX.Element => {
                   ) : companyOptions.length > 0 ? (
                     companyOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                        {option.label} 
                       </SelectItem>
                     ))
                   ) : (

@@ -12,7 +12,7 @@ import {
   PlusIcon,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { InputHomeCandidate } from '../components/ui/input-home-candidate';
+import { InputHomeCandidato } from '../components/ui/input-home-candidato';
 import { Badge } from '../components/ui/bagde';
 import { Card, CardContent } from '../components/ui/card';
 import AuthService from '../services/auth.service';
@@ -32,18 +32,15 @@ export const HomeCandidato: React.FC = () => {
     'Empresa': false,
     'Puesto': false,
     'Ubicación': false,
-    'Rango Salarial': false,
   });
   const [selectedFilters, setSelectedFilters] = useState<{
     empresa: string[];
     puesto: string[];
     ubicación: string[];
-    'rango salarial': string[];
   }>({
     empresa: [],
     puesto: [],
     ubicación: [],
-    'rango salarial': [],
   });
   const [jobs, setJobs] = useState<AvailableJob[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,30 +85,31 @@ export const HomeCandidato: React.FC = () => {
         title: 'Ubicación',
         options: locationSuggestions,
       },
-      {
-        title: 'Rango Salarial',
-        options: ['Menos de $5,000', '$5,000 - $10,000', 'Más de $10,000'],
-      },
     ];
   }, [companySuggestions, jobTitleSuggestions, locationSuggestions]);
 
   useEffect(() => {
-    const loadJobs = async () => {
-      try {
-        setLoading(true);
-        const jobsData = await AvailableJobsService.getAvailableJobs();
-        setJobs(jobsData);
-        setError(null);
-      } catch (err) {
-        setError('Error al cargar los empleos');
-        console.error('Error loading jobs:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadJobs = async () => {
+    try {
+      console.log("⏳ Pidiendo empleos...");
+      setLoading(true);
 
-    loadJobs();
-  }, []);
+      const jobsData = await AvailableJobsService.getAvailableJobs();
+      console.log("✅ Respuesta jobs:", jobsData);
+
+      setJobs(jobsData);
+      setError(null);
+    } catch (err) {
+      console.error("❌ Error cargando empleos:", err);
+      setError("Error al cargar los empleos");
+    } finally {
+      console.log("🔚 Finalizó loadJobs");
+      setLoading(false);
+    }
+  };
+
+  loadJobs();
+}, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -178,7 +176,7 @@ export const HomeCandidato: React.FC = () => {
 
   const getVisibleOptions = (section: { title: string; options: string[] }) => {
     const isExpanded = expandedSections[section.title];
-    return isExpanded ? section.options : section.options.slice(0, 2);
+    return isExpanded ? section.options : section.options.slice(0, 4);
   };
 
   const isFilterActive = (category: string, option: string): boolean => {
@@ -194,14 +192,6 @@ export const HomeCandidato: React.FC = () => {
     suggestion.toLowerCase().includes(locationInput.toLowerCase())
   );
 
-  const matchesSalaryRange = (salary: string, range: string): boolean => {
-    const salaryNum = parseFloat(salary);
-    if (range === 'Menos de $5,000') return salaryNum < 5000;
-    if (range === '$5,000 - $10,000') return salaryNum >= 5000 && salaryNum <= 10000;
-    if (range === 'Más de $10,000') return salaryNum > 10000;
-    return false;
-  };
-
   const filteredJobs = jobs.filter((job) => {
     const companyMatch =
       selectedFilters.empresa.length === 0 ||
@@ -215,10 +205,6 @@ export const HomeCandidato: React.FC = () => {
       selectedFilters.ubicación.length === 0 ||
       selectedFilters.ubicación.some((loc) => job.location === loc);
 
-    const salaryMatch =
-      selectedFilters['rango salarial'].length === 0 ||
-      selectedFilters['rango salarial'].some((range) => matchesSalaryRange(job.salary, range));
-
     const areaSearchMatch =
       !areaInput ||
       job.job_title.toLowerCase().includes(areaInput.toLowerCase()) ||
@@ -227,7 +213,7 @@ export const HomeCandidato: React.FC = () => {
     const locationSearchMatch =
       !locationInput || job.location.toLowerCase().includes(locationInput.toLowerCase());
 
-    return companyMatch && jobTitleMatch && locationMatch && salaryMatch && areaSearchMatch && locationSearchMatch;
+    return companyMatch && jobTitleMatch && locationMatch && areaSearchMatch && locationSearchMatch;
   });
 
   const hasActiveFilters = Object.values(selectedFilters).some((arr) => arr.length > 0);
@@ -235,6 +221,16 @@ export const HomeCandidato: React.FC = () => {
   const formatSalary = (salary: string): string => {
     const num = parseFloat(salary);
     return `$${num.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const getTimeAgo = (index: number): string => {
+    const patterns = ['2 días', '1 semana', '3 días', '5 días', '1 día', '4 días', '2 semanas'];
+    const pattern = patterns[index % patterns.length];
+    return `Publicado hace ${pattern}`;
+  };
+
+  const handleViewMore = (index: number) => {
+    navigate(`/job-details/${index}`);
   };
 
   return (
@@ -351,7 +347,7 @@ export const HomeCandidato: React.FC = () => {
             className="rounded-t-lg flex items-center gap-2.5 px-[60px] py-3 bg-white relative"
           >
             <SearchIcon className="w-[25px] h-[25px] text-[#8c8c8c] flex-shrink-0" />
-            <InputHomeCandidate
+            <InputHomeCandidato
               type="text"
               placeholder="Seleccioná tus áreas de interés"
               value={areaInput}
@@ -391,7 +387,7 @@ export const HomeCandidato: React.FC = () => {
             className="rounded-b-lg border-t border-[#757575] flex items-center gap-2.5 px-[60px] py-3 bg-white relative"
           >
             <MapPinIcon className="w-[25px] h-[25px] text-[#8c8c8c] flex-shrink-0" />
-            <InputHomeCandidate
+            <InputHomeCandidato
               type="text"
               placeholder="Ciudad o región"
               value={locationInput}
@@ -498,7 +494,7 @@ export const HomeCandidato: React.FC = () => {
                     </button>
                   ))}
 
-                  {section.options.length > 2 && (
+                  {section.options.length > 4 && (
                     <button
                       onClick={() => toggleSection(section.title)}
                       className="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 transition-colors"
@@ -576,12 +572,18 @@ export const HomeCandidato: React.FC = () => {
                     </div>
 
                     <div className="flex w-full items-center justify-between gap-4 pt-2">
-                      <Button
-                        variant="link"
-                        className="h-auto p-0 [font-family:'Nunito',Helvetica] font-bold text-[#3351a6] text-lg tracking-[0] leading-[25.2px] hover:underline"
-                      >
-                        Ver más
-                      </Button>
+                      <div className="flex flex-col gap-1">
+                        <Button
+                          variant="link"
+                          onClick={() => handleViewMore(index)}
+                          className="h-auto p-0 [font-family:'Nunito',Helvetica] font-bold text-[#3351a6] text-lg tracking-[0] leading-[25.2px] hover:underline"
+                        >
+                          Ver más
+                        </Button>
+                        <span className="[font-family:'Nunito',Helvetica] font-normal text-[#757575] text-sm tracking-[0] leading-[19.6px]">
+                          {getTimeAgo(index)}
+                        </span>
+                      </div>
 
                       <Badge className="h-auto bg-[#e8f5e9] text-[#2e7d32] border border-solid border-[#4caf50] rounded-[5px] px-4 py-1 hover:bg-[#e8f5e9]">
                         <span className="[font-family:'Nunito',Helvetica] font-semibold text-base tracking-[0] leading-[22.4px]">

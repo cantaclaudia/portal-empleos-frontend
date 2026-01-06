@@ -1,11 +1,10 @@
 import { API_CONFIG } from "../config/api.config";
-import { apiService } from './api.service';
 
 export interface AvailableJob {
   company_id: number;
   company_name: string;
-  job_title: string;
   job_description: string;
+  job_title: string;
   location: string;
   requirements: string;
   salary: string;
@@ -13,31 +12,33 @@ export interface AvailableJob {
 
 interface AvailableJobsResponse {
   code: string;
-  description: string;
   data: AvailableJob[];
+  description: string;
 }
 
 class AvailableJobsService {
-  // Obtener todos los trabajos disponibles o filtrados por company_id
-  async getAvailableJobs(company_id?: number): Promise<AvailableJob[]> {
-    try {
-      const body = company_id ? { company_id } : {};
-      const response = await apiService.post<AvailableJobsResponse>(
-        API_CONFIG.ENDPOINTS.GET_AVAILABLE_JOBS,
-        body
-      );
+  async getAvailableJobs(): Promise<AvailableJob[]> {
+    const response = await fetch(
+      `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.GET_AVAILABLE_JOBS}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": API_CONFIG.TOKEN,
+          "user_id": "1",
+        },
+        body: JSON.stringify({}),
+      }
+    );
 
-      if (response.code === '0200') {
-        return response.data;
-      } else {
-        throw new Error(response.description || 'Error al obtener trabajos');
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Error de conexión. Verifica tu conexión a internet');
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("Respuesta backend:", text);
+      throw new Error(`HTTP ${response.status}`);
     }
+
+    const result: AvailableJobsResponse = await response.json();
+    return result.data;
   }
 }
 
