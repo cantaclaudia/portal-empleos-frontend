@@ -493,22 +493,29 @@ export const HomeCandidato: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-[60px] max-w-[1370px] mx-auto">
           {isFilterOpen && (
             <>
-              <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsFilterOpen(false)} />
+              <div
+                className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300"
+                onClick={() => setIsFilterOpen(false)}
+              />
 
-              <div className="fixed right-0 top-0 h-full w-full max-w-[340px] md:max-w-[380px] bg-white z-50 shadow-2xl flex flex-col lg:hidden overflow-y-auto">
-                <div className="flex items-center justify-between px-6 py-6 bg-gradient-to-b from-[#fafafa] to-white border-b border-[#eeeeee] sticky top-0 z-10">
+              <div className="fixed inset-x-0 bottom-0 bg-white z-50 rounded-t-3xl shadow-2xl flex flex-col lg:hidden max-h-[85vh] transition-transform duration-300 ease-out">
+                <div className="flex items-center justify-center pt-3 pb-2">
+                  <div className="w-12 h-1 bg-[#cccccc] rounded-full"></div>
+                </div>
+
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[#eeeeee]">
                   <h2 className="[font-family:'Nunito',Helvetica] font-bold text-[#333333] text-[22px] tracking-[-0.02em] leading-[28px]">
-                    Filtros
+                    Filtrar resultados
                   </h2>
                   <button
                     onClick={() => setIsFilterOpen(false)}
-                    className="text-[#757575] hover:text-[#333333] transition-colors"
+                    className="text-[#757575] hover:text-[#333333] transition-colors p-1"
                   >
                     <XIcon className="w-6 h-6" />
                   </button>
                 </div>
 
-                <div className="flex flex-col py-2">
+                <div className="flex flex-col overflow-y-auto flex-1">
                   {filterSections.map((section, index) => (
                     <div
                       key={section.title}
@@ -590,6 +597,15 @@ export const HomeCandidato: React.FC = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+
+                <div className="flex items-center gap-3 px-6 py-4 border-t border-[#eeeeee] bg-white">
+                  <button
+                    onClick={() => setIsFilterOpen(false)}
+                    className="flex-1 px-6 py-3 bg-[#3351A6] text-white rounded-lg hover:bg-[#2a4185] transition-colors [font-family:'Nunito',Helvetica] font-semibold text-base"
+                  >
+                    Aplicar filtros
+                  </button>
                 </div>
               </div>
             </>
