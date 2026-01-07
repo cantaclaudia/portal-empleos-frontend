@@ -7,7 +7,6 @@ import { FormField } from '../components/ui/form-fields';
 import { LinkButton } from '../components/ui/link-button';
 import { ErrorMessage } from '../components/ui/error-message';
 import AuthService from '../services/auth.service';
-import { ROUTES } from '../routes';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -21,10 +20,14 @@ export const Login: React.FC = () => {
 
   useEffect(() => {
     const savedEmail = localStorage.getItem('rememberedEmail');
+    const savedPassword = localStorage.getItem('rememberedPassword');
     const savedRemember = localStorage.getItem('rememberMe');
     if (savedEmail && savedRemember === 'true') {
       setEmail(savedEmail);
       setRememberMe(true);
+      if (savedPassword) {
+        setPassword(savedPassword);
+      }
     }
   }, []);
 
@@ -79,17 +82,21 @@ export const Login: React.FC = () => {
 
         if (rememberMe) {
           localStorage.setItem('rememberedEmail', email);
+          localStorage.setItem('rememberedPassword', password);
           localStorage.setItem('rememberMe', 'true');
         } else {
           localStorage.removeItem('rememberedEmail');
+          localStorage.removeItem('rememberedPassword');
           localStorage.removeItem('rememberMe');
         }
 
         if (response.data.role === 'candidate') {
-        navigate(ROUTES.HOME_CANDIDATO, { replace: true });
-      } else if (response.data.role === 'employer') {
-        navigate(ROUTES.HOME_RECLUTADOR, { replace: true }); 
-      } 
+          navigate('/home-candidato', { replace: true });
+        } else if (response.data.role === 'employer') {
+          navigate('/home-empresa', { replace: true });
+        } else {
+          setError('Tipo de usuario no válido');
+        }
       } else {
         setError('No se recibieron datos del servidor');
       }
@@ -158,7 +165,7 @@ export const Login: React.FC = () => {
                 className="w-4 h-4 rounded border-[#d9d9d9] text-[#f46036] focus:ring-[#f46036]"
               />
               <span className="[font-family:'Nunito',Helvetica] text-sm text-[#333333]">
-                Recordar mi usuario en este dispositivo
+                Recordar mi usuario
               </span>
             </label>
 
