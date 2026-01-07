@@ -16,6 +16,7 @@ import {
 import { Button } from '../components/ui/button';
 import { InputHomeCandidato } from '../components/ui/input-home-candidato';
 import { Card, CardContent } from '../components/ui/card';
+import { HeaderLogo } from '../components/ui/header-logo';
 import AuthService from '../services/auth.service';
 import AvailableJobsService from '../services/available-jobs.service';
 import type { AvailableJob } from '../services/available-jobs.service';
@@ -306,31 +307,24 @@ export const HomeCandidato: React.FC = () => {
 
   return (
     <div className="bg-background w-full flex flex-col">
-      <nav className="flex w-full items-center gap-4 px-4 md:px-8 lg:px-[62px] py-6 md:py-8 bg-[#06083C] relative z-50">
+      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-[#06083C] relative z-50">
         <Button
           variant="ghost"
           size="icon"
-          className="h-auto p-0 hover:bg-transparent"
+          className="h-auto w-auto p-1.5 hover:bg-white/10 rounded transition-colors"
           onClick={toggleMenu}
         >
-          <MenuIcon className="w-[30px] h-5 text-white" />
+          <MenuIcon className="w-6 h-6 text-white" />
         </Button>
 
-        <div className="flex flex-col">
-          <h1 className="[font-family:'Nunito',Helvetica] font-bold text-[#FAFAFA] text-xl md:text-2xl lg:text-[26px] leading-tight">
-            Portal de Empleos
-          </h1>
-          <p className="[font-family:'Nunito',Helvetica] font-semibold text-[#FAFAFA] text-sm md:text-base lg:text-lg leading-tight">
-            Instituto Madero
-          </p>
-        </div>
+        <HeaderLogo />
       </nav>
 
       {isMenuOpen && (
         <>
           <div className="fixed inset-0 bg-black/50 z-40" onClick={toggleMenu} />
 
-          <div className="fixed left-0 top-0 h-full w-[276px] bg-[#06083C] z-50 shadow-2xl flex flex-col">
+          <div className="fixed left-0 top-0 h-full w-[320px] bg-[#06083C] z-50 shadow-2xl flex flex-col">
             <div className="flex items-center justify-end p-5">
               <button
                 onClick={toggleMenu}
@@ -407,7 +401,7 @@ export const HomeCandidato: React.FC = () => {
 
       <section className="flex w-full min-h-[200px] md:min-h-[240px] lg:min-h-[278px] flex-col items-center justify-center gap-4 md:gap-6 px-4 py-6 md:py-8 bg-[#1E2749]">
         <div className="flex items-center justify-center px-2">
-          <h2 className="[font-family:'Nunito',Helvetica] font-semibold text-[#FAFAFA] text-xl md:text-2xl lg:text-[24px] tracking-[0] leading-tight text-center">
+          <h2 className="[font-family:'Nunito',Helvetica] font-semibold text-[#FAFAFA] text-xl md:text-2xl lg:text-[26px] tracking-[0] leading-tight text-center">
             ¿Qué tipo de empleo estás buscando?
           </h2>
         </div>
@@ -601,14 +595,14 @@ export const HomeCandidato: React.FC = () => {
             </>
           )}
 
-          <aside className="hidden lg:flex flex-col bg-white rounded-xl border border-[#dedede] shadow-sm overflow-hidden h-fit sticky top-8 w-[380px]">
-            <div className="flex items-center px-6 py-6 bg-gradient-to-b from-[#fafafa] to-white border-b border-[#eeeeee]">
+          <aside className="hidden lg:flex flex-col bg-white rounded-xl border border-[#dedede] shadow-sm max-h-[calc(100vh-3rem)] sticky top-6 w-[380px]">
+            <div className="flex items-center px-6 py-6 bg-gradient-to-b from-[#fafafa] to-white border-b border-[#eeeeee] flex-shrink-0">
               <h2 className="[font-family:'Nunito',Helvetica] font-bold text-[#333333] text-[22px] tracking-[-0.02em] leading-[28px]">
                 Filtros
               </h2>
             </div>
 
-            <div className="flex flex-col py-2">
+            <div className="flex flex-col py-2 overflow-y-auto flex-1 min-h-0">
               {filterSections.map((section, index) => (
                 <div
                   key={section.title}
@@ -754,11 +748,11 @@ export const HomeCandidato: React.FC = () => {
                 {paginatedJobs.map((job, index) => (
                   <Card
                     key={`${job.company_id}-${startIndex + index}`}
-                    className="bg-white border-0 shadow-sm hover:shadow-md transition-shadow"
+                    className="bg-white border-0 shadow-sm hover:shadow-md transition-shadow rounded-lg"
                   >
-                    <CardContent className="flex flex-col gap-4 md:gap-5 px-5 md:px-8 py-5 md:py-7">
+                    <CardContent className="flex flex-col gap-3 md:gap-4 px-5 md:px-6 py-4 md:py-5">
                       <div className="w-full">
-                        <h3 className="[font-family:'Nunito',Helvetica] font-bold text-[#333333] text-lg md:text-xl lg:text-[22px] tracking-[0] leading-tight mb-2">
+                        <h3 className="[font-family:'Nunito',Helvetica] font-bold text-[#333333] text-lg md:text-xl lg:text-[22px] tracking-[0] leading-tight mb-1.5">
                           {job.job_title}
                         </h3>
                         <p className="[font-family:'Nunito',Helvetica] font-semibold text-[#F46036] text-base md:text-lg tracking-[0] leading-tight">
@@ -772,7 +766,7 @@ export const HomeCandidato: React.FC = () => {
                         </p>
                       </div>
 
-                      <div className="flex w-full items-center justify-between gap-4 pt-2">
+                      <div className="flex w-full items-center justify-between gap-4 pt-1">
                         <button
                           onClick={() => handleViewMore(startIndex + index)}
                           className="[font-family:'Nunito',Helvetica] font-bold text-[#3351A6] text-sm md:text-base tracking-[0] leading-tight hover:opacity-80 transition-opacity cursor-pointer"
