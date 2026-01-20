@@ -4,22 +4,59 @@ import {
   ArchiveIcon,
   FileTextIcon,
   UsersIcon,
-  FolderOpenIcon,
   MapPinIcon,
   CalendarIcon,
+  SearchIcon,
+  ChevronDownIcon,
   type LucideIcon
 } from "lucide-react";
-import React, { useState, type JSX } from "react";
+import React, { useState, useEffect, type JSX } from "react";
 import { Button } from "../components/ui/button";
+import { HeaderLogo } from "../components/ui/header-logo";
+import availableJobsService, { type AvailableJob } from "../services/available-jobs.service";
 
 const SearchInput = (): JSX.Element => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState("");
+
+  const options = [
+    "Mi perfil",
+    "Mis publicaciones",
+    "Postulantes",
+    "Estadísticas"
+  ];
+
+  const handleOptionClick = (option: string) => {
+    setSelectedOption(option);
+    setIsOpen(false);
+  };
+
   return (
     <div className="relative flex-1">
-      <input
-        type="text"
-        placeholder="Buscar ofertas..."
-        className="w-full h-[54px] px-6 py-3 bg-white rounded-[8px] border-2 border-transparent focus:border-[#f46036] focus:outline-none shadow-md transition-all duration-200 [font-family:'Nunito',Helvetica] text-[18px] text-[#05073c] placeholder:text-gray-400"
-      />
+      <div className="relative">
+        <SearchIcon className="absolute left-5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10" />
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full h-[54px] pl-14 pr-12 py-3 bg-white rounded-[8px] border-2 border-transparent focus:border-[#f46036] focus:outline-none shadow-md transition-all duration-200 [font-family:'Nunito',Helvetica] text-[18px] text-[#05073c] text-left hover:border-[#f46036]/30"
+        >
+          {selectedOption || "Seleccionar área de interés"}
+        </button>
+        <ChevronDownIcon className={`absolute right-5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[8px] shadow-lg border border-gray-200 z-20 overflow-hidden">
+          {options.map((option, index) => (
+            <button
+              key={index}
+              onClick={() => handleOptionClick(option)}
+              className="w-full px-6 py-3 text-left [font-family:'Nunito',Helvetica] text-[16px] text-[#05073c] hover:bg-[#f46036]/10 transition-colors duration-150 cursor-pointer"
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -111,9 +148,9 @@ const ManagementCard = ({
   description,
 }: ManagementCardProps): JSX.Element => {
   return (
-    <div className="w-full max-w-[1194px] bg-white rounded-[12px] shadow-md hover:shadow-lg transition-all duration-200 p-8 flex items-start gap-6 border border-gray-200 cursor-pointer hover:border-[#f46036]">
-      <div className="flex items-center justify-center w-16 h-16 bg-[#05073c] rounded-[12px] flex-shrink-0">
-        <Icon className="w-8 h-8 text-white" />
+    <div className="w-full max-w-[1194px] bg-white rounded-[12px] shadow-md hover:shadow-lg transition-all duration-200 p-8 flex items-center gap-6 border border-gray-200 cursor-pointer hover:border-[#f46036]">
+      <div className="flex items-center justify-center w-20 h-20 bg-[#05073c] rounded-[12px] flex-shrink-0">
+        <Icon className="w-10 h-10 text-white" />
       </div>
 
       <div className="flex-1">
@@ -224,6 +261,25 @@ const SideMenu = ({ isOpen, onClose }: SideMenuProps): JSX.Element => {
   );
 };
 
+const RecentPublicationsSection = (): JSX.Element => {
+  return (
+    <footer className="w-full flex flex-col items-center justify-center gap-3 py-12 px-4 bg-[#05073c] mt-12">
+      <div className="flex items-center justify-center">
+        <p className="[font-family:'Nunito',Helvetica] font-bold text-neutral-50 text-[26px] text-center tracking-[0] leading-[36px]">
+          © 2025 Portal de Empleos del Instituto Madero.
+        </p>
+      </div>
+
+      <div className="flex items-center justify-center">
+        <p className="[font-family:'Nunito',Helvetica] font-normal text-white/80 text-[20px] text-center tracking-[0] leading-[28px]">
+          Desarrollado por estudiantes de la Tecnicatura Universitaria en
+          Programación — UTN FRBA.
+        </p>
+      </div>
+    </footer>
+  );
+};
+
 const managementItems = [
   {
     icon: FileTextIcon,
@@ -242,54 +298,56 @@ const managementItems = [
   {
     icon: ArchiveIcon,
     title: "Puestos cerrados",
-    count: "12 ofertas cerradas",
+    count: "12 ofertas activas",
     description:
       "Visualizá las ofertas laborales cerradas y su historial de postulaciones.",
   },
   {
-    icon: FolderOpenIcon,
-    title: "Historial de contrataciones",
-    count: "45 contrataciones realizadas",
+    icon: ArchiveIcon,
+    title: "Puestos cerrados",
+    count: "12 ofertas activas",
     description:
-      "Accedé al historial completo de contrataciones y evaluá el rendimiento de tus búsquedas.",
+      "Visualizá las ofertas laborales cerradas y su historial de postulaciones.",
   },
 ];
 
 export const HomeReclutador = (): JSX.Element => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [jobs, setJobs] = useState<AvailableJob[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const jobListing = {
-    title: "Técnico en Electrónica – ElectroSoluciones S.A.",
-    applications: "8 postulaciones recibidas",
-    location: "Zona Oeste, GBA / Full time",
-    description:
-      "Estamos en la búsqueda de estudiantes o técnicos con formación en electrónica para tareas de armado, soldadura y testeo de placas electrónicas. Valoramos la predisposición para aprender, la atención al detalle y el trabajo en equipo.",
-    salary: "Sueldo estimado: $500.000 - $600.000",
-    publishedDate: "Publicado el 20/07/2025",
-  };
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const allJobs = await availableJobsService.getAvailableJobs();
+
+        const userCompanyId = 1;
+
+        const filteredJobs = allJobs.filter(job => job.company_id === userCompanyId);
+        setJobs(filteredJobs);
+      } catch (error) {
+        console.error("Error al cargar trabajos:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
 
   return (
-    <div className="bg-[#eeeeee] w-full min-w-[1440px] flex flex-col">
-      <nav className="flex w-full items-center gap-4 px-16 py-7 bg-[#05073c] shadow-lg">
+    <div className="bg-[#EFEFEF] w-full min-w-[1440px] flex flex-col">
+      <nav className="flex w-full items-center gap-3 px-16 py-6 bg-[#05073c] shadow-lg">
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setIsMenuOpen(true)}
-          className="h-auto w-auto p-2 hover:bg-white/10 rounded-md transition-colors duration-200"
+          className="h-auto w-auto p-1.5 hover:bg-white/10 rounded transition-colors duration-200"
         >
-          <MenuIcon className="w-7 h-7 text-neutral-50" />
+          <MenuIcon className="w-6 h-6 text-neutral-50" />
         </Button>
 
-        <div className="inline-flex items-center justify-center gap-2.5 px-4 py-0">
-          <div className="flex flex-col items-start justify-center w-fit [font-family:'Nunito',Helvetica]">
-            <span className="font-bold text-neutral-50 text-[28px] leading-[33.6px]">
-              Portal de Empleos
-            </span>
-            <span className="font-semibold text-neutral-50/90 text-xl leading-[24.0px]">
-              Instituto Madero
-            </span>
-          </div>
-        </div>
+        <HeaderLogo />
       </nav>
 
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
@@ -320,7 +378,7 @@ export const HomeReclutador = (): JSX.Element => {
 
       <section className="flex flex-col items-center justify-center gap-6 px-20 py-12 w-full">
         <div className="w-full max-w-[1194px]">
-          <SectionTitle className="mb-8">Tu espacio de gestión</SectionTitle>
+          <SectionTitle className="mb-4">Tu espacio de gestión</SectionTitle>
         </div>
         <div className="flex flex-col items-center gap-6 w-full">
           {managementItems.map((item, index) => (
@@ -329,12 +387,40 @@ export const HomeReclutador = (): JSX.Element => {
         </div>
       </section>
 
-      <section className="w-full px-20 py-12 bg-gray-50">
+      <section className="w-full px-20 py-12 bg-[#EFEFEF]">
         <div className="w-full max-w-[1192px] mx-auto">
           <SectionTitle className="mb-10">Publicaciones recientes</SectionTitle>
-          <JobCard {...jobListing} />
+          {isLoading ? (
+            <div className="text-center py-8">
+              <p className="[font-family:'Nunito',Helvetica] text-[#666666] text-[18px]">
+                Cargando publicaciones...
+              </p>
+            </div>
+          ) : jobs.length > 0 ? (
+            <div className="flex flex-col gap-6">
+              {jobs.map((job, index) => (
+                <JobCard
+                  key={index}
+                  title={`${job.job_title} – ${job.company_name}`}
+                  applications="8 postulaciones recibidas"
+                  location={job.location}
+                  description={job.job_description}
+                  salary={`Sueldo indicado: ${job.salary}`}
+                  publishedDate="Publicado el 15/01/2025"
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="[font-family:'Nunito',Helvetica] text-[#666666] text-[18px]">
+                No hay publicaciones disponibles
+              </p>
+            </div>
+          )}
         </div>
       </section>
+
+      <RecentPublicationsSection />
     </div>
   );
 };
