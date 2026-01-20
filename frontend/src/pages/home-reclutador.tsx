@@ -398,10 +398,10 @@ export const HomeReclutador = (): JSX.Element => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [jobs, setJobs] = useState<AvailableJob[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [companyName, setCompanyName] = useState<string>('Cargando...');
 
   const user = AuthService.getUser();
   const userName = user ? `${user.first_name} ${user.last_name}` : 'Nombre Apellido';
-  const companyName = 'Empresa Demo';
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -412,8 +412,16 @@ export const HomeReclutador = (): JSX.Element => {
 
         const filteredJobs = allJobs.filter(job => job.company_id === userCompanyId);
         setJobs(filteredJobs);
+
+        if (filteredJobs.length > 0) {
+          setCompanyName(filteredJobs[0].company_name);
+        } else {
+          const companyJob = allJobs.find(job => job.company_id === userCompanyId);
+          setCompanyName(companyJob ? companyJob.company_name : 'Empresa');
+        }
       } catch (error) {
         console.error("Error al cargar trabajos:", error);
+        setCompanyName('Empresa');
       } finally {
         setIsLoading(false);
       }
