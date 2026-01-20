@@ -7,46 +7,90 @@ import {
   MapPinIcon,
   CalendarIcon,
   SearchIcon,
-  ChevronDownIcon,
+  UserIcon,
+  XIcon,
+  HomeIcon,
+  SettingsIcon,
+  BarChartIcon,
+  BriefcaseIcon,
   type LucideIcon
 } from "lucide-react";
-import React, { useState, useEffect, type JSX } from "react";
+import React, { useState, useEffect, useRef, type JSX } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { HeaderLogo } from "../components/ui/header-logo";
 import availableJobsService, { type AvailableJob } from "../services/available-jobs.service";
+import AuthService from "../services/auth.service";
 
 const SearchInput = (): JSX.Element => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
-  const options = [
+  const allOptions = [
     "Mi perfil",
     "Mis publicaciones",
     "Postulantes",
-    "Estadísticas"
+    "Estadísticas",
+    "Candidatos",
+    "Crear nueva oferta",
+    "Inicio",
+    "Configuración"
   ];
 
+  const filteredOptions = allOptions.filter(option =>
+    option.toLowerCase().includes(inputValue.toLowerCase())
+  );
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleOptionClick = (option: string) => {
-    setSelectedOption(option);
-    setIsOpen(false);
+    setInputValue(option);
+    setShowSuggestions(false);
+  };
+
+  const handleClear = () => {
+    setInputValue("");
+    setShowSuggestions(false);
   };
 
   return (
-    <div className="relative flex-1">
+    <div ref={searchRef} className="relative flex-1">
       <div className="relative">
         <SearchIcon className="absolute left-5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10" />
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-full h-[54px] pl-14 pr-12 py-3 bg-white rounded-[8px] border-2 border-transparent focus:border-[#f46036] focus:outline-none shadow-md transition-all duration-200 [font-family:'Nunito',Helvetica] text-[18px] text-[#05073c] text-left hover:border-[#f46036]/30"
-        >
-          {selectedOption || "Seleccionar área de interés"}
-        </button>
-        <ChevronDownIcon className={`absolute right-5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            setShowSuggestions(true);
+          }}
+          onFocus={() => setShowSuggestions(true)}
+          placeholder="Seleccionar área de interés"
+          className="w-full h-[54px] pl-14 pr-12 py-3 bg-white rounded-[8px] border-2 border-transparent focus:border-[#f46036] focus:outline-none shadow-md transition-all duration-200 [font-family:'Nunito',Helvetica] text-[18px] text-[#05073c] placeholder:text-gray-400"
+        />
+        {inputValue && (
+          <button
+            onClick={handleClear}
+            className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#05073c] transition-colors"
+          >
+            <XIcon className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
-      {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[8px] shadow-lg border border-gray-200 z-20 overflow-hidden">
-          {options.map((option, index) => (
+      {showSuggestions && filteredOptions.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[8px] shadow-lg border border-gray-200 z-20 max-h-[300px] overflow-y-auto">
+          {filteredOptions.map((option, index) => (
             <button
               key={index}
               onClick={() => handleOptionClick(option)}
@@ -190,9 +234,18 @@ const ManagementCard = ({
 interface SideMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  userName: string;
+  companyName: string;
 }
 
-const SideMenu = ({ isOpen, onClose }: SideMenuProps): JSX.Element => {
+const SideMenu = ({ isOpen, onClose, userName, companyName }: SideMenuProps): JSX.Element => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    AuthService.logout();
+    navigate('/login');
+  };
+
   if (!isOpen) return <></>;
 
   return (
@@ -201,60 +254,90 @@ const SideMenu = ({ isOpen, onClose }: SideMenuProps): JSX.Element => {
         className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
         onClick={onClose}
       />
-      <div className="fixed left-0 top-0 h-full w-[320px] bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="[font-family:'Nunito',Helvetica] font-bold text-[#05073c] text-[24px]">
-              Menú
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-[#05073c] hover:text-[#f46036] transition-colors"
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M18 6L6 18M6 6L18 18"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
+      <div className="fixed left-0 top-0 h-full w-[320px] bg-[#06083C] z-50 shadow-2xl flex flex-col">
+        <div className="flex items-center justify-end p-5">
+          <button
+            onClick={onClose}
+            className="text-white hover:bg-white/10 rounded p-1 transition-colors"
+          >
+            <XIcon className="w-6 h-6" />
+          </button>
+        </div>
 
-          <nav className="space-y-4">
-            <a
-              href="#"
-              className="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors [font-family:'Nunito',Helvetica] text-[#05073c] text-[16px]"
-            >
+        <div className="flex items-center gap-4 px-6 pb-6 border-b border-white/20">
+          <div className="w-12 h-12 rounded-full bg-[#f46036] flex items-center justify-center flex-shrink-0">
+            <UserIcon className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex flex-col">
+            <p className="[font-family:'Nunito',Helvetica] font-semibold text-white text-base leading-[22.4px]">
+              {userName}
+            </p>
+            <p className="[font-family:'Nunito',Helvetica] font-normal text-white/70 text-sm leading-[19.6px]">
+              {companyName}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col py-4">
+          <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
+            <HomeIcon className="w-5 h-5 text-white flex-shrink-0" />
+            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
               Inicio
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors [font-family:'Nunito',Helvetica] text-[#05073c] text-[16px]"
-            >
-              Mis ofertas
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors [font-family:'Nunito',Helvetica] text-[#05073c] text-[16px]"
-            >
-              Candidatos
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors [font-family:'Nunito',Helvetica] text-[#05073c] text-[16px]"
-            >
+            </span>
+          </button>
+
+          <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
+            <PlusIcon className="w-5 h-5 text-white flex-shrink-0" />
+            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+              Crear nueva oferta
+            </span>
+          </button>
+
+          <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
+            <BriefcaseIcon className="w-5 h-5 text-white flex-shrink-0" />
+            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+              Mis publicaciones
+            </span>
+          </button>
+
+          <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
+            <UsersIcon className="w-5 h-5 text-white flex-shrink-0" />
+            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+              Postulantes
+            </span>
+          </button>
+
+          <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
+            <BarChartIcon className="w-5 h-5 text-white flex-shrink-0" />
+            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+              Estadísticas
+            </span>
+          </button>
+
+          <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
+            <UserIcon className="w-5 h-5 text-white flex-shrink-0" />
+            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+              Mi perfil
+            </span>
+          </button>
+
+          <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
+            <SettingsIcon className="w-5 h-5 text-white flex-shrink-0" />
+            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
               Configuración
-            </a>
-          </nav>
+            </span>
+          </button>
+        </div>
+
+        <div className="mt-auto border-t border-white/20">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-4 px-6 py-5 text-left hover:bg-white/5 transition-colors w-full"
+          >
+            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+              Cerrar sesión
+            </span>
+          </button>
         </div>
       </div>
     </>
@@ -316,6 +399,10 @@ export const HomeReclutador = (): JSX.Element => {
   const [jobs, setJobs] = useState<AvailableJob[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const user = AuthService.getUser();
+  const userName = user ? `${user.first_name} ${user.last_name}` : 'Nombre Apellido';
+  const companyName = 'Empresa Demo';
+
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -350,7 +437,12 @@ export const HomeReclutador = (): JSX.Element => {
         <HeaderLogo />
       </nav>
 
-      <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <SideMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        userName={userName}
+        companyName={companyName}
+      />
 
       <section className="flex w-full flex-col items-center justify-center gap-8 px-10 py-16 bg-gradient-to-br from-[#1e2749] to-[#2a3558]">
         <div className="inline-flex items-center justify-center gap-2.5">
