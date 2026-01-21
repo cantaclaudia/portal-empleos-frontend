@@ -386,11 +386,11 @@ const managementItems = [
       "Visualizá las ofertas laborales cerradas y su historial de postulaciones.",
   },
   {
-    icon: ArchiveIcon,
-    title: "Puestos cerrados",
-    count: "12 ofertas activas",
+    icon: FileTextIcon,
+    title: "Borradores",
+    count: "5 ofertas sin publicar",
     description:
-      "Visualizá las ofertas laborales cerradas y su historial de postulaciones.",
+      "Continuá editando ofertas laborales que aún no fueron publicadas.",
   },
 ];
 
