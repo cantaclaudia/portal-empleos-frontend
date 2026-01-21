@@ -66,7 +66,7 @@ const SearchInput = (): JSX.Element => {
   return (
     <div ref={searchRef} className="relative flex-1">
       <div className="relative">
-        <SearchIcon className="absolute left-5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10" />
+        <SearchIcon className="absolute left-3 md:left-5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10" />
         <input
           type="text"
           value={inputValue}
@@ -76,12 +76,12 @@ const SearchInput = (): JSX.Element => {
           }}
           onFocus={() => setShowSuggestions(true)}
           placeholder="Seleccionar área de interés"
-          className="w-full h-[54px] pl-14 pr-12 py-3 bg-white rounded-[8px] border-2 border-transparent focus:border-[#f46036] focus:outline-none shadow-md transition-all duration-200 [font-family:'Nunito',Helvetica] text-[18px] text-[#05073c] placeholder:text-gray-400"
+          className="w-full h-[54px] pl-11 md:pl-14 pr-10 md:pr-12 py-3 bg-white rounded-[8px] border-2 border-transparent focus:border-[#f46036] focus:outline-none shadow-md transition-all duration-200 [font-family:'Nunito',Helvetica] text-[16px] md:text-[18px] text-[#05073c] placeholder:text-gray-400"
         />
         {inputValue && (
           <button
             onClick={handleClear}
-            className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#05073c] transition-colors"
+            className="absolute right-3 md:right-5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#05073c] transition-colors"
           >
             <XIcon className="w-5 h-5" />
           </button>
@@ -94,7 +94,7 @@ const SearchInput = (): JSX.Element => {
             <button
               key={index}
               onClick={() => handleOptionClick(option)}
-              className="w-full px-6 py-3 text-left [font-family:'Nunito',Helvetica] text-[16px] text-[#05073c] hover:bg-[#f46036]/10 transition-colors duration-150 cursor-pointer"
+              className="w-full px-4 md:px-6 py-3 text-left [font-family:'Nunito',Helvetica] text-[16px] text-[#05073c] hover:bg-[#f46036]/10 transition-colors duration-150 cursor-pointer"
             >
               {option}
             </button>
@@ -136,18 +136,18 @@ const JobCard = ({
   publishedDate,
 }: JobCardProps): JSX.Element => {
   return (
-    <div className="bg-white rounded-[12px] shadow-md p-8 hover:shadow-lg transition-shadow duration-200 border border-gray-200">
-      <div className="flex items-start justify-between mb-4">
-        <h3 className="[font-family:'Nunito',Helvetica] font-bold text-[#05073c] text-[22px] leading-[30.8px] flex-1">
+    <div className="bg-white rounded-[12px] shadow-md p-4 md:p-8 hover:shadow-lg transition-shadow duration-200 border border-gray-200">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4 gap-2">
+        <h3 className="[font-family:'Nunito',Helvetica] font-bold text-[#05073c] text-[20px] md:text-[22px] leading-[28px] md:leading-[30.8px] flex-1">
           {title}
         </h3>
-        <span className="bg-[#f46036]/10 text-[#f46036] px-4 py-2 rounded-full [font-family:'Nunito',Helvetica] font-semibold text-sm whitespace-nowrap ml-4">
+        <span className="bg-[#f46036]/10 text-[#f46036] px-4 py-2 rounded-full [font-family:'Nunito',Helvetica] font-semibold text-sm whitespace-nowrap w-fit">
           {applications}
         </span>
       </div>
 
       <div className="flex items-center gap-2 mb-4 text-[#666666]">
-        <MapPinIcon className="w-5 h-5" />
+        <MapPinIcon className="w-5 h-5 flex-shrink-0" />
         <span className="[font-family:'Nunito',Helvetica] text-[16px] leading-[22.4px]">
           {location}
         </span>
@@ -157,7 +157,7 @@ const JobCard = ({
         {description}
       </p>
 
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between pt-4 border-t border-gray-200 gap-4">
         <div className="flex flex-col gap-1">
           <span className="[font-family:'Nunito',Helvetica] font-semibold text-[#05073c] text-[16px]">
             {salary}
@@ -170,7 +170,7 @@ const JobCard = ({
           </div>
         </div>
 
-        <Button className="bg-[#05073c] hover:bg-[#05073c]/90 text-white px-6 py-3 rounded-[8px] [font-family:'Nunito',Helvetica] font-semibold text-[16px] transition-colors duration-200">
+        <Button className="bg-[#05073c] hover:bg-[#05073c]/90 text-white px-6 py-3 rounded-[8px] [font-family:'Nunito',Helvetica] font-semibold text-[16px] transition-colors duration-200 w-full md:w-auto">
           Ver detalles
         </Button>
       </div>
@@ -192,24 +192,24 @@ const ManagementCard = ({
   description,
 }: ManagementCardProps): JSX.Element => {
   return (
-    <div className="w-full max-w-[1194px] bg-white rounded-[12px] shadow-md hover:shadow-lg transition-all duration-200 p-8 flex items-center gap-6 border border-gray-200 cursor-pointer hover:border-[#f46036]">
-      <div className="flex items-center justify-center w-20 h-20 bg-[#05073c] rounded-[12px] flex-shrink-0">
-        <Icon className="w-10 h-10 text-white" />
+    <div className="w-full max-w-[1194px] bg-white rounded-[12px] shadow-md hover:shadow-lg transition-all duration-200 p-4 md:p-8 flex items-center gap-4 md:gap-6 border border-gray-200 cursor-pointer hover:border-[#f46036]">
+      <div className="flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-[#05073c] rounded-[12px] flex-shrink-0">
+        <Icon className="w-8 h-8 md:w-10 md:h-10 text-white" />
       </div>
 
-      <div className="flex-1">
-        <h3 className="[font-family:'Nunito',Helvetica] font-bold text-[#05073c] text-[22px] leading-[30.8px] mb-2">
+      <div className="flex-1 min-w-0">
+        <h3 className="[font-family:'Nunito',Helvetica] font-bold text-[#05073c] text-[18px] md:text-[22px] leading-[25.2px] md:leading-[30.8px] mb-2">
           {title}
         </h3>
-        <p className="[font-family:'Nunito',Helvetica] font-semibold text-[#f46036] text-[18px] leading-[25.2px] mb-2">
+        <p className="[font-family:'Nunito',Helvetica] font-semibold text-[#f46036] text-[16px] md:text-[18px] leading-[22.4px] md:leading-[25.2px] mb-2">
           {count}
         </p>
-        <p className="[font-family:'Nunito',Helvetica] text-[#666666] text-[16px] leading-[22.4px]">
+        <p className="[font-family:'Nunito',Helvetica] text-[#666666] text-[14px] md:text-[16px] leading-[19.6px] md:leading-[22.4px]">
           {description}
         </p>
       </div>
 
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center flex-shrink-0">
         <svg
           width="24"
           height="24"
@@ -254,7 +254,7 @@ const SideMenu = ({ isOpen, onClose, userName, companyName }: SideMenuProps): JS
         className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
         onClick={onClose}
       />
-      <div className="fixed left-0 top-0 h-full w-[320px] bg-[#06083C] z-50 shadow-2xl flex flex-col">
+      <div className="fixed left-0 top-0 h-full w-[280px] md:w-[320px] bg-[#06083C] z-50 shadow-2xl flex flex-col">
         <div className="flex items-center justify-end p-5">
           <button
             onClick={onClose}
@@ -346,15 +346,15 @@ const SideMenu = ({ isOpen, onClose, userName, companyName }: SideMenuProps): JS
 
 const RecentPublicationsSection = (): JSX.Element => {
   return (
-    <footer className="w-full flex flex-col items-center justify-center gap-3 py-12 px-4 bg-[#05073c] mt-12">
-      <div className="flex items-center justify-center">
-        <p className="[font-family:'Nunito',Helvetica] font-bold text-neutral-50 text-[26px] text-center tracking-[0] leading-[36px]">
+    <footer className="w-full flex flex-col items-center justify-center gap-3 py-8 md:py-12 px-4 bg-[#05073c] mt-12">
+      <div className="flex items-center justify-center px-4">
+        <p className="[font-family:'Nunito',Helvetica] font-bold text-neutral-50 text-[20px] md:text-[26px] text-center tracking-[0] leading-[28px] md:leading-[36px]">
           © 2025 Portal de Empleos del Instituto Madero.
         </p>
       </div>
 
-      <div className="flex items-center justify-center">
-        <p className="[font-family:'Nunito',Helvetica] font-normal text-white/80 text-[20px] text-center tracking-[0] leading-[28px]">
+      <div className="flex items-center justify-center px-4">
+        <p className="[font-family:'Nunito',Helvetica] font-normal text-white/80 text-[16px] md:text-[20px] text-center tracking-[0] leading-[22.4px] md:leading-[28px]">
           Desarrollado por estudiantes de la Tecnicatura Universitaria en
           Programación — UTN FRBA.
         </p>
@@ -431,8 +431,8 @@ export const HomeReclutador = (): JSX.Element => {
   }, []);
 
   return (
-    <div className="bg-[#EFEFEF] w-full min-w-[1440px] flex flex-col">
-      <nav className="flex w-full items-center gap-3 px-16 py-6 bg-[#05073c] shadow-lg">
+    <div className="bg-[#EFEFEF] w-full flex flex-col overflow-x-hidden">
+      <nav className="flex w-full items-center gap-3 px-4 md:px-16 py-6 bg-[#05073c] shadow-lg">
         <Button
           variant="ghost"
           size="icon"
@@ -452,42 +452,42 @@ export const HomeReclutador = (): JSX.Element => {
         companyName={companyName}
       />
 
-      <section className="flex w-full flex-col items-center justify-center gap-8 px-10 py-16 bg-gradient-to-br from-[#1e2749] to-[#2a3558]">
-        <div className="inline-flex items-center justify-center gap-2.5">
+      <section className="flex w-full flex-col items-center justify-center gap-8 px-4 md:px-10 py-16 bg-gradient-to-br from-[#1e2749] to-[#2a3558]">
+        <div className="inline-flex items-center justify-center gap-2.5 px-4">
           <div className="flex flex-col items-center justify-center w-fit [font-family:'Nunito',Helvetica] text-center">
-            <span className="font-semibold text-white text-[32px] leading-[44.8px] mb-2">
+            <span className="font-semibold text-white text-[24px] md:text-[32px] leading-[33.6px] md:leading-[44.8px] mb-2">
               Tus ofertas laborales
             </span>
-            <span className="text-white/90 text-[22px] leading-[30.8px]">
+            <span className="text-white/90 text-[18px] md:text-[22px] leading-[25.2px] md:leading-[30.8px]">
               Visualizá, gestioná y creá nuevas búsquedas laborales.
             </span>
           </div>
         </div>
 
-        <div className="flex w-full max-w-[964px] items-center justify-center gap-4">
+        <div className="flex flex-row w-full max-w-[964px] items-center justify-center gap-3 md:gap-4 px-4">
           <SearchInput />
 
-          <Button className="flex w-[230px] h-[54px] items-center justify-center gap-3 px-6 py-3 bg-[#f46036] hover:bg-[#d9512e] rounded-[8px] shadow-md hover:shadow-lg transition-all duration-200">
-            <PlusIcon className="w-6 h-6" />
-            <span className="[font-family:'Nunito',Helvetica] font-semibold text-white text-[20px] tracking-[0] leading-[normal]">
+          <Button className="flex w-auto md:w-[230px] h-[54px] items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-3 bg-[#f46036] hover:bg-[#d9512e] rounded-[8px] shadow-md hover:shadow-lg transition-all duration-200 whitespace-nowrap">
+            <PlusIcon className="w-5 h-5 md:w-6 md:h-6" />
+            <span className="[font-family:'Nunito',Helvetica] font-semibold text-white text-[14px] md:text-[20px] tracking-[0] leading-[normal]">
               Crear oferta
             </span>
           </Button>
         </div>
       </section>
 
-      <section className="flex flex-col items-center justify-center gap-6 px-20 py-12 w-full">
-        <div className="w-full max-w-[1194px]">
+      <section className="flex flex-col items-center justify-center gap-6 px-4 md:px-20 py-12 w-full">
+        <div className="w-full max-w-[1194px] px-4 md:px-0">
           <SectionTitle className="mb-4">Tu espacio de gestión</SectionTitle>
         </div>
-        <div className="flex flex-col items-center gap-6 w-full">
+        <div className="flex flex-col items-center gap-6 w-full px-4 md:px-0">
           {managementItems.map((item, index) => (
             <ManagementCard key={index} {...item} />
           ))}
         </div>
       </section>
 
-      <section className="w-full px-20 py-12 bg-[#EFEFEF]">
+      <section className="w-full px-4 md:px-20 py-12 bg-[#EFEFEF]">
         <div className="w-full max-w-[1192px] mx-auto">
           <SectionTitle className="mb-10">Publicaciones recientes</SectionTitle>
           {isLoading ? (
