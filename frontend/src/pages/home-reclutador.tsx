@@ -463,10 +463,10 @@ export const HomeReclutador = (): JSX.Element => {
       <section className="flex w-full flex-col items-center justify-center gap-8 px-4 md:px-10 py-16 bg-gradient-to-br from-[#1e2749] to-[#2a3558]">
         <div className="inline-flex items-center justify-center gap-2.5 px-4">
           <div className="flex flex-col items-center justify-center w-fit text-center">
-            <span className="font-semibold text-white text-[24px] md:text-[32px] leading-[33.6px] md:leading-[44.8px] mb-2">
+            <span className="font-semibold text-white text-[22px] md:text-[30px] leading-[33.6px] md:leading-[44.8px]">
               Tus ofertas laborales
             </span>
-            <span className="text-white/90 text-[18px] md:text-[22px] leading-[25.2px] md:leading-[30.8px]">
+            <span className="text-white/90 text-[14px] md:text-[20px] leading-[25.2px] md:leading-[30.8px]">
               Visualizá, gestioná y creá nuevas búsquedas laborales.
             </span>
           </div>
@@ -477,7 +477,7 @@ export const HomeReclutador = (): JSX.Element => {
 
           <Button className="flex w-auto md:w-[230px] h-[54px] items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-3 bg-[#f46036] hover:bg-[#d9512e] rounded-[8px] shadow-md hover:shadow-lg transition-all duration-200 whitespace-nowrap">
             <PlusIcon className="w-5 h-5 md:w-6 md:h-6" />
-            <span className="font-semibold text-white text-[14px] md:text-[20px] tracking-[0] leading-[normal]">
+            <span className="font-semibold text-white text-[14px] md:text-[18px] tracking-[0] leading-[normal]">
               Crear oferta
             </span>
           </Button>
