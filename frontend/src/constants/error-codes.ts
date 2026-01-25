@@ -18,10 +18,13 @@ export const COMMON_ERROR_MESSAGES = {
 } as const;
 
 export const LOGIN_ERRORS = {
+  EMAIL_REQUIRED: 'El correo electrónico es obligatorio',
+  PASSWORD_REQUIRED: 'La contraseña es obligatoria',
   EMAIL_TOO_LONG: 'El correo no puede exceder 50 caracteres',
   PASSWORD_TOO_LONG: 'La contraseña no puede exceder 30 caracteres',
   INVALID_USER_TYPE: 'Tipo de usuario no válido',
-  LOGIN_FAILED: 'Error al iniciar sesión'
+  LOGIN_FAILED: 'Error al iniciar sesión',
+   EMAIL_INVALID: 'Ingresá un correo electrónico válido',
 };
 
 export const ENDPOINT_ERROR_MESSAGES = {

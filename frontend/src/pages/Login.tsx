@@ -15,42 +15,57 @@ export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string>('');
   const [passwordError, setPasswordError] = useState<string>('');
   const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
     const savedEmail = localStorage.getItem('rememberedEmail');
-    const savedPassword = localStorage.getItem('rememberedPassword');
     const savedRemember = localStorage.getItem('rememberMe');
+
     if (savedEmail && savedRemember === 'true') {
       setEmail(savedEmail);
       setRememberMe(true);
-      if (savedPassword) {
-        setPassword(savedPassword);
-      }
     }
   }, []);
 
   const validateEmail = (value: string): boolean => {
     setEmailError('');
+
+    if (!value) {
+      setEmailError(LOGIN_ERRORS.EMAIL_REQUIRED);
+      return false;
+    }
+
     if (value.length > 50) {
       setEmailError(LOGIN_ERRORS.EMAIL_TOO_LONG);
       return false;
     }
+
+    if (!value.includes('@')) {
+      setEmailError(LOGIN_ERRORS.EMAIL_INVALID);
+      return false;
+    }
+
     return true;
   };
 
   const validatePassword = (value: string): boolean => {
     setPasswordError('');
+
+    if (!value) {
+      setPasswordError(LOGIN_ERRORS.PASSWORD_REQUIRED);
+      return false;
+    }
+
     if (value.length > 30) {
       setPasswordError(LOGIN_ERRORS.PASSWORD_TOO_LONG);
       return false;
     }
+
     return true;
   };
-
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -66,7 +81,8 @@ export const Login: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    if (loading) return;
+    setLoginError(null);
 
     const isEmailValid = validateEmail(email);
     const isPasswordValid = validatePassword(password);
@@ -84,11 +100,9 @@ export const Login: React.FC = () => {
 
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);
-        localStorage.setItem('rememberedPassword', password);
         localStorage.setItem('rememberMe', 'true');
       } else {
         localStorage.removeItem('rememberedEmail');
-        localStorage.removeItem('rememberedPassword');
         localStorage.removeItem('rememberMe');
       }
 
@@ -97,10 +111,10 @@ export const Login: React.FC = () => {
       } else if (userData.role === 'employer') {
         navigate('/home-reclutador', { replace: true });
       } else {
-        setError('Tipo de usuario no válido');
+        setLoginError('Tipo de usuario no válido');
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+    } catch {
+      setLoginError('No se pudo iniciar sesión. Verificá tus datos.');
     } finally {
       setLoading(false);
     }
@@ -119,7 +133,7 @@ export const Login: React.FC = () => {
 
           <div className="h-1 md:h-3" />
 
-          {error && <ErrorMessage message={error} />}
+          {loginError && <ErrorMessage message={loginError} />}
 
           <FormField
             label="Correo electrónico"
