@@ -77,7 +77,7 @@ const SearchInput = (): JSX.Element => {
           }}
           onFocus={() => setShowSuggestions(true)}
           placeholder="Seleccionar área de interés"
-          className="w-full h-[54px] pl-11 md:pl-14 pr-10 md:pr-12 py-3 bg-white rounded-[8px] border-2 border-transparent focus:border-[#f46036] focus:outline-none shadow-md transition-all duration-200 [font-family:'Nunito',Helvetica] text-[16px] md:text-[18px] text-[#05073c] placeholder:text-gray-400"
+          className="w-full h-[54px] pl-11 md:pl-14 pr-10 md:pr-12 py-3 bg-white rounded-[8px] border-2 border-transparent focus:border-[#f46036] focus:outline-none shadow-md transition-all duration-200 text-[16px] md:text-[18px] text-[#05073c] placeholder:text-gray-400"
         />
         {inputValue && (
           <button
@@ -95,7 +95,7 @@ const SearchInput = (): JSX.Element => {
             <button
               key={index}
               onClick={() => handleOptionClick(option)}
-              className="w-full px-4 md:px-6 py-3 text-left [font-family:'Nunito',Helvetica] text-[16px] text-[#05073c] hover:bg-[#f46036]/10 transition-colors duration-150 cursor-pointer"
+              className="w-full px-4 md:px-6 py-3 text-left text-[16px] text-[#05073c] hover:bg-[#f46036]/10 transition-colors duration-150 cursor-pointer"
             >
               {option}
             </button>
@@ -113,7 +113,7 @@ interface SectionTitleProps {
 
 const SectionTitle = ({ children, className = "" }: SectionTitleProps): JSX.Element => {
   return (
-    <h2 className={`[font-family:'Nunito',Helvetica] font-bold text-[#05073c] text-[28px] leading-[33.6px] ${className}`}>
+    <h2 className={`font-bold text-[#05073c] text-[28px] leading-[33.6px] ${className}`}>
       {children}
     </h2>
   );
@@ -139,39 +139,39 @@ const JobCard = ({
   return (
     <div className="bg-white rounded-[12px] shadow-md p-4 md:p-8 hover:shadow-lg transition-shadow duration-200 border border-gray-200">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4 gap-2">
-        <h3 className="[font-family:'Nunito',Helvetica] font-bold text-[#05073c] text-[20px] md:text-[22px] leading-[28px] md:leading-[30.8px] flex-1">
+        <h3 className="font-bold text-[#05073c] text-[20px] md:text-[22px] leading-[28px] md:leading-[30.8px] flex-1">
           {title}
         </h3>
-        <span className="bg-[#f46036]/10 text-[#f46036] px-4 py-2 rounded-full [font-family:'Nunito',Helvetica] font-semibold text-sm whitespace-nowrap w-fit">
+        <span className="bg-[#f46036]/10 text-[#f46036] px-4 py-2 rounded-full font-semibold text-sm whitespace-nowrap w-fit">
           {applications}
         </span>
       </div>
 
       <div className="flex items-center gap-2 mb-4 text-[#666666]">
         <MapPinIcon className="w-5 h-5 flex-shrink-0" />
-        <span className="[font-family:'Nunito',Helvetica] text-[16px] leading-[22.4px]">
+        <span className="text-[16px] leading-[22.4px]">
           {location}
         </span>
       </div>
 
-      <p className="[font-family:'Nunito',Helvetica] text-[#333333] text-[16px] leading-[24px] mb-4">
+      <p className="text-[#333333] text-[16px] leading-[24px] mb-4">
         {description}
       </p>
 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between pt-4 border-t border-gray-200 gap-4">
         <div className="flex flex-col gap-1">
-          <span className="[font-family:'Nunito',Helvetica] font-semibold text-[#05073c] text-[16px]">
+          <span className="font-semibold text-[#05073c] text-[16px]">
             {salary}
           </span>
           <div className="flex items-center gap-2 text-[#666666]">
             <CalendarIcon className="w-4 h-4" />
-            <span className="[font-family:'Nunito',Helvetica] text-[14px]">
+            <span className="text-[14px]">
               {publishedDate}
             </span>
           </div>
         </div>
 
-        <Button className="bg-[#05073c] hover:bg-[#05073c]/90 text-white px-6 py-3 rounded-[8px] [font-family:'Nunito',Helvetica] font-semibold text-[16px] transition-colors duration-200 w-full md:w-auto">
+        <Button className="bg-[#05073c] hover:bg-[#05073c]/90 text-white px-6 py-3 rounded-[8px] font-semibold text-[16px] transition-colors duration-200 w-full md:w-auto">
           Ver detalles
         </Button>
       </div>
@@ -199,13 +199,13 @@ const ManagementCard = ({
       </div>
 
       <div className="flex-1 min-w-0">
-        <h3 className="[font-family:'Nunito',Helvetica] font-bold text-[#05073c] text-[18px] md:text-[22px] leading-[25.2px] md:leading-[30.8px] mb-2">
+        <h3 className="font-bold text-[#05073c] text-[18px] md:text-[22px] leading-[25.2px] md:leading-[30.8px] mb-2">
           {title}
         </h3>
-        <p className="[font-family:'Nunito',Helvetica] font-semibold text-[#f46036] text-[16px] md:text-[18px] leading-[22.4px] md:leading-[25.2px] mb-2">
+        <p className="font-semibold text-[#f46036] text-[16px] md:text-[18px] leading-[22.4px] md:leading-[25.2px] mb-2">
           {count}
         </p>
-        <p className="[font-family:'Nunito',Helvetica] text-[#666666] text-[14px] md:text-[16px] leading-[19.6px] md:leading-[22.4px]">
+        <p className="text-[#666666] text-[14px] md:text-[16px] leading-[19.6px] md:leading-[22.4px]">
           {description}
         </p>
       </div>
@@ -270,10 +270,10 @@ const SideMenu = ({ isOpen, onClose, userName, companyName }: SideMenuProps): JS
             <UserIcon className="w-6 h-6 text-white" />
           </div>
           <div className="flex flex-col">
-            <p className="[font-family:'Nunito',Helvetica] font-semibold text-white text-base leading-[22.4px]">
+            <p className="font-semibold text-white text-base leading-[22.4px]">
               {userName}
             </p>
-            <p className="[font-family:'Nunito',Helvetica] font-normal text-white/70 text-sm leading-[19.6px]">
+            <p className="font-normal text-white/70 text-sm leading-[19.6px]">
               {companyName}
             </p>
           </div>
@@ -282,49 +282,49 @@ const SideMenu = ({ isOpen, onClose, userName, companyName }: SideMenuProps): JS
         <div className="flex flex-col py-4">
           <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
             <HomeIcon className="w-5 h-5 text-white flex-shrink-0" />
-            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+            <span className="font-normal text-white text-base leading-[22.4px]">
               Inicio
             </span>
           </button>
 
           <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
             <PlusIcon className="w-5 h-5 text-white flex-shrink-0" />
-            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+            <span className="font-normal text-white text-base leading-[22.4px]">
               Crear nueva oferta
             </span>
           </button>
 
           <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
             <BriefcaseIcon className="w-5 h-5 text-white flex-shrink-0" />
-            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+            <span className="font-normal text-white text-base leading-[22.4px]">
               Mis publicaciones
             </span>
           </button>
 
           <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
             <UsersIcon className="w-5 h-5 text-white flex-shrink-0" />
-            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+            <span className="font-normal text-white text-base leading-[22.4px]">
               Postulantes
             </span>
           </button>
 
           <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
             <BarChartIcon className="w-5 h-5 text-white flex-shrink-0" />
-            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+            <span className="font-normal text-white text-base leading-[22.4px]">
               Estadísticas
             </span>
           </button>
 
           <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
             <UserIcon className="w-5 h-5 text-white flex-shrink-0" />
-            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+            <span className="font-normal text-white text-base leading-[22.4px]">
               Mi perfil
             </span>
           </button>
 
           <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
             <SettingsIcon className="w-5 h-5 text-white flex-shrink-0" />
-            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+            <span className="font-normal text-white text-base leading-[22.4px]">
               Configuración
             </span>
           </button>
@@ -335,7 +335,7 @@ const SideMenu = ({ isOpen, onClose, userName, companyName }: SideMenuProps): JS
             onClick={handleLogout}
             className="flex items-center gap-4 px-6 py-5 text-left hover:bg-white/5 transition-colors w-full"
           >
-            <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+            <span className="font-normal text-white text-base leading-[22.4px]">
               Cerrar sesión
             </span>
           </button>
@@ -349,13 +349,13 @@ const RecentPublicationsSection = (): JSX.Element => {
   return (
     <footer className="w-full flex flex-col items-center justify-center gap-3 md:gap-2 py-6 md:py-8 px-4 bg-[#06083C] mt-auto">
       <div className="flex items-center justify-center">
-        <p className="[font-family:'Nunito',Helvetica] font-bold text-[#FAFAFA] text-base md:text-lg lg:text-[20px] text-center tracking-[0] leading-tight">
+        <p className="font-bold text-[#FAFAFA] text-base md:text-lg lg:text-[20px] text-center tracking-[0] leading-tight">
           © 2025 Portal de Empleos del Instituto Madero.
         </p>
       </div>
 
       <div className="flex items-center justify-center">
-        <p className="[font-family:'Nunito',Helvetica] font-normal text-[#FAFAFA] text-sm md:text-[15px] text-center tracking-[0] leading-relaxed">
+        <p className="font-normal text-[#FAFAFA] text-sm md:text-[15px] text-center tracking-[0] leading-relaxed">
           Desarrollado por estudiantes de la Tecnicatura Universitaria en Programación — UTN FRBA.
         </p>
       </div>
@@ -462,7 +462,7 @@ export const HomeReclutador = (): JSX.Element => {
 
       <section className="flex w-full flex-col items-center justify-center gap-8 px-4 md:px-10 py-16 bg-gradient-to-br from-[#1e2749] to-[#2a3558]">
         <div className="inline-flex items-center justify-center gap-2.5 px-4">
-          <div className="flex flex-col items-center justify-center w-fit [font-family:'Nunito',Helvetica] text-center">
+          <div className="flex flex-col items-center justify-center w-fit text-center">
             <span className="font-semibold text-white text-[24px] md:text-[32px] leading-[33.6px] md:leading-[44.8px] mb-2">
               Tus ofertas laborales
             </span>
@@ -477,7 +477,7 @@ export const HomeReclutador = (): JSX.Element => {
 
           <Button className="flex w-auto md:w-[230px] h-[54px] items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-3 bg-[#f46036] hover:bg-[#d9512e] rounded-[8px] shadow-md hover:shadow-lg transition-all duration-200 whitespace-nowrap">
             <PlusIcon className="w-5 h-5 md:w-6 md:h-6" />
-            <span className="[font-family:'Nunito',Helvetica] font-semibold text-white text-[14px] md:text-[20px] tracking-[0] leading-[normal]">
+            <span className="font-semibold text-white text-[14px] md:text-[20px] tracking-[0] leading-[normal]">
               Crear oferta
             </span>
           </Button>
@@ -500,7 +500,7 @@ export const HomeReclutador = (): JSX.Element => {
           <SectionTitle className="mb-10">Publicaciones recientes</SectionTitle>
           {isLoading ? (
             <div className="text-center py-8">
-              <p className="[font-family:'Nunito',Helvetica] text-[#666666] text-[18px]">
+              <p className="text-[#666666] text-[18px]">
                 Cargando publicaciones...
               </p>
             </div>
@@ -513,14 +513,14 @@ export const HomeReclutador = (): JSX.Element => {
                   applications="8 postulaciones recibidas"
                   location={job.location}
                   description={job.job_description}
-                  salary={`Sueldo indicado: ${job.salary}`}
+                  salary={`Sueldo indicado: $${job.salary}`}
                   publishedDate="Publicado el 15/01/2025"
                 />
               ))}
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="[font-family:'Nunito',Helvetica] text-[#666666] text-[18px]">
+              <p className="text-[#666666] text-[18px]">
                 No hay publicaciones disponibles
               </p>
             </div>
