@@ -21,5 +21,5 @@ export const CardContent: React.FC<CardContentProps> = ({ children, className = 
     <div className={className} {...props}>
       {children}
     </div>
-  );
+  ); 
 };

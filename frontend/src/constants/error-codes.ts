@@ -17,6 +17,13 @@ export const COMMON_ERROR_MESSAGES = {
   DEFAULT: 'Ha ocurrido un error. Intentá nuevamente',
 } as const;
 
+export const LOGIN_ERRORS = {
+  EMAIL_TOO_LONG: 'El correo no puede exceder 50 caracteres',
+  PASSWORD_TOO_LONG: 'La contraseña no puede exceder 30 caracteres',
+  INVALID_USER_TYPE: 'Tipo de usuario no válido',
+  LOGIN_FAILED: 'Error al iniciar sesión'
+};
+
 export const ENDPOINT_ERROR_MESSAGES = {
   LOGIN: {
     [ERROR_CODES.SUCCESS]: 'Inicio de sesión exitoso',

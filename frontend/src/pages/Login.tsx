@@ -8,6 +8,7 @@ import { LinkButton } from '../components/ui/link-button';
 import { ErrorMessage } from '../components/ui/error-message';
 import AuthService from '../services/auth.service';
 import { AuthAside } from '../components/ui/auth-aside';
+import { LOGIN_ERRORS } from '../constants/error-codes';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ export const Login: React.FC = () => {
   const validateEmail = (value: string): boolean => {
     setEmailError('');
     if (value.length > 50) {
-      setEmailError('El correo no puede exceder 50 caracteres');
+      setEmailError(LOGIN_ERRORS.EMAIL_TOO_LONG);
       return false;
     }
     return true;
@@ -44,11 +45,12 @@ export const Login: React.FC = () => {
   const validatePassword = (value: string): boolean => {
     setPasswordError('');
     if (value.length > 30) {
-      setPasswordError('La contraseña no puede exceder 30 caracteres');
+      setPasswordError(LOGIN_ERRORS.PASSWORD_TOO_LONG);
       return false;
     }
     return true;
   };
+
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -93,7 +95,7 @@ export const Login: React.FC = () => {
       if (userData.role === 'candidate') {
         navigate('/home-candidato', { replace: true });
       } else if (userData.role === 'employer') {
-        navigate('/home-empresa', { replace: true });
+        navigate('/home-reclutador', { replace: true });
       } else {
         setError('Tipo de usuario no válido');
       }
