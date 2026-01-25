@@ -277,7 +277,7 @@ export const HomeCandidato: React.FC = () => {
           className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${
             currentPage === 1
               ? 'text-[#757575] cursor-not-allowed'
-              : 'text-[#3351A6] hover:bg-[#f0f4ff] cursor-pointer'
+              : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
           }`}
         >
           <ChevronLeftIcon className="w-4 h-4 md:w-5 md:h-5" />
@@ -289,8 +289,8 @@ export const HomeCandidato: React.FC = () => {
             onClick={() => handlePageChange(page)}
             className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded [font-family:'Nunito',Helvetica] font-semibold text-sm md:text-base transition-colors cursor-pointer ${
               currentPage === page
-                ? 'bg-[#3351A6] text-white'
-                : 'text-[#3351A6] hover:bg-[#f0f4ff]'
+                ? 'bg-[#F46036] text-white'
+                : 'text-[#F46036] hover:bg-[#fff5f2]'
             }`}
           >
             {page}
@@ -303,7 +303,7 @@ export const HomeCandidato: React.FC = () => {
           className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${
             currentPage === totalPages
               ? 'text-[#757575] cursor-not-allowed'
-              : 'text-[#3351A6] hover:bg-[#f0f4ff] cursor-pointer'
+              : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
           }`}
         >
           <ChevronRightIcon className="w-4 h-4 md:w-5 md:h-5" />
@@ -609,7 +609,7 @@ export const HomeCandidato: React.FC = () => {
                 <div className="flex items-center gap-3 px-6 py-4 border-t border-[#eeeeee] bg-white">
                   <button
                     onClick={() => setIsFilterOpen(false)}
-                    className="flex-1 px-6 py-3 bg-[#3351A6] text-white rounded-lg hover:bg-[#2a4185] transition-colors [font-family:'Nunito',Helvetica] font-semibold text-base"
+                    className="flex-1 px-6 py-3 bg-[#F46036] text-white rounded-lg hover:bg-[#e2552f] transition-colors [font-family:'Nunito',Helvetica] font-semibold text-base"
                   >
                     Aplicar filtros
                   </button>
@@ -717,7 +717,7 @@ export const HomeCandidato: React.FC = () => {
               </h1>
               <button
                 onClick={() => setIsFilterOpen(true)}
-                className="lg:hidden flex items-center gap-2 px-4 py-2.5 bg-[#3351A6] text-white rounded-lg hover:bg-[#2a4185] transition-colors shadow-sm"
+                className="lg:hidden flex items-center gap-2 px-4 py-2.5 bg-[#F46036] text-white rounded-lg hover:bg-[#2a4185] transition-colors shadow-sm"
               >
                 <svg
                   width="18"
