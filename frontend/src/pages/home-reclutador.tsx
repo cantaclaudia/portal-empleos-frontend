@@ -255,7 +255,7 @@ const SideMenu = ({ isOpen, onClose, userName, companyName }: SideMenuProps): JS
         className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
         onClick={onClose}
       />
-      <div className="fixed left-0 top-0 h-full w-[280px] md:w-[320px] bg-[#06083C] z-50 shadow-2xl flex flex-col">
+      <div className="fixed left-0 top-0 h-full w-[320px] bg-[#06083C] z-50 shadow-2xl flex flex-col">
         <div className="flex items-center justify-end p-5">
           <button
             onClick={onClose}
@@ -347,17 +347,16 @@ const SideMenu = ({ isOpen, onClose, userName, companyName }: SideMenuProps): JS
 
 const RecentPublicationsSection = (): JSX.Element => {
   return (
-    <footer className="w-full flex flex-col items-center justify-center gap-3 py-8 md:py-12 px-4 bg-[#05073c] mt-12">
-      <div className="flex items-center justify-center px-4">
-        <p className="[font-family:'Nunito',Helvetica] font-bold text-neutral-50 text-[20px] md:text-[26px] text-center tracking-[0] leading-[28px] md:leading-[36px]">
+    <footer className="w-full flex flex-col items-center justify-center gap-3 md:gap-2 py-6 md:py-8 px-4 bg-[#06083C] mt-auto">
+      <div className="flex items-center justify-center">
+        <p className="[font-family:'Nunito',Helvetica] font-bold text-[#FAFAFA] text-base md:text-lg lg:text-[20px] text-center tracking-[0] leading-tight">
           © 2025 Portal de Empleos del Instituto Madero.
         </p>
       </div>
 
-      <div className="flex items-center justify-center px-4">
-        <p className="[font-family:'Nunito',Helvetica] font-normal text-white/80 text-[16px] md:text-[20px] text-center tracking-[0] leading-[22.4px] md:leading-[28px]">
-          Desarrollado por estudiantes de la Tecnicatura Universitaria en
-          Programación — UTN FRBA.
+      <div className="flex items-center justify-center">
+        <p className="[font-family:'Nunito',Helvetica] font-normal text-[#FAFAFA] text-sm md:text-[15px] text-center tracking-[0] leading-relaxed">
+          Desarrollado por estudiantes de la Tecnicatura Universitaria en Programación — UTN FRBA.
         </p>
       </div>
     </footer>
