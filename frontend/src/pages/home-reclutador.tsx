@@ -21,6 +21,7 @@ import { Button } from "../components/ui/button";
 import { HeaderLogo } from "../components/ui/header-logo";
 import availableJobsService, { type AvailableJob } from "../services/available-jobs.service";
 import AuthService from "../services/auth.service";
+import { ERROR_CODES } from "../constants/error-codes";
 
 const SearchInput = (): JSX.Element => {
   const [inputValue, setInputValue] = useState("");
@@ -406,22 +407,30 @@ export const HomeReclutador = (): JSX.Element => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const allJobs = await availableJobsService.getAvailableJobs();
+        const result = await availableJobsService.getAvailableJobs();
+
+        if (result.code !== ERROR_CODES.SUCCESS) {
+          console.error("Error al cargar trabajos:", result.description);
+          setCompanyName('Empresa');
+          setJobs([]);
+          return;
+        }
 
         const userCompanyId = 1;
 
-        const filteredJobs = allJobs.filter(job => job.company_id === userCompanyId);
+        const filteredJobs = result.data.filter(job => job.company_id === userCompanyId);
         setJobs(filteredJobs);
 
         if (filteredJobs.length > 0) {
           setCompanyName(filteredJobs[0].company_name);
         } else {
-          const companyJob = allJobs.find(job => job.company_id === userCompanyId);
+          const companyJob = result.data.find(job => job.company_id === userCompanyId);
           setCompanyName(companyJob ? companyJob.company_name : 'Empresa');
         }
       } catch (error) {
         console.error("Error al cargar trabajos:", error);
         setCompanyName('Empresa');
+        setJobs([]);
       } finally {
         setIsLoading(false);
       }

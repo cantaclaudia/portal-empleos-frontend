@@ -93,7 +93,7 @@ export const Login: React.FC = () => {
       if (userData.role === 'candidate') {
         navigate('/home-candidato', { replace: true });
       } else if (userData.role === 'employer') {
-        navigate('/home-empresa', { replace: true });
+        navigate('/home-reclutador', { replace: true });
       } else {
         setError('Tipo de usuario no válido');
       }
