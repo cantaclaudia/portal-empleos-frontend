@@ -20,6 +20,7 @@ import { HeaderLogo } from '../components/ui/header-logo';
 import AuthService from '../services/auth.service';
 import AvailableJobsService from '../services/available-jobs.service';
 import type { AvailableJob } from '../services/available-jobs.service';
+import { ERROR_CODES } from "../constants/error-codes";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -96,21 +97,27 @@ export const HomeCandidato: React.FC = () => {
 
   useEffect(() => {
   const loadJobs = async () => {
+    setLoading(true);
     try {
-      console.log("⏳ Pidiendo empleos...");
-      setLoading(true);
+      console.log("Pidiendo empleos...");
+      const result = await AvailableJobsService.getAvailableJobs();
 
-      const jobsData = await AvailableJobsService.getAvailableJobs();
-      console.log("✅ Respuesta jobs:", jobsData);
+      console.log("Respuesta jobs:", result);
 
-      setJobs(jobsData);
-      setError(null);
+      if (result.code !== ERROR_CODES.SUCCESS) {
+        setError(result.description);
+        setJobs([]); 
+      } else {
+        setJobs(result.data);
+        setError(null);
+      }
     } catch (err) {
-      console.error("❌ Error cargando empleos:", err);
-      setError("Error al cargar los empleos");
+      console.error(err);
+      setError("Error inesperado");
+      setJobs([]);
     } finally {
-      console.log("🔚 Finalizó loadJobs");
       setLoading(false);
+      console.log("🔚 Finalizó loadJobs");
     }
   };
 

@@ -7,9 +7,12 @@ import { Label } from "../components/ui/label";
 import { HeaderLogo } from "../components/ui/header-logo";
 import { ErrorMessage } from "../components/ui/error-message";
 import JSEncrypt from "jsencrypt";
-import CandidatoService from "../services/candidato.service";
+import CandidateService from "../services/candidate.service";
 import { apiService } from "../services/api.service";
 import { API_CONFIG } from "../config/api.config";
+import type { ErrorCode } from "../constants/error-codes";
+import errorHandler from "../services/error-handler.service";
+import validator from 'validator';
 
 import {
   Select,
@@ -18,6 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
+
+interface Skill {
+  skill_id: number;
+  name: string;
+}
+
+interface SkillsResponse {
+  code: ErrorCode;
+  description?: string;
+  data: Skill[];
+}
 
 export const RegistroCandidato = (): JSX.Element => {
   const navigate = useNavigate();
@@ -52,47 +66,46 @@ export const RegistroCandidato = (): JSX.Element => {
     (option) => !selectedSkills.includes(option.value)
   );
 
-  interface Skill {
-    skill_id: number;
-    name: string;
-  }
-
   useEffect(() => {
-  const loadSkills = async () => {
-    try {
-      setLoadingSkills(true);
-      setSkillsLoadError(null);
+    const loadSkills = async () => {
+      try {
+        setLoadingSkills(true);
+        setSkillsLoadError(null);
 
-      const response = await apiService.post<{
-        code: string;
-        description: string;
-        data: Skill[];
-      }>(API_CONFIG.ENDPOINTS.GET_SKILLS_LIST, {});
+        const response = await apiService.post<SkillsResponse>(
+          API_CONFIG.ENDPOINTS.GET_SKILLS_LIST,
+          {}
+        );
 
-      console.log('Skills API Response:', response);
+        console.log('Skills API Response:', response);
 
-      if (response.code !== '0200') {
-        throw new Error(response.description || 'Error al cargar habilidades');
+        if (!errorHandler.isSuccess(response.code)) {
+          errorHandler.handleApiError(response, 'GET_SKILLS');
+        }
+
+        if (response.data && Array.isArray(response.data)) {
+          const formattedSkills = response.data.map((skill) => ({
+            value: skill.skill_id.toString(),
+            label: skill.name,
+          }));
+          console.log('Formatted skills:', formattedSkills);
+          setSkillOptions(formattedSkills);
+        }
+      } catch (err) {
+        console.error('Error loading skills:', err);
+
+        setSkillsLoadError(
+          err instanceof Error
+            ? err.message
+            : 'Error al cargar las habilidades. Por favor, recargá la página.'
+        );
+      } finally {
+        setLoadingSkills(false);
       }
+    };
 
-      if (response.data && Array.isArray(response.data)) {
-        const formattedSkills = response.data.map((skill) => ({
-          value: skill.skill_id.toString(),
-          label: skill.name, // ✅ ahora sí se ve HTML, CSS, etc
-        }));
-        console.log('Formatted skills:', formattedSkills);
-        setSkillOptions(formattedSkills);
-      }
-    } catch (err) {
-      console.error('Error loading skills:', err);
-      setSkillsLoadError('Error al cargar las habilidades. Por favor, recargá la página.');
-    } finally {
-      setLoadingSkills(false);
-    }
-  };
-
-  loadSkills();
-}, []);
+    loadSkills();
+  }, []);
 
   const handleSkillSelect = (value: string) => {
     if (!selectedSkills.includes(value)) setSelectedSkills([...selectedSkills, value]);
@@ -103,12 +116,7 @@ export const RegistroCandidato = (): JSX.Element => {
   };
 
   const isValidUrl = (url: string) => {
-    try {
-      const parsed = new URL(url);
-      return parsed.protocol === "http:" || parsed.protocol === "https:";
-    } catch {
-      return false;
-    }
+    return validator.isURL(url, { protocols: ['http', 'https'], require_protocol: true });
   };
 
   const handleCvLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -208,7 +216,7 @@ export const RegistroCandidato = (): JSX.Element => {
         skill_list: selectedSkills.map((s) => parseInt(s)),
       };
 
-      await CandidatoService.registerCandidate(requestBody);
+      await CandidateService.registerCandidate(requestBody);
 
       navigate('/login');
     } catch (err) {
@@ -227,7 +235,7 @@ export const RegistroCandidato = (): JSX.Element => {
       </header>
 
       <main className="flex-1 w-full max-w-[1200px] mx-auto px-4 py-12">
-        <h2 className="[font-family:'Nunito',Helvetica] text-[#05073c] text-[28px] md:text-[32px] leading-tight mb-12 text-center">
+        <h2 className=" text-[#05073c] text-[28px] md:text-[32px] leading-tight mb-12 text-center">
           <span className="font-bold">Creá tu cuenta como candidato </span>
           <span className="font-normal">y accedé a ofertas laborales</span>
         </h2>
@@ -374,10 +382,8 @@ export const RegistroCandidato = (): JSX.Element => {
               Habilidades <span className="text-[#cc2222]">*</span>
             </Label>
             {skillsLoadError ? (
-              <div className="h-auto min-h-[42px] bg-white rounded-lg border border-[#cc2222] px-4 py-2 flex items-center">
-                <p className="[font-family:'Nunito',Helvetica] font-normal text-sm text-[#cc2222]">
-                  {skillsLoadError}
-                </p>
+              <div className="mt-1">
+                <ErrorMessage message={skillsLoadError} />
               </div>
             ) : (
               <Select onValueChange={handleSkillSelect} disabled={loadingSkills || loading} value="">
@@ -439,15 +445,26 @@ export const RegistroCandidato = (): JSX.Element => {
               {loading ? 'Registrando...' : 'Registrarse'}
             </Button>
 
-            <div className="text-center">
-              <p className="[font-family:'Nunito',Helvetica] text-[18px] leading-[28px]">
-                <span className="text-[#2f2d38]">¿Ya tenés cuenta? </span>
+            <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-[928px] gap-4 md:gap-8 px-4">
+              <p className="[font-family:'Nunito',Helvetica] text-[16px] md:text-[18px] leading-[28px] text-center md:text-left">
+                <span className="text-[#2f2d38]">¿Ya tenés cuenta?</span>
                 <button
                   type="button"
                   onClick={() => navigate('/login')}
-                  className="text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer [font-family:'Nunito',Helvetica]"
+                  className="ml-2 text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer [font-family:'Nunito',Helvetica] font-medium"
                 >
                   Iniciá sesión
+                </button>
+              </p>
+
+              <p className="[font-family:'Nunito',Helvetica] text-[16px] md:text-[18px] leading-[28px] text-center md:text-right">
+                <span className="text-[#2f2d38]">¿Sos reclutador?</span>
+                <button
+                  type="button"
+                  onClick={() => navigate('/registro-reclutador')}
+                  className="ml-2 text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer [font-family:'Nunito',Helvetica] font-medium"
+                >
+                  Crear cuenta
                 </button>
               </p>
             </div>

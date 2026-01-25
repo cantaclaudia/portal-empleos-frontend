@@ -15,7 +15,7 @@ class ApiService {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return (await response.json()) as T; 
+    return response.json();
   }
 }
 

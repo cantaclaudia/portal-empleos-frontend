@@ -1,43 +1,37 @@
 import { apiService } from './api.service';
 import { API_CONFIG } from '../config/api.config';
-import type { LoginRequest, LoginResponse, UserData } from '../types/auth.types';
+import errorHandler from './error-handler.service';
+import type { LoginRequest, UserData, ApiResponse } from '../types/auth.types';
+import type { ErrorCode } from '../constants/error-codes';
 
 const USER_STORAGE_KEY = 'portal_empleos_user';
 
 class AuthService {
-  // Hacer login
-  async login(email: string, password: string): Promise<LoginResponse> {
+  async login(email: string, password: string): Promise<UserData> {
     if (email.length > 50) {
       throw new Error('El correo electrónico no puede exceder 50 caracteres');
     }
+
     if (password.length > 30) {
       throw new Error('La contraseña no puede exceder 30 caracteres');
     }
 
-    const loginData: LoginRequest = { email, password };
-
     try {
-      const response = await apiService.post<LoginResponse>(
+      const loginData: LoginRequest = { email, password };
+
+      const response: ApiResponse<UserData> = await apiService.post(
         API_CONFIG.ENDPOINTS.LOGIN,
         loginData
       );
 
-      if (response.code === '0200') {
-        return response; // login exitoso
-      } else if (response.code === '0404') {
-        throw new Error('Usuario o contraseña incorrectos');
-      } else if (response.code === '0400') {
-        throw new Error('Solicitud incorrecta. Verifica los datos ingresados');
-      } else if (response.code === '0500') {
-        throw new Error('Error interno del servidor. Intenta nuevamente más tarde');
-      } else {
-        throw new Error(response.description || 'Error al iniciar sesión');
+      if (!errorHandler.isSuccess(response.code as ErrorCode)) {
+        errorHandler.handleApiError(response, 'LOGIN');
       }
+
+      return response.data;
+
     } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Error de conexión. Verifica tu conexión a internet');
+      throw errorHandler.wrapConnectionError(error); 
     }
   }
 

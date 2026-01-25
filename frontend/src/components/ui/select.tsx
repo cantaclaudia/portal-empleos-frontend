@@ -22,9 +22,10 @@ interface SelectProps {
   value?: string;
   onValueChange?: (value: string) => void;
   children: React.ReactNode;
+  disabled?: boolean;
 }
 
-export const Select: React.FC<SelectProps> = ({ value = '', onValueChange, children }) => {
+export const Select: React.FC<SelectProps> = ({ value = '', onValueChange, children, disabled = false }) => {
   const [open, setOpen] = useState(false);
 
   const handleValueChange = (newValue: string) => {
@@ -34,7 +35,13 @@ export const Select: React.FC<SelectProps> = ({ value = '', onValueChange, child
 
   return (
     <SelectContext.Provider value={{ value, onValueChange: handleValueChange, open, setOpen }}>
-      <div className="relative w-full">{children}</div>
+      <div className="relative w-full">
+        {React.Children.map(children, (child) =>
+          React.isValidElement(child)
+            ? React.cloneElement(child, { disabled })
+            : child
+        )}
+      </div>
     </SelectContext.Provider>
   );
 };
@@ -42,9 +49,10 @@ export const Select: React.FC<SelectProps> = ({ value = '', onValueChange, child
 interface SelectTriggerProps {
   className?: string;
   children: React.ReactNode;
+  disabled?: boolean;
 }
 
-export const SelectTrigger: React.FC<SelectTriggerProps> = ({ className = '', children }) => {
+export const SelectTrigger: React.FC<SelectTriggerProps> = ({ className = '', children, disabled = false }) => {
   const { open, setOpen } = useSelectContext();
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -52,8 +60,9 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = ({ className = '', ch
     <button
       ref={triggerRef}
       type="button"
-      onClick={() => setOpen(!open)}
-      className={`w-full flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-[#f46036] focus:border-transparent transition-all ${className}`}
+      onClick={() => !disabled && setOpen(!open)}
+      disabled={disabled}
+      className={`w-full flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-[#f46036] focus:border-transparent transition-all ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       {children}
       <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -112,15 +121,16 @@ export const SelectContent: React.FC<SelectContentProps> = ({ children }) => {
 interface SelectItemProps {
   value: string;
   children: React.ReactNode;
+  className?: string;
 }
 
-export const SelectItem: React.FC<SelectItemProps> = ({ value, children }) => {
+export const SelectItem: React.FC<SelectItemProps> = ({ value, children, className = '' }) => {
   const { onValueChange } = useSelectContext();
 
   return (
     <div
       onClick={() => onValueChange(value)}
-      className="px-3 py-2 cursor-pointer hover:bg-[#f2f2f2] [font-family:'Nunito',Helvetica] font-normal text-base text-[#333333] transition-colors"
+      className={`px-3 py-2 cursor-pointer hover:bg-[#f2f2f2] [font-family:'Nunito',Helvetica] font-normal text-base text-[#333333] transition-colors ${className}`}
     >
       {children}
     </div>

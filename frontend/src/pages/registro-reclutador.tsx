@@ -8,13 +8,14 @@ import { HeaderLogo } from "../components/ui/header-logo";
 import { ErrorMessage } from "../components/ui/error-message";
 import JSEncrypt from "jsencrypt";
 import { API_CONFIG } from "../config/api.config";
+import { ENDPOINT_ERROR_MESSAGES, ERROR_CODES, COMMON_ERROR_MESSAGES } from "../constants/error-codes";
+import { SelectValueLabel } from "../components/ui/select-value-label";
 
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "../components/ui/select";
 
 export const RegistroReclutador = (): JSX.Element => {
@@ -61,32 +62,24 @@ export const RegistroReclutador = (): JSX.Element => {
 
         const result = await response.json();
 
-        console.log('Companies API Response:', result);
-
-        if (result.code !== '0200') {
-          console.error('Companies API error code:', result.code, result.description);
-          throw new Error(result.description || 'Error al cargar empresas');
-        }
-
-        if (result.data && Array.isArray(result.data)) {
-          console.log('Companies data received:', result.data);
-
+        if (result.code === ERROR_CODES.SUCCESS && Array.isArray(result.data)) {
           const formattedCompanies = result.data.map(
             (company: { company_id: number; name: string }) => ({
-              value: company.company_id.toString(), // string para Radix Select
-              label: company.name, // ¡ahora coincide con tu API!
+              value: company.company_id.toString(),
+              label: company.name,
             })
           );
-
-          console.log('Formatted companies:', formattedCompanies);
           setCompanyOptions(formattedCompanies);
         } else {
-          console.error('Invalid companies data format:', result.data);
-          setCompaniesLoadError('No se pudieron cargar las empresas');
+          const message =
+            ENDPOINT_ERROR_MESSAGES.GET_COMPANIES[result.code as keyof typeof ENDPOINT_ERROR_MESSAGES.GET_COMPANIES]
+            ?? result.description
+            ?? COMMON_ERROR_MESSAGES.DEFAULT;
+          setCompaniesLoadError(message);
         }
       } catch (err) {
-        console.error('Error loading companies:', err);
-        setCompaniesLoadError('Error al cargar las empresas. Por favor, recargá la página.');
+        console.error("Error loading companies:", err);
+        setCompaniesLoadError(COMMON_ERROR_MESSAGES.CONNECTION_ERROR);
       } finally {
         setLoadingCompanies(false);
       }
@@ -112,18 +105,13 @@ export const RegistroReclutador = (): JSX.Element => {
   const encryptPassword = (password: string) => {
     const publicKey = import.meta.env.VITE_RSA_PUBLIC_KEY;
 
-    if (!publicKey) {
-      console.warn('No RSA public key found, password will be sent as plain text');
-      return password;
-    }
+    if (!publicKey) return password;
 
     try {
       const jsEncrypt = new JSEncrypt();
       jsEncrypt.setPublicKey(publicKey);
-      const encrypted = jsEncrypt.encrypt(password);
-      return encrypted || password;
-    } catch (error) {
-      console.error('Error encrypting password:', error);
+      return jsEncrypt.encrypt(password) || password;
+    } catch {
       return password;
     }
   };
@@ -133,37 +121,37 @@ export const RegistroReclutador = (): JSX.Element => {
     setError(null);
 
     let hasError = false;
+    setNameError(false);
+    setLastNameError(false);
+    setEmailError(false);
+    setPasswordFormatError(false);
+    setPasswordMismatchError(false);
+    setCompanyError(false);
 
     if (name.trim() === "" || name.length > 20) {
       setNameError(true);
       hasError = true;
-    } else setNameError(false);
-
+    }
     if (lastName.trim() === "" || lastName.length > 20) {
       setLastNameError(true);
       hasError = true;
-    } else setLastNameError(false);
-
+    }
     if (email.trim() === "" || email.length > 60) {
       setEmailError(true);
       hasError = true;
-    } else setEmailError(false);
-
+    }
     if (password.trim() === "" || password.length > 30) {
       setPasswordFormatError(true);
       hasError = true;
-    } else setPasswordFormatError(false);
-
+    }
     if (password !== confirmPassword) {
       setPasswordMismatchError(true);
       hasError = true;
-    } else setPasswordMismatchError(false);
-
+    }
     if (companyId.trim() === "") {
       setCompanyError(true);
       hasError = true;
-    } else setCompanyError(false);
-
+    }
     if (hasError) return;
 
     setLoading(true);
@@ -194,30 +182,14 @@ export const RegistroReclutador = (): JSX.Element => {
 
       console.log('Registration API Response:', result);
 
-      if (result.code === '200') {
+      if (result.code === ERROR_CODES.SUCCESS) {
         navigate('/login');
       } else {
-        let errorMessage = 'Error al registrar usuario';
-
-        switch (result.code) {
-          case '0400':
-            errorMessage = 'Solicitud incorrecta. Verifica los datos ingresados';
-            break;
-          case '0404':
-            errorMessage = 'Empresa no encontrada';
-            break;
-          case '0410':
-            errorMessage = 'El usuario ya está registrado';
-            break;
-          case '0500':
-            errorMessage = 'Error interno del servidor. Intenta nuevamente más tarde';
-            break;
-          default:
-            errorMessage = result.description || 'Error al registrar usuario';
-        }
-
-        console.error('Registration error:', errorMessage);
-        throw new Error(errorMessage);
+        const message =
+          ENDPOINT_ERROR_MESSAGES.REGISTER_EMPLOYER[result.code as keyof typeof ENDPOINT_ERROR_MESSAGES.REGISTER_EMPLOYER] ||
+          result.description ||
+          ENDPOINT_ERROR_MESSAGES.REGISTER_EMPLOYER[ERROR_CODES.INTERNAL_ERROR];
+        throw new Error(message);
       }
     } catch (err) {
       console.error('Error during registration:', err);
@@ -241,11 +213,7 @@ export const RegistroReclutador = (): JSX.Element => {
           <span className="font-normal">y publicá ofertas laborales</span>
         </h2>
 
-        {error && (
-          <div className="max-w-[928px] mx-auto mb-6">
-            <ErrorMessage message={error} />
-          </div>
-        )}
+        {error && <ErrorMessage message={error} />}
 
         <form className="flex flex-col gap-8 max-w-[928px] mx-auto" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -380,7 +348,11 @@ export const RegistroReclutador = (): JSX.Element => {
                 disabled={loadingCompanies || loading}
               >
                 <SelectTrigger className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-4 py-2 font-normal text-base text-[#b3b3b3]">
-                  <SelectValue placeholder={loadingCompanies ? "Cargando empresas..." : "Seleccioná tu empresa"} />
+                  <SelectValueLabel
+                    value={companyId}
+                    options={companyOptions}
+                    placeholder={loadingCompanies ? "Cargando empresas..." : "Seleccioná tu empresa"}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {loadingCompanies ? (
@@ -388,7 +360,7 @@ export const RegistroReclutador = (): JSX.Element => {
                   ) : companyOptions.length > 0 ? (
                     companyOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {option.label} 
+                        {option.label}
                       </SelectItem>
                     ))
                   ) : (
@@ -409,15 +381,26 @@ export const RegistroReclutador = (): JSX.Element => {
               {loading ? 'Registrando...' : 'Registrarse'}
             </Button>
 
-            <div className="text-center">
-              <p className="[font-family:'Nunito',Helvetica] text-[18px] leading-[28px]">
+            <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-[928px] gap-4 md:gap-8 px-4">
+              <p className="[font-family:'Nunito',Helvetica] text-[16px] md:text-[18px] leading-[28px] text-center md:text-left">
                 <span className="text-[#2f2d38]">¿Ya tenés cuenta? </span>
                 <button
                   type="button"
                   onClick={() => navigate('/login')}
-                  className="text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer [font-family:'Nunito',Helvetica]"
+                  className="text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer [font-family:'Nunito',Helvetica] font-medium"
                 >
                   Iniciá sesión
+                </button>
+              </p>
+
+              <p className="[font-family:'Nunito',Helvetica] text-[16px] md:text-[18px] leading-[28px] text-center md:text-right">
+                <span className="text-[#2f2d38]">¿Sos candidato? </span>
+                <button
+                  type="button"
+                  onClick={() => navigate('/registro-candidato')}
+                  className="text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer [font-family:'Nunito',Helvetica] font-medium"
+                >
+                  Crear cuenta
                 </button>
               </p>
             </div>
