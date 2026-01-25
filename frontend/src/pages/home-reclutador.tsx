@@ -22,6 +22,7 @@ import { HeaderLogo } from "../components/ui/header-logo";
 import availableJobsService, { type AvailableJob } from "../services/available-jobs.service";
 import AuthService from "../services/auth.service";
 import { ERROR_CODES } from "../constants/error-codes";
+import { Footer } from "../components/ui/footer";
 
 const SearchInput = (): JSX.Element => {
   const [inputValue, setInputValue] = useState("");
@@ -346,21 +347,7 @@ const SideMenu = ({ isOpen, onClose, userName, companyName }: SideMenuProps): JS
 };
 
 const RecentPublicationsSection = (): JSX.Element => {
-  return (
-    <footer className="w-full flex flex-col items-center justify-center gap-3 md:gap-2 py-6 md:py-8 px-4 bg-[#06083C] mt-auto">
-      <div className="flex items-center justify-center">
-        <p className="font-bold text-[#FAFAFA] text-base md:text-lg lg:text-[20px] text-center tracking-[0] leading-tight">
-          © 2025 Portal de Empleos del Instituto Madero.
-        </p>
-      </div>
-
-      <div className="flex items-center justify-center">
-        <p className="font-normal text-[#FAFAFA] text-sm md:text-[15px] text-center tracking-[0] leading-relaxed">
-          Desarrollado por estudiantes de la Tecnicatura Universitaria en Programación — UTN FRBA.
-        </p>
-      </div>
-    </footer>
-  );
+   return <Footer />;
 };
 
 const managementItems = [
