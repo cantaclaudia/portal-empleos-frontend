@@ -287,7 +287,7 @@ export const HomeCandidato: React.FC = () => {
           <button
             key={page}
             onClick={() => handlePageChange(page)}
-            className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded [font-family:'Nunito',Helvetica] font-semibold text-sm md:text-base transition-colors cursor-pointer ${currentPage === page
+            className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded font-semibold text-sm md:text-base transition-colors cursor-pointer ${currentPage === page
                 ? 'bg-[#F46036] text-white'
                 : 'text-[#F46036] hover:bg-[#fff5f2]'
               }`}
@@ -344,10 +344,10 @@ export const HomeCandidato: React.FC = () => {
                 <UserIcon className="w-6 h-6 text-white" />
               </div>
               <div className="flex flex-col">
-                <p className="[font-family:'Nunito',Helvetica] font-semibold text-white text-base leading-[22.4px]">
+                <p className="font-semibold text-white text-base leading-[22.4px]">
                   {userName}
                 </p>
-                <p className="[font-family:'Nunito',Helvetica] font-normal text-white/70 text-sm leading-[19.6px]">
+                <p className="font-normal text-white/70 text-sm leading-[19.6px]">
                   Candidato
                 </p>
               </div>
@@ -356,35 +356,35 @@ export const HomeCandidato: React.FC = () => {
             <div className="flex flex-col py-4">
               <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
                 <HomeIcon className="w-5 h-5 text-white flex-shrink-0" />
-                <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+                <span className="font-normal text-white text-base leading-[22.4px]">
                   Inicio
                 </span>
               </button>
 
               <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
                 <SearchIcon className="w-5 h-5 text-white flex-shrink-0" />
-                <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+                <span className="font-normal text-white text-base leading-[22.4px]">
                   Buscar empleos
                 </span>
               </button>
 
               <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
                 <FileTextIcon className="w-5 h-5 text-white flex-shrink-0" />
-                <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+                <span className="font-normal text-white text-base leading-[22.4px]">
                   Mis postulaciones
                 </span>
               </button>
 
               <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
                 <UserIcon className="w-5 h-5 text-white flex-shrink-0" />
-                <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+                <span className="font-normal text-white text-base leading-[22.4px]">
                   Mi perfil
                 </span>
               </button>
 
               <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
                 <SettingsIcon className="w-5 h-5 text-white flex-shrink-0" />
-                <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+                <span className="font-normal text-white text-base leading-[22.4px]">
                   Configuración
                 </span>
               </button>
@@ -395,7 +395,7 @@ export const HomeCandidato: React.FC = () => {
                 onClick={handleLogout}
                 className="flex items-center gap-4 px-6 py-5 text-left hover:bg-white/5 transition-colors w-full"
               >
-                <span className="[font-family:'Nunito',Helvetica] font-normal text-white text-base leading-[22.4px]">
+                <span className="font-normal text-white text-base leading-[22.4px]">
                   Cerrar sesión
                 </span>
               </button>
@@ -406,7 +406,7 @@ export const HomeCandidato: React.FC = () => {
 
       <section className="flex w-full min-h-[200px] md:min-h-[240px] lg:min-h-[278px] flex-col items-center justify-center gap-4 md:gap-6 px-4 py-6 md:py-8 bg-[#1E2749]">
         <div className="flex items-center justify-center px-2">
-          <h2 className="[font-family:'Nunito',Helvetica] font-semibold text-[#FAFAFA] text-xl md:text-2xl lg:text-[26px] tracking-[0] leading-tight text-center">
+          <h2 className="font-semibold text-[#FAFAFA] text-xl md:text-2xl lg:text-[26px] tracking-[0] leading-tight text-center">
             ¿Qué tipo de empleo estás buscando?
           </h2>
         </div>
@@ -426,7 +426,7 @@ export const HomeCandidato: React.FC = () => {
                 setShowAreaSuggestions(true);
               }}
               onFocus={() => setShowAreaSuggestions(true)}
-              className="border-0 shadow-none p-0 h-auto [font-family:'Nunito',Helvetica] font-normal text-[#333333] text-base md:text-lg lg:text-[18px] tracking-[0] leading-tight focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#8c8c8c]"
+              className="border-0 shadow-none p-0 h-auto font-normal text-[#333333] text-base md:text-lg lg:text-[18px] tracking-[0] leading-tight focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#8c8c8c]"
             />
             {areaInput && (
               <button
@@ -443,7 +443,7 @@ export const HomeCandidato: React.FC = () => {
                   <button
                     key={suggestion}
                     onClick={() => handleAreaSelect(suggestion)}
-                    className="w-full px-4 md:px-8 lg:px-[60px] py-3 text-left hover:bg-gray-50 transition-colors [font-family:'Nunito',Helvetica] font-normal text-[#333333] text-base md:text-base lg:text-[16px] tracking-[0] leading-[24px]"
+                    className="w-full px-4 md:px-8 lg:px-[60px] py-3 text-left hover:bg-gray-50 transition-colors font-normal text-[#333333] text-base md:text-base lg:text-[16px] tracking-[0] leading-[24px]"
                   >
                     {suggestion}
                   </button>
@@ -466,7 +466,7 @@ export const HomeCandidato: React.FC = () => {
                 setShowLocationSuggestions(true);
               }}
               onFocus={() => setShowLocationSuggestions(true)}
-              className="border-0 shadow-none p-0 h-auto [font-family:'Nunito',Helvetica] font-normal text-[#333333] text-base md:text-lg lg:text-[18px] tracking-[0] leading-tight focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#8c8c8c]"
+              className="border-0 shadow-none p-0 h-auto font-normal text-[#333333] text-base md:text-lg lg:text-[18px] tracking-[0] leading-tight focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#8c8c8c]"
             />
             {locationInput && (
               <button
@@ -483,7 +483,7 @@ export const HomeCandidato: React.FC = () => {
                   <button
                     key={suggestion}
                     onClick={() => handleLocationSelect(suggestion)}
-                    className="w-full px-4 md:px-8 lg:px-[60px] py-3 text-left hover:bg-gray-50 transition-colors [font-family:'Nunito',Helvetica] font-normal text-[#333333] text-base md:text-base lg:text-[16px] tracking-[0] leading-[24px]"
+                    className="w-full px-4 md:px-8 lg:px-[60px] py-3 text-left hover:bg-gray-50 transition-colors font-normal text-[#333333] text-base md:text-base lg:text-[16px] tracking-[0] leading-[24px]"
                   >
                     {suggestion}
                   </button>
@@ -509,7 +509,7 @@ export const HomeCandidato: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between px-6 py-4 border-b border-[#eeeeee]">
-                  <h2 className="[font-family:'Nunito',Helvetica] font-bold text-[#333333] text-[22px] tracking-[-0.02em] leading-[28px]">
+                  <h2 className="font-bold text-[#333333] text-[22px] tracking-[-0.02em] leading-[28px]">
                     Filtrar resultados
                   </h2>
                   <button
@@ -528,7 +528,7 @@ export const HomeCandidato: React.FC = () => {
                         }`}
                     >
                       <div className="flex items-center gap-2 px-6 pt-5 pb-3">
-                        <h3 className="[font-family:'Nunito',Helvetica] font-semibold text-[#555555] text-base tracking-[0] leading-[22px]">
+                        <h3 className="font-semibold text-[#555555] text-base tracking-[0] leading-[22px]">
                           {section.title}
                         </h3>
                       </div>
@@ -568,7 +568,7 @@ export const HomeCandidato: React.FC = () => {
                               )}
                             </div>
                             <span
-                              className={`[font-family:'Nunito',Helvetica] text-[15px] tracking-[0] leading-[21px] transition-colors duration-200 ${isFilterActive(section.title, option)
+                              className={`text-[15px] tracking-[0] leading-[21px] transition-colors duration-200 ${isFilterActive(section.title, option)
                                   ? 'text-[#3351A6] font-semibold'
                                   : 'text-[#666666] font-normal'
                                 }`}
@@ -589,7 +589,7 @@ export const HomeCandidato: React.FC = () => {
                                   }`}
                               />
                             </div>
-                            <span className="[font-family:'Nunito',Helvetica] font-medium text-[#999999] text-[14px] tracking-[0] leading-[20px] group-hover:text-[#3351A6] transition-colors duration-200">
+                            <span className="font-medium text-[#999999] text-[14px] tracking-[0] leading-[20px] group-hover:text-[#3351A6] transition-colors duration-200">
                               {expandedSections[section.title] ? 'Ver menos' : 'Ver más'}
                             </span>
                           </button>
@@ -602,7 +602,7 @@ export const HomeCandidato: React.FC = () => {
                 <div className="flex items-center gap-3 px-6 py-4 border-t border-[#eeeeee] bg-white">
                   <button
                     onClick={() => setIsFilterOpen(false)}
-                    className="flex-1 px-6 py-3 bg-[#F46036] text-white rounded-lg hover:bg-[#e2552f] transition-colors [font-family:'Nunito',Helvetica] font-semibold text-base"
+                    className="flex-1 px-6 py-3 bg-[#F46036] text-white rounded-lg hover:bg-[#e2552f] transition-colors font-semibold text-base"
                   >
                     Aplicar filtros
                   </button>
@@ -613,7 +613,7 @@ export const HomeCandidato: React.FC = () => {
 
           <aside className="hidden lg:flex flex-col bg-white rounded-xl border border-[#dedede] shadow-sm max-h-[calc(100vh-3rem)] sticky top-6 w-[380px]">
             <div className="flex items-center px-6 py-6 bg-gradient-to-b from-[#fafafa] to-white border-b border-[#eeeeee] flex-shrink-0">
-              <h2 className="[font-family:'Nunito',Helvetica] font-bold text-[#333333] text-[22px] tracking-[-0.02em] leading-[28px]">
+              <h2 className="font-bold text-[#333333] text-[22px] tracking-[-0.02em] leading-[28px]">
                 Filtros
               </h2>
             </div>
@@ -626,7 +626,7 @@ export const HomeCandidato: React.FC = () => {
                     }`}
                 >
                   <div className="flex items-center gap-2 px-6 pt-5 pb-3">
-                    <h3 className="[font-family:'Nunito',Helvetica] font-semibold text-[#555555] text-base tracking-[0] leading-[22px]">
+                    <h3 className="font-semibold text-[#555555] text-base tracking-[0] leading-[22px]">
                       {section.title}
                     </h3>
                   </div>
@@ -666,7 +666,7 @@ export const HomeCandidato: React.FC = () => {
                           )}
                         </div>
                         <span
-                          className={`[font-family:'Nunito',Helvetica] text-[15px] tracking-[0] leading-[21px] transition-colors duration-200 ${isFilterActive(section.title, option)
+                          className={`text-[15px] tracking-[0] leading-[21px] transition-colors duration-200 ${isFilterActive(section.title, option)
                               ? 'text-[#3351A6] font-semibold'
                               : 'text-[#666666] font-normal'
                             }`}
@@ -687,7 +687,7 @@ export const HomeCandidato: React.FC = () => {
                               }`}
                           />
                         </div>
-                        <span className="[font-family:'Nunito',Helvetica] font-medium text-[#999999] text-[14px] tracking-[0] leading-[20px] group-hover:text-[#3351A6] transition-colors duration-200">
+                        <span className="font-medium text-[#999999] text-[14px] tracking-[0] leading-[20px] group-hover:text-[#3351A6] transition-colors duration-200">
                           {expandedSections[section.title] ? 'Ver menos' : 'Ver más'}
                         </span>
                       </button>
@@ -700,7 +700,7 @@ export const HomeCandidato: React.FC = () => {
 
           <main className="flex flex-col gap-6 flex-1 pb-6 md:pb-[45px]">
             <div className="flex items-center justify-between gap-4 px-2">
-              <h1 className="[font-family:'Nunito',Helvetica] font-bold text-[#06083C] text-xl md:text-2xl lg:text-[28px] tracking-[0] leading-tight">
+              <h1 className="font-bold text-[#06083C] text-xl md:text-2xl lg:text-[28px] tracking-[0] leading-tight">
                 Ofertas destacadas
               </h1>
               <button
@@ -722,7 +722,7 @@ export const HomeCandidato: React.FC = () => {
                     strokeLinecap="round"
                   />
                 </svg>
-                <span className="[font-family:'Nunito',Helvetica] font-semibold text-sm">
+                <span className="font-semibold text-sm">
                   Filtros
                 </span>
               </button>
@@ -731,7 +731,7 @@ export const HomeCandidato: React.FC = () => {
             {loading ? (
               <Card className="bg-white border-0 shadow-sm">
                 <CardContent className="flex flex-col items-center justify-center gap-4 px-8 py-16">
-                  <p className="[font-family:'Nunito',Helvetica] font-normal text-[#757575] text-xl tracking-[0] leading-7 text-center">
+                  <p className="font-normal text-[#757575] text-xl tracking-[0] leading-7 text-center">
                     Cargando empleos...
                   </p>
                 </CardContent>
@@ -739,7 +739,7 @@ export const HomeCandidato: React.FC = () => {
             ) : error ? (
               <Card className="bg-white border-0 shadow-sm">
                 <CardContent className="flex flex-col items-center justify-center gap-4 px-8 py-16">
-                  <p className="[font-family:'Nunito',Helvetica] font-normal text-[#f46036] text-xl tracking-[0] leading-7 text-center">
+                  <p className="font-normal text-[#f46036] text-xl tracking-[0] leading-7 text-center">
                     {error}
                   </p>
                 </CardContent>
@@ -747,7 +747,7 @@ export const HomeCandidato: React.FC = () => {
             ) : filteredJobs.length === 0 ? (
               <Card className="bg-white border-0 shadow-sm">
                 <CardContent className="flex flex-col items-center justify-center gap-4 px-8 py-16">
-                  <p className="[font-family:'Nunito',Helvetica] font-normal text-[#757575] text-xl tracking-[0] leading-7 text-center">
+                  <p className="font-normal text-[#757575] text-xl tracking-[0] leading-7 text-center">
                     {hasActiveFilters
                       ? 'No hay empleos que coincidan con los filtros seleccionados'
                       : 'No hay empleos de momento'}
@@ -763,16 +763,16 @@ export const HomeCandidato: React.FC = () => {
                   >
                     <CardContent className="flex flex-col gap-3 md:gap-4 px-5 md:px-6 py-4 md:py-5">
                       <div className="w-full">
-                        <h3 className="[font-family:'Nunito',Helvetica] font-bold text-[#333333] text-lg md:text-xl lg:text-[22px] tracking-[0] leading-tight mb-1.5">
+                        <h3 className="font-bold text-[#333333] text-lg md:text-xl lg:text-[22px] tracking-[0] leading-tight mb-1.5">
                           {job.job_title}
                         </h3>
-                        <p className="[font-family:'Nunito',Helvetica] font-semibold text-[#F46036] text-base md:text-lg tracking-[0] leading-tight">
+                        <p className="font-semibold text-[#F46036] text-base md:text-lg tracking-[0] leading-tight">
                           {job.location} / {formatSalary(job.salary)}
                         </p>
                       </div>
 
                       <div className="w-full">
-                        <p className="[font-family:'Nunito',Helvetica] font-normal text-[#333333] text-sm md:text-base tracking-[0] leading-relaxed">
+                        <p className="font-normal text-[#333333] text-sm md:text-base tracking-[0] leading-relaxed">
                           {job.job_description}
                         </p>
                       </div>
@@ -780,12 +780,12 @@ export const HomeCandidato: React.FC = () => {
                       <div className="flex w-full items-center justify-between gap-4 pt-1">
                         <button
                           onClick={() => handleViewMore(startIndex + index)}
-                          className="[font-family:'Nunito',Helvetica] font-bold text-[#3351A6] text-sm md:text-base tracking-[0] leading-tight hover:opacity-80 transition-opacity cursor-pointer"
+                          className="font-bold text-[#3351A6] text-sm md:text-base tracking-[0] leading-tight hover:opacity-80 transition-opacity cursor-pointer"
                         >
                           Ver más
                         </button>
 
-                        <span className="[font-family:'Nunito',Helvetica] font-normal text-[#333333] text-xs md:text-sm tracking-[0] leading-tight opacity-70">
+                        <span className="font-normal text-[#333333] text-xs md:text-sm tracking-[0] leading-tight opacity-70">
                           {getTimeAgo(startIndex + index)}
                         </span>
                       </div>

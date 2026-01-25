@@ -249,7 +249,7 @@ export const RegistroCandidato = (): JSX.Element => {
         <form className="flex flex-col gap-8 max-w-[928px] mx-auto" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-[5px]">
-              <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+              <Label className=" font-normal text-sm leading-normal">
                 Nombre <span className="text-[#cc2222]">*</span>
               </Label>
               <Input
@@ -260,11 +260,11 @@ export const RegistroCandidato = (): JSX.Element => {
                 maxLength={20}
                 disabled={loading}
               />
-              {nameError && <p className="[font-family:'Nunito',Helvetica] text-[#cc2222] text-sm mt-1">Nombre obligatorio, máximo 20 caracteres</p>}
+              {nameError && <p className=" text-[#cc2222] text-sm mt-1">Nombre obligatorio, máximo 20 caracteres</p>}
             </div>
 
             <div className="flex flex-col gap-[5px]">
-              <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+              <Label className=" font-normal text-sm leading-normal">
                 Apellido <span className="text-[#cc2222]">*</span>
               </Label>
               <Input
@@ -275,12 +275,12 @@ export const RegistroCandidato = (): JSX.Element => {
                 maxLength={20}
                 disabled={loading}
               />
-              {lastNameError && <p className="[font-family:'Nunito',Helvetica] text-[#cc2222] text-sm mt-1">Apellido obligatorio, máximo 20 caracteres</p>}
+              {lastNameError && <p className=" text-[#cc2222] text-sm mt-1">Apellido obligatorio, máximo 20 caracteres</p>}
             </div>
           </div>
 
           <div className="flex flex-col gap-[5px]">
-            <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+            <Label className=" font-normal text-sm leading-normal">
               Correo electrónico <span className="text-[#cc2222]">*</span>
             </Label>
             <Input
@@ -292,12 +292,12 @@ export const RegistroCandidato = (): JSX.Element => {
               maxLength={60}
               disabled={loading}
             />
-            {emailError && <p className="[font-family:'Nunito',Helvetica] text-[#cc2222] text-sm mt-1">Email obligatorio, máximo 60 caracteres</p>}
+            {emailError && <p className=" text-[#cc2222] text-sm mt-1">Email obligatorio, máximo 60 caracteres</p>}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-[5px]">
-              <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+              <Label className=" font-normal text-sm leading-normal">
                 Contraseña <span className="text-[#cc2222]">*</span>
               </Label>
               <div className="relative">
@@ -326,7 +326,7 @@ export const RegistroCandidato = (): JSX.Element => {
             </div>
 
             <div className="flex flex-col gap-[5px]">
-              <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+              <Label className=" font-normal text-sm leading-normal">
                 Repetir contraseña <span className="text-[#cc2222]">*</span>
               </Label>
               <div className="relative">
@@ -353,7 +353,7 @@ export const RegistroCandidato = (): JSX.Element => {
                 </button>
 
                 {(passwordFormatError || passwordMismatchError) && (
-                  <div className="[font-family:'Nunito',Helvetica] text-[#cc2222] text-sm mt-1">
+                  <div className=" text-[#cc2222] text-sm mt-1">
                     {passwordFormatError && <p>La contraseña debe tener máximo 30 caracteres</p>}
                     {passwordMismatchError && <p>Las contraseñas no coinciden</p>}
                   </div>
@@ -363,7 +363,7 @@ export const RegistroCandidato = (): JSX.Element => {
           </div>
 
           <div className="flex flex-col gap-[5px]">
-            <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+            <Label className=" font-normal text-sm leading-normal">
               Currículum (URL) <span className="text-[#cc2222]">*</span>
             </Label>
             <Input
@@ -374,11 +374,11 @@ export const RegistroCandidato = (): JSX.Element => {
               maxLength={100}
               disabled={loading}
             />
-            {cvError && <p className="[font-family:'Nunito',Helvetica] text-[#cc2222] text-sm mt-1">Ingresá un link válido (http o https), máximo 100 caracteres</p>}
+            {cvError && <p className=" text-[#cc2222] text-sm mt-1">Ingresá un link válido (http o https), máximo 100 caracteres</p>}
           </div>
 
           <div className="flex flex-col gap-[5px]">
-            <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+            <Label className=" font-normal text-sm leading-normal">
               Habilidades <span className="text-[#cc2222]">*</span>
             </Label>
             {skillsLoadError ? (
@@ -387,22 +387,22 @@ export const RegistroCandidato = (): JSX.Element => {
               </div>
             ) : (
               <Select onValueChange={handleSkillSelect} disabled={loadingSkills || loading} value="">
-                <SelectTrigger className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-4 py-2 [font-family:'Nunito',Helvetica] font-normal text-base text-[#b3b3b3]">
+                <SelectTrigger className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-4 py-2  font-normal text-base text-[#b3b3b3]">
                   <SelectValue placeholder={loadingSkills ? "Cargando habilidades..." : "Seleccioná habilidades"} />
                 </SelectTrigger>
                 <SelectContent>
                   {loadingSkills ? (
-                    <div className="px-2 py-1.5 text-sm text-[#757575] [font-family:'Nunito',Helvetica]">
+                    <div className="px-2 py-1.5 text-sm text-[#757575] ">
                       Cargando...
                     </div>
                   ) : availableSkills.length > 0 ? (
                     availableSkills.map((option) => (
-                      <SelectItem key={option.value} value={option.value} className="[font-family:'Nunito',Helvetica]">
+                      <SelectItem key={option.value} value={option.value} className="">
                         {option.label}
                       </SelectItem>
                     ))
                   ) : (
-                    <div className="px-2 py-1.5 text-sm text-[#757575] [font-family:'Nunito',Helvetica]">
+                    <div className="px-2 py-1.5 text-sm text-[#757575] ">
                       {skillOptions.length === 0 ? 'No hay habilidades disponibles' : 'Todas las habilidades seleccionadas'}
                     </div>
                   )}
@@ -417,7 +417,7 @@ export const RegistroCandidato = (): JSX.Element => {
                   return (
                     <div
                       key={skillValue}
-                      className="bg-[#0088FF] text-white px-3 py-1.5 rounded-md flex items-center gap-2 [font-family:'Nunito',Helvetica] font-normal text-base"
+                      className="bg-[#0088FF] text-white px-3 py-1.5 rounded-md flex items-center gap-2  font-normal text-base"
                     >
                       <span>{skill?.label}</span>
                       <button
@@ -433,36 +433,36 @@ export const RegistroCandidato = (): JSX.Element => {
                 })}
               </div>
             )}
-            {skillsError && <p className="[font-family:'Nunito',Helvetica] text-[#cc2222] text-sm mt-1">Debés seleccionar al menos 1 habilidad</p>}
+            {skillsError && <p className=" text-[#cc2222] text-sm mt-1">Debés seleccionar al menos 1 habilidad</p>}
           </div>
 
           <div className="flex flex-col items-center gap-6 mt-4">
             <Button
               type="submit"
               disabled={loading}
-              className="h-auto bg-[#f46036] hover:bg-[#f46036]/90 rounded-lg px-12 py-2.5 [font-family:'Nunito',Helvetica] font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="h-auto bg-[#f46036] hover:bg-[#f46036]/90 rounded-lg px-12 py-2.5  font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Registrando...' : 'Registrarse'}
             </Button>
 
             <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-[928px] gap-4 md:gap-8 px-4">
-              <p className="[font-family:'Nunito',Helvetica] text-[16px] md:text-[18px] leading-[28px] text-center md:text-left">
+              <p className=" text-[16px] md:text-[18px] leading-[28px] text-center md:text-left">
                 <span className="text-[#2f2d38]">¿Ya tenés cuenta?</span>
                 <button
                   type="button"
                   onClick={() => navigate('/login')}
-                  className="ml-2 text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer [font-family:'Nunito',Helvetica] font-medium"
+                  className="ml-2 text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer  font-medium"
                 >
                   Iniciá sesión
                 </button>
               </p>
 
-              <p className="[font-family:'Nunito',Helvetica] text-[16px] md:text-[18px] leading-[28px] text-center md:text-right">
+              <p className=" text-[16px] md:text-[18px] leading-[28px] text-center md:text-right">
                 <span className="text-[#2f2d38]">¿Sos reclutador?</span>
                 <button
                   type="button"
                   onClick={() => navigate('/registro-reclutador')}
-                  className="ml-2 text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer [font-family:'Nunito',Helvetica] font-medium"
+                  className="ml-2 text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer  font-medium"
                 >
                   Crear cuenta
                 </button>

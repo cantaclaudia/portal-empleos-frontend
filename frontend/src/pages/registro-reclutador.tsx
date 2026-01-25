@@ -207,7 +207,7 @@ export const RegistroReclutador = (): JSX.Element => {
       </header>
 
       <main className="flex-1 w-full max-w-[1200px] mx-auto px-4 py-12">
-        <h2 className="[font-family:'Nunito',Helvetica] text-[#05073c] text-[28px] md:text-[32px] leading-tight mb-12 text-center">
+        <h2 className=" text-[#05073c] text-[28px] md:text-[32px] leading-tight mb-12 text-center">
           <span className="font-bold">Creá tu cuenta como empresa </span>
           <span className="font-normal">y publicá ofertas laborales</span>
         </h2>
@@ -217,7 +217,7 @@ export const RegistroReclutador = (): JSX.Element => {
         <form className="flex flex-col gap-8 max-w-[928px] mx-auto" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-[5px]">
-              <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+              <Label className=" font-normal text-sm leading-normal">
                 Nombre <span className="text-[#cc2222]">*</span>
               </Label>
               <Input
@@ -232,7 +232,7 @@ export const RegistroReclutador = (): JSX.Element => {
             </div>
 
             <div className="flex flex-col gap-[5px]">
-              <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+              <Label className=" font-normal text-sm leading-normal">
                 Apellido <span className="text-[#cc2222]">*</span>
               </Label>
               <Input
@@ -248,7 +248,7 @@ export const RegistroReclutador = (): JSX.Element => {
           </div>
 
           <div className="flex flex-col gap-[5px]">
-            <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+            <Label className=" font-normal text-sm leading-normal">
               Correo electrónico <span className="text-[#cc2222]">*</span>
             </Label>
             <Input
@@ -265,7 +265,7 @@ export const RegistroReclutador = (): JSX.Element => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex flex-col gap-[5px]">
-              <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+              <Label className=" font-normal text-sm leading-normal">
                 Contraseña <span className="text-[#cc2222]">*</span>
               </Label>
               <div className="relative">
@@ -294,7 +294,7 @@ export const RegistroReclutador = (): JSX.Element => {
             </div>
 
             <div className="flex flex-col gap-[5px]">
-              <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+              <Label className=" font-normal text-sm leading-normal">
                 Repetir contraseña <span className="text-[#cc2222]">*</span>
               </Label>
               <div className="relative">
@@ -331,12 +331,12 @@ export const RegistroReclutador = (): JSX.Element => {
           </div>
 
           <div className="flex flex-col gap-[5px]">
-            <Label className="[font-family:'Nunito',Helvetica] font-normal text-sm leading-normal">
+            <Label className=" font-normal text-sm leading-normal">
               Empresa <span className="text-[#cc2222]">*</span>
             </Label>
             {companiesLoadError ? (
               <div className="h-auto min-h-[42px] bg-white rounded-lg border border-[#cc2222] px-4 py-2 flex items-center">
-                <p className="[font-family:'Nunito',Helvetica] font-normal text-sm text-[#cc2222]">
+                <p className=" font-normal text-sm text-[#cc2222]">
                   {companiesLoadError}
                 </p>
               </div>
@@ -375,29 +375,29 @@ export const RegistroReclutador = (): JSX.Element => {
             <Button
               type="submit"
               disabled={loading}
-              className="h-auto bg-[#f46036] hover:bg-[#f46036]/90 rounded-lg px-12 py-2.5 [font-family:'Nunito',Helvetica] font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="h-auto bg-[#f46036] hover:bg-[#f46036]/90 rounded-lg px-12 py-2.5  font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Registrando...' : 'Registrarse'}
             </Button>
 
             <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-[928px] gap-4 md:gap-8 px-4">
-              <p className="[font-family:'Nunito',Helvetica] text-[16px] md:text-[18px] leading-[28px] text-center md:text-left">
+              <p className=" text-[16px] md:text-[18px] leading-[28px] text-center md:text-left">
                 <span className="text-[#2f2d38]">¿Ya tenés cuenta? </span>
                 <button
                   type="button"
                   onClick={() => navigate('/login')}
-                  className="text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer [font-family:'Nunito',Helvetica] font-medium"
+                  className="text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer  font-medium"
                 >
                   Iniciá sesión
                 </button>
               </p>
 
-              <p className="[font-family:'Nunito',Helvetica] text-[16px] md:text-[18px] leading-[28px] text-center md:text-right">
+              <p className=" text-[16px] md:text-[18px] leading-[28px] text-center md:text-right">
                 <span className="text-[#2f2d38]">¿Sos candidato? </span>
                 <button
                   type="button"
                   onClick={() => navigate('/registro-candidato')}
-                  className="text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer [font-family:'Nunito',Helvetica] font-medium"
+                  className="text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer  font-medium"
                 >
                   Crear cuenta
                 </button>

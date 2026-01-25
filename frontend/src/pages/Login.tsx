@@ -166,7 +166,7 @@ export const Login: React.FC = () => {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="w-4 h-4 rounded border-[#d9d9d9] text-[#f46036] focus:ring-[#f46036]"
               />
-              <span className="[font-family:'Nunito',Helvetica] text-sm text-[#333333]">
+              <span className="text-sm text-[#333333]">
                 Recordar mi usuario
               </span>
             </label>
@@ -181,7 +181,7 @@ export const Login: React.FC = () => {
             disabled={loading || !!emailError || !!passwordError}
             className="h-12 md:h-[56px] w-full max-w-[500px] mx-4 items-center justify-center rounded-lg bg-[#f46036] px-6 py-3 hover:bg-[#f46036]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span className="[font-family:'Nunito',Helvetica] text-base md:text-lg leading-normal tracking-[0] font-medium text-white">
+            <span className="text-base md:text-lg leading-normal tracking-[0] font-medium text-white">
               {loading ? 'Ingresando...' : 'Ingresar'}
             </span>
           </Button>
@@ -196,7 +196,7 @@ export const Login: React.FC = () => {
         <div className="h-4 md:h-6" />
 
         <div className="inline-flex items-center justify-center px-4 py-2">
-          <p className="w-full max-w-[500px] text-center [font-family:'Nunito',Helvetica] text-sm md:text-base leading-relaxed tracking-[0] font-normal">
+          <p className="w-full max-w-[500px] text-center text-sm md:text-base leading-relaxed tracking-[0] font-normal">
             <span className="text-[#333333]">
               ¿Todavía no estás registrado?{' '}
             </span>
