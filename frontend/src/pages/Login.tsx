@@ -93,7 +93,7 @@ export const Login: React.FC = () => {
       if (userData.role === 'candidate') {
         navigate('/home-candidato', { replace: true });
       } else if (userData.role === 'employer') {
-        navigate('/home-reclutador', { replace: true });
+        navigate('/home-empresa', { replace: true });
       } else {
         setError('Tipo de usuario no válido');
       }
@@ -115,7 +115,7 @@ export const Login: React.FC = () => {
             subtitle="Conectá con oportunidades y talento."
           />
 
-          <div className="h-2 md:h-4" />
+          <div className="h-1 md:h-3" />
 
           {error && <ErrorMessage message={error} />}
 
