@@ -9,7 +9,6 @@ import { ErrorMessage } from "../components/ui/error-message";
 import JSEncrypt from "jsencrypt";
 import { API_CONFIG } from "../config/api.config";
 import { ENDPOINT_ERROR_MESSAGES, ERROR_CODES, COMMON_ERROR_MESSAGES } from "../constants/error-codes";
-import { SelectValueLabel } from "../components/ui/select-value-label";
 
 import {
   Select,
@@ -348,17 +347,17 @@ export const RegistroReclutador = (): JSX.Element => {
                 disabled={loadingCompanies || loading}
               >
                 <SelectTrigger className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-4 py-2 font-normal text-base text-[#b3b3b3]">
-                  <SelectValueLabel
-                    value={companyId}
-                    options={companyOptions}
-                    placeholder={loadingCompanies ? "Cargando empresas..." : "Seleccioná tu empresa"}
-                  />
+                  {companyId
+                    ? companyOptions.find(option => option.value === companyId)?.label
+                    : loadingCompanies
+                      ? "Cargando empresas..."
+                      : "Seleccioná tu empresa"}
                 </SelectTrigger>
                 <SelectContent>
                   {loadingCompanies ? (
                     <div className="px-2 py-1.5 text-sm text-[#757575]">Cargando...</div>
                   ) : companyOptions.length > 0 ? (
-                    companyOptions.map((option) => (
+                    companyOptions.map(option => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
