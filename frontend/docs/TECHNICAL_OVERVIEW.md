@@ -1,1 +1,0 @@
-*Describe cómo está armado el proyecto*

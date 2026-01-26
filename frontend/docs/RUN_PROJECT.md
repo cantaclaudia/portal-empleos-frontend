@@ -1,1 +1,0 @@
-*Explicando cómo se corre*
