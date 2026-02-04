@@ -7,7 +7,6 @@ class EmployerService {
   async registerEmployer(
     data: RegisterEmployerRequest
   ): Promise<RegisterEmployerResponse> {
-    // Validaciones sync (ok que estén acá)
     if (data.name.length > 20) {
       throw new Error('El nombre no puede exceder 20 caracteres');
     }
