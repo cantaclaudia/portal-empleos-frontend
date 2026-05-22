@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Separator } from '../components/ui/separator';
 import { PageHeader } from '../components/ui/page-header';
@@ -12,6 +12,8 @@ import { LOGIN_ERRORS } from '../constants/error-codes';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation(); 
+  const successMessage = location.state?.successMessage; 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,6 +31,12 @@ export const Login: React.FC = () => {
       setRememberMe(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (successMessage) {
+      window.history.replaceState({}, document.title);
+    }
+  }, [successMessage]);
 
   const validateEmail = (value: string): boolean => {
     setEmailError('');
@@ -132,7 +140,11 @@ export const Login: React.FC = () => {
           />
 
           <div className="h-1 md:h-3" />
-
+           {successMessage && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4 text-center">
+              {successMessage}
+            </div>
+          )}
           {loginError && <ErrorMessage message={loginError} />}
 
           <FormField

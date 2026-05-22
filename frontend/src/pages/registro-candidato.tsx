@@ -218,7 +218,9 @@ export const RegistroCandidato = (): JSX.Element => {
 
       await CandidateService.registerCandidate(requestBody);
 
-      navigate('/login');
+      navigate('/login', {
+        state: { successMessage: 'Cuenta creada correctamente. Por favor, iniciá sesión.' }
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al registrar usuario');
     } finally {

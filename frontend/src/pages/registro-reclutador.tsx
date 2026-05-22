@@ -168,7 +168,7 @@ export const RegistroReclutador = (): JSX.Element => {
 
       console.log('Sending employer registration:', requestBody);
 
-      const response = await fetch(`${API_CONFIG.BASE_URL}/registerEmployerUser`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REGISTER_EMPLOYER}`, {
         method: 'POST',
         headers: {
           'x-access-token': API_CONFIG.TOKEN,
@@ -182,7 +182,9 @@ export const RegistroReclutador = (): JSX.Element => {
       console.log('Registration API Response:', result);
 
       if (result.code === ERROR_CODES.SUCCESS) {
-        navigate('/login');
+        navigate('/login', {
+          state: { successMessage: 'Cuenta creada correctamente. Por favor, iniciá sesión.' }
+        });
       } else {
         const message =
           ENDPOINT_ERROR_MESSAGES.REGISTER_EMPLOYER[result.code as keyof typeof ENDPOINT_ERROR_MESSAGES.REGISTER_EMPLOYER] ||
