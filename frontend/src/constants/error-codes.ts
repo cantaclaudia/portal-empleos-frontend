@@ -5,7 +5,7 @@ export const ERROR_CODES = {
   USER_ALREADY_REGISTERED: '0410',
   INCORRECT_DATA_LENGTH: '0411',
   INTERNAL_ERROR: '0500',
-  CONNECTION_ERROR: '0600', 
+  CONNECTION_ERROR: '0600',
 } as const;
 
 export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
@@ -24,7 +24,7 @@ export const LOGIN_ERRORS = {
   PASSWORD_TOO_LONG: 'La contraseña no puede exceder 30 caracteres',
   INVALID_USER_TYPE: 'Tipo de usuario no válido',
   LOGIN_FAILED: 'Error al iniciar sesión',
-   EMAIL_INVALID: 'Ingresá un correo electrónico válido',
+  EMAIL_INVALID: 'Ingresá un correo electrónico válido',
 };
 
 export const ENDPOINT_ERROR_MESSAGES = {
@@ -62,6 +62,11 @@ export const ENDPOINT_ERROR_MESSAGES = {
     [ERROR_CODES.SUCCESS]: 'Trabajos obtenidos correctamente',
     [ERROR_CODES.BAD_REQUEST]: COMMON_ERROR_MESSAGES[ERROR_CODES.BAD_REQUEST],
     [ERROR_CODES.INTERNAL_ERROR]: COMMON_ERROR_MESSAGES[ERROR_CODES.INTERNAL_ERROR],
+  },
+  
+  APPLY_FOR_JOB: {
+    [ERROR_CODES.USER_ALREADY_REGISTERED]: 'Ya estás postulado a esta oferta',
+    [ERROR_CODES.INTERNAL_ERROR]: 'Error al postularse al empleo',
   },
 } as const;
 

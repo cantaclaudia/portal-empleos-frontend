@@ -6,6 +6,7 @@ import { RegistroCandidato } from './pages/registro-candidato';
 import { RegistroReclutador } from './pages/registro-reclutador';
 import { ROUTES } from './routes';
 import { HomeReclutador } from './pages/home-reclutador';
+import { DetalleEmpleo } from './pages/detalle-empleo';
 
 import { CandidatoLayout } from './layouts/CandidatoLayout';
 import { ReclutadorLayout } from './layouts/ReclutadorLayout';
@@ -24,6 +25,7 @@ function App() {
         <Route element={<CandidatoLayout />}>
           <Route path={ROUTES.HOME_CANDIDATO} element={<HomeCandidato />} />
           {/*  Cuando se cree más pantallas de candidato, se agregan acá abajo */}
+          <Route path="/candidato/empleo/:id" element={<DetalleEmpleo />} />
         </Route>
 
         {/* Rutas de Reclutador (Envueltas en su Layout con Sidebar) */}

@@ -203,9 +203,10 @@ export const HomeCandidato: React.FC = () => {
     return `Publicado hace ${patterns[index % patterns.length]}`;
   };
 
-  const handleViewMore = (index: number) => {
-    navigate(`/job-details/${index}`);
-  };
+  const handleViewMore = (id: number | string | undefined) => {
+    if (!id) return;
+    navigate(`/candidato/empleo/${id}`);
+  }
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -220,9 +221,8 @@ export const HomeCandidato: React.FC = () => {
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${
-            currentPage === 1 ? 'text-[#757575] cursor-not-allowed' : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
-          }`}
+          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${currentPage === 1 ? 'text-[#757575] cursor-not-allowed' : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
+            }`}
         >
           <ChevronLeftIcon className="w-4 h-4 md:w-5 md:h-5" />
         </button>
@@ -230,9 +230,8 @@ export const HomeCandidato: React.FC = () => {
           <button
             key={page}
             onClick={() => handlePageChange(page)}
-            className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded font-semibold text-sm md:text-base transition-colors cursor-pointer ${
-              currentPage === page ? 'bg-[#F46036] text-white' : 'text-[#F46036] hover:bg-[#fff5f2]'
-            }`}
+            className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded font-semibold text-sm md:text-base transition-colors cursor-pointer ${currentPage === page ? 'bg-[#F46036] text-white' : 'text-[#F46036] hover:bg-[#fff5f2]'
+              }`}
           >
             {page}
           </button>
@@ -240,9 +239,8 @@ export const HomeCandidato: React.FC = () => {
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${
-            currentPage === totalPages ? 'text-[#757575] cursor-not-allowed' : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
-          }`}
+          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${currentPage === totalPages ? 'text-[#757575] cursor-not-allowed' : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
+            }`}
         >
           <ChevronRightIcon className="w-4 h-4 md:w-5 md:h-5" />
         </button>
@@ -267,16 +265,14 @@ export const HomeCandidato: React.FC = () => {
               <button
                 key={option}
                 onClick={() => handleFilterChange(section.title, option)}
-                className={`flex items-center gap-3 px-6 py-2.5 text-left transition-all duration-200 ${
-                  isFilterActive(section.title, option) ? 'bg-[#f0f4ff]' : 'hover:bg-[#fafafa]'
-                }`}
+                className={`flex items-center gap-3 px-6 py-2.5 text-left transition-all duration-200 ${isFilterActive(section.title, option) ? 'bg-[#f0f4ff]' : 'hover:bg-[#fafafa]'
+                  }`}
               >
                 <div
-                  className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
-                    isFilterActive(section.title, option)
+                  className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${isFilterActive(section.title, option)
                       ? 'border-[#3351A6] bg-[#3351A6] shadow-sm'
                       : 'border-[#cccccc] bg-white'
-                  }`}
+                    }`}
                 >
                   {isFilterActive(section.title, option) && (
                     <svg width="10" height="8" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -285,9 +281,8 @@ export const HomeCandidato: React.FC = () => {
                   )}
                 </div>
                 <span
-                  className={`text-[15px] tracking-[0] leading-[21px] transition-colors duration-200 ${
-                    isFilterActive(section.title, option) ? 'text-[#3351A6] font-semibold' : 'text-[#666666] font-normal'
-                  }`}
+                  className={`text-[15px] tracking-[0] leading-[21px] transition-colors duration-200 ${isFilterActive(section.title, option) ? 'text-[#3351A6] font-semibold' : 'text-[#666666] font-normal'
+                    }`}
                 >
                   {option}
                 </span>
@@ -300,9 +295,8 @@ export const HomeCandidato: React.FC = () => {
               >
                 <div className="w-[18px] h-[18px] flex items-center justify-center">
                   <PlusIcon
-                    className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-[#3351A6] ${
-                      expandedSections[section.title] ? 'rotate-45' : ''
-                    }`}
+                    className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-[#3351A6] ${expandedSections[section.title] ? 'rotate-45' : ''
+                      }`}
                   />
                 </div>
                 <span className="font-medium text-[#999999] text-[14px] tracking-[0] leading-[20px] group-hover:text-[#3351A6] transition-colors duration-200">
@@ -492,12 +486,12 @@ export const HomeCandidato: React.FC = () => {
               <>
                 {paginatedJobs.map((job, index) => (
                   <Card
-                    key={`${job.company_id}-${startIndex + index}`}
+                    key={job.job_offer_id ?? `${job.company_id}-${startIndex + index}`}
                     className="bg-white border-0 shadow-sm hover:shadow-md transition-shadow rounded-lg"
                   >
                     <CardContent className="flex flex-col gap-3 md:gap-4 px-5 md:px-6 py-4 md:py-5">
                       <div className="w-full">
-                                                <h3 className="font-bold text-[#333333] text-lg md:text-xl lg:text-[22px] tracking-[0] leading-tight mb-1">
+                        <h3 className="font-bold text-[#333333] text-lg md:text-xl lg:text-[22px] tracking-[0] leading-tight mb-1">
                           {job.job_title}
                         </h3>
                         <p className="font-semibold text-[#06083C] text-sm md:text-base tracking-[0] leading-tight mb-1.5">
@@ -514,7 +508,7 @@ export const HomeCandidato: React.FC = () => {
                       </div>
                       <div className="flex w-full items-center justify-between gap-4 pt-1">
                         <button
-                          onClick={() => handleViewMore(startIndex + index)}
+                          onClick={() => handleViewMore(job.company_id)} 
                           className="font-bold text-[#3351A6] text-sm md:text-base tracking-[0] leading-tight hover:opacity-80 transition-opacity cursor-pointer"
                         >
                           Ver más
@@ -537,4 +531,3 @@ export const HomeCandidato: React.FC = () => {
     </>
   );
 };
-

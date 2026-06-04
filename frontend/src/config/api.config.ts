@@ -9,6 +9,7 @@ export const API_CONFIG = {
     GET_AVAILABLE_JOBS: "/portalEmpleos/v1/getAvailableJobs",
     GET_SKILLS_LIST: '/portalEmpleos/v1/getSkillsList',
     GET_COMPANIES_LIST: '/portalEmpleos/v1/getCompaniesList',
+    APPLY_FOR_JOB: '/portalEmpleos/v1/applyForAJob',
   },
 };
 

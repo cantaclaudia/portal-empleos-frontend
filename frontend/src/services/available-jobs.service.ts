@@ -9,11 +9,17 @@ export interface AvailableJob {
   location: string;
   requirements: string;
   salary: string;
+  job_offer_id?: string;
 }
 
 interface AvailableJobsResponse {
   code: ErrorCode;
   data: AvailableJob[];
+  description: string;
+}
+
+interface ApplyForJobResponse {
+  code: ErrorCode;
   description: string;
 }
 
@@ -51,6 +57,38 @@ class AvailableJobsService {
         code: ERROR_CODES.INTERNAL_ERROR,
         data: [],
         description: "Error al cargar los empleos",
+      };
+    }
+  }
+
+   async applyForAJob(jobOfferId: string, candidateId: string): Promise<ApplyForJobResponse> {
+    try {
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.APPLY_FOR_JOB}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': API_CONFIG.TOKEN,
+            'user_id': '1',
+          },
+          body: JSON.stringify({ job_offer_id: jobOfferId, candidate_id: candidateId }),
+        }
+      );
+
+      if (!response.ok) {
+        return {
+          code: ERROR_CODES.INTERNAL_ERROR,
+          description: 'Error al postularse',
+        };
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error('Error al postularse:', err);
+      return {
+        code: ERROR_CODES.INTERNAL_ERROR,
+        description: 'Error al postularse',
       };
     }
   }

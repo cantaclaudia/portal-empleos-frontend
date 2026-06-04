@@ -17,12 +17,12 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect, useRef, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../components/ui/button";
-import { HeaderLogo } from "../components/ui/header-logo";
-import availableJobsService, { type AvailableJob } from "../services/available-jobs.service";
-import AuthService from "../services/auth.service";
-import { ERROR_CODES } from "../constants/error-codes";
-import { Footer } from "../components/ui/footer";
+import { Button } from "../../components/ui/button";
+import { HeaderLogo } from "../../components/ui/header-logo";
+import availableJobsService, { type AvailableJob } from "../../services/available-jobs.service";
+import AuthService from "../../services/auth.service";
+import { ERROR_CODES } from "../../constants/error-codes";
+import { Footer } from "../../components/ui/footer";
 
 const SearchInput = (): JSX.Element => {
   const [inputValue, setInputValue] = useState("");
