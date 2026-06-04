@@ -10,6 +10,7 @@ export const API_CONFIG = {
     GET_SKILLS_LIST: '/portalEmpleos/v1/getSkillsList',
     GET_COMPANIES_LIST: '/portalEmpleos/v1/getCompaniesList',
     APPLY_FOR_JOB: '/portalEmpleos/v1/applyForAJob',
+    GET_APPLICATION_STATUS: '/portalEmpleos/v1/getApplicationStatus',
   },
 };
 

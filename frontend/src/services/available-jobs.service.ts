@@ -1,5 +1,5 @@
-import { API_CONFIG } from "../config/api.config";
-import { ERROR_CODES, type ErrorCode } from "../constants/error-codes";
+import { API_CONFIG } from '../config/api.config';
+import { ERROR_CODES, type ErrorCode } from '../constants/error-codes';
 
 export interface AvailableJob {
   company_id: number;
@@ -18,9 +18,22 @@ interface AvailableJobsResponse {
   description: string;
 }
 
-interface ApplyForJobResponse {
+export interface ApplyForJobResponse {
   code: ErrorCode;
   description: string;
+  data?: { application_id?: string | number };
+}
+
+export interface ApplicationStatusData {
+  application_date: string;
+  status: number;
+  status_description: string;
+}
+
+interface ApplicationStatusResponse {
+  code: ErrorCode;
+  description: string;
+  data?: ApplicationStatusData;
 }
 
 class AvailableJobsService {
@@ -29,39 +42,28 @@ class AvailableJobsService {
       const response = await fetch(
         `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.GET_AVAILABLE_JOBS}`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "x-access-token": API_CONFIG.TOKEN,
-            "user_id": "1",
+            'Content-Type': 'application/json',
+            'x-access-token': API_CONFIG.TOKEN,
+            'user_id': '1',
           },
           body: JSON.stringify({}),
         }
       );
 
       if (!response.ok) {
-        const text = await response.text();
-        console.error("Respuesta backend:", text);
-        return {
-          code: ERROR_CODES.INTERNAL_ERROR,
-          data: [],
-          description: "Error de red",
-        };
+        return { code: ERROR_CODES.INTERNAL_ERROR, data: [], description: 'Error de red' };
       }
 
-      const result: AvailableJobsResponse = await response.json();
-      return result;
+      return await response.json();
     } catch (err) {
-      console.error("Error al cargar empleos:", err);
-      return {
-        code: ERROR_CODES.INTERNAL_ERROR,
-        data: [],
-        description: "Error al cargar los empleos",
-      };
+      console.error('Error al cargar empleos:', err);
+      return { code: ERROR_CODES.INTERNAL_ERROR, data: [], description: 'Error al cargar los empleos' };
     }
   }
 
-   async applyForAJob(jobOfferId: string, candidateId: string): Promise<ApplyForJobResponse> {
+  async applyForAJob(jobOfferId: string, candidateId: string): Promise<ApplyForJobResponse> {
     try {
       const response = await fetch(
         `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.APPLY_FOR_JOB}`,
@@ -77,19 +79,39 @@ class AvailableJobsService {
       );
 
       if (!response.ok) {
-        return {
-          code: ERROR_CODES.INTERNAL_ERROR,
-          description: 'Error al postularse',
-        };
+        return { code: ERROR_CODES.INTERNAL_ERROR, description: 'Error al postularse' };
       }
 
       return await response.json();
     } catch (err) {
       console.error('Error al postularse:', err);
-      return {
-        code: ERROR_CODES.INTERNAL_ERROR,
-        description: 'Error al postularse',
-      };
+      return { code: ERROR_CODES.INTERNAL_ERROR, description: 'Error al postularse' };
+    }
+  }
+
+  async getApplicationStatus(applicationId: string): Promise<ApplicationStatusResponse> {
+    try {
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.GET_APPLICATION_STATUS}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': API_CONFIG.TOKEN,
+            'user_id': '1',
+          },
+          body: JSON.stringify({ application_id: applicationId }),
+        }
+      );
+
+      if (!response.ok) {
+        return { code: ERROR_CODES.INTERNAL_ERROR, description: 'Error al consultar estado' };
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error('Error al consultar estado:', err);
+      return { code: ERROR_CODES.INTERNAL_ERROR, description: 'Error al consultar estado' };
     }
   }
 }
