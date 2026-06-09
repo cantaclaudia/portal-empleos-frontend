@@ -77,7 +77,13 @@ export const SidebarCandidato: React.FC<SidebarCandidatoProps> = ({ isOpen, onCl
             </span>
           </button>
 
-          <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
+          <button
+            onClick={() => {
+              navigate('/candidato/perfil');
+              onClose(); 
+            }}
+            className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors w-full"
+          >
             <UserIcon className="w-5 h-5 text-white flex-shrink-0" />
             <span className="font-normal text-white text-base leading-[22.4px]">
               Mi perfil

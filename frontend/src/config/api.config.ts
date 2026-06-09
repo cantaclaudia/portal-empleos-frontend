@@ -11,6 +11,7 @@ export const API_CONFIG = {
     GET_COMPANIES_LIST: '/portalEmpleos/v1/getCompaniesList',
     APPLY_FOR_JOB: '/portalEmpleos/v1/applyForAJob',
     GET_APPLICATION_STATUS: '/portalEmpleos/v1/getApplicationStatus',
+    GET_CANDIDATE_PROFILE: '/portalEmpleos/v1/getCandidateProfile',
   },
 };
 

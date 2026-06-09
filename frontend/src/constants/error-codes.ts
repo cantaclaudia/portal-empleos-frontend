@@ -68,6 +68,12 @@ export const ENDPOINT_ERROR_MESSAGES = {
     [ERROR_CODES.USER_ALREADY_REGISTERED]: 'Ya estás postulado a esta oferta',
     [ERROR_CODES.INTERNAL_ERROR]: 'Error al postularse al empleo',
   },
+
+  GET_CANDIDATE_PROFILE: {
+    [ERROR_CODES.SUCCESS]: 'Perfil cargado exitosamente',
+    [ERROR_CODES.NOT_FOUND]: 'Perfil no encontrado',
+    [ERROR_CODES.INTERNAL_ERROR]: 'Error al cargar el perfil',
+  },
 } as const;
 
 export type EndpointErrorMap = keyof typeof ENDPOINT_ERROR_MESSAGES;

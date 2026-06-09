@@ -3,6 +3,7 @@ import { API_CONFIG } from '../config/api.config';
 import errorHandler from './error-handler.service';
 import type { RegisterCandidateRequest } from '../types/candidate.types';
 import type { ApiResponse } from './error-handler.service';
+import { CandidateProfileData } from '../types/candidate.types';
 
 class CandidateService {
   async registerCandidate(
@@ -37,6 +38,23 @@ class CandidateService {
 
       errorHandler.handleApiError(response, 'REGISTER_CANDIDATE');
 
+    } catch (error) {
+      errorHandler.wrapConnectionError(error);
+    }
+  }
+
+  async getCandidateProfile(candidateId: string): Promise<CandidateProfileData | undefined> {
+    try {
+      const response = await apiService.post<ApiResponse & { data?: CandidateProfileData }>(
+        API_CONFIG.ENDPOINTS.GET_CANDIDATE_PROFILE,
+        { candidate_id: candidateId }
+      );
+
+      if (errorHandler.isSuccess(response.code)) {
+        return response.data;
+      }
+
+      errorHandler.handleApiError(response, 'GET_CANDIDATE_PROFILE');
     } catch (error) {
       errorHandler.wrapConnectionError(error);
     }
