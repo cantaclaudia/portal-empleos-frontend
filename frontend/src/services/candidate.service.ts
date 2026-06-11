@@ -44,20 +44,20 @@ class CandidateService {
   }
 
   async getCandidateProfile(candidateId: string): Promise<CandidateProfileData | undefined> {
-    try {
-      const response = await apiService.post<ApiResponse & { data?: CandidateProfileData }>(
-        API_CONFIG.ENDPOINTS.GET_CANDIDATE_PROFILE,
-        { candidate_id: candidateId }
-      );
+  try {
+    const response = await apiService.post<ApiResponse & { data: CandidateProfileData }>(
+      API_CONFIG.ENDPOINTS.GET_CANDIDATE_PROFILE,
+      { candidate_id: candidateId }
+    );
 
-      if (errorHandler.isSuccess(response.code)) {
-        return response.data;
-      }
-
-      errorHandler.handleApiError(response, 'GET_CANDIDATE_PROFILE');
-    } catch (error) {
-      errorHandler.wrapConnectionError(error);
+    if (errorHandler.isSuccess(response.code)) {
+      return response.data;
     }
+    
+    errorHandler.handleApiError(response, 'GET_CANDIDATE_PROFILE');
+  } catch (error) {
+    errorHandler.wrapConnectionError(error);
+  }
   }
 }
 

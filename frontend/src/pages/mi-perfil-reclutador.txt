@@ -1,0 +1,224 @@
+// TODO: Proteger esta ruta con el middleware de autenticación de roles.
+// Esta pantalla es exclusiva del rol 'reclutador'.
+
+import React from 'react';
+import {
+  ChevronLeftIcon,
+  MapPinIcon,
+  PhoneIcon,
+  MailIcon,
+  GlobeIcon,
+  PencilIcon,
+} from 'lucide-react';
+import { StatCard } from '../components/StatCard';
+import { JobOfferRow } from '../components/JobOfferRow';
+import { useCompanyProfile, useCompanyJobs } from '../hooks/useEmpresa';
+
+// Verificación del rol del usuario.
+// TODO: Reemplazar con el hook/context real de autenticación.
+const USER_ROLE: 'reclutador' | 'candidato' = 'reclutador';
+
+interface PerfilEmpresaProps {
+  onVolver?: () => void;
+}
+
+export const PerfilEmpresa: React.FC<PerfilEmpresaProps> = ({ onVolver }) => {
+  // TODO: Reemplazar con llamada a API real: GET /api/empresa/perfil
+  const { profile, loading: loadingProfile, error: errorProfile } = useCompanyProfile();
+  // TODO: Reemplazar con llamada a API real: GET /api/empresa/ofertas
+  const { jobs, loading: loadingJobs } = useCompanyJobs();
+
+  // Protección de rol en el cliente
+  if (USER_ROLE !== 'reclutador') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#EFEFEF]">
+        <p className="text-[#F46036] font-semibold text-base">
+          Acceso restringido: esta pantalla es solo para reclutadores.
+        </p>
+      </div>
+    );
+  }
+
+  const initials = profile?.nombre
+    ? profile.nombre.charAt(0).toUpperCase()
+    : '?';
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#EFEFEF]">
+
+      {/* ── Navbar institucional ── */}
+      <header className="w-full bg-[#1E2749] px-6 md:px-10 py-4 flex items-center gap-4">
+        <div className="flex flex-col gap-[5px] cursor-pointer">
+          <span className="block w-[22px] h-[2px] bg-white rounded-sm" />
+          <span className="block w-[22px] h-[2px] bg-white rounded-sm" />
+          <span className="block w-[22px] h-[2px] bg-white rounded-sm" />
+        </div>
+        <div className="flex flex-col leading-none ml-1">
+          <span className="font-bold text-white text-xl tracking-tight leading-tight">
+            Portal de Empleos
+          </span>
+          <span className="font-normal text-[#a8b4d4] text-sm tracking-wide leading-tight">
+            Instituto Madero
+          </span>
+        </div>
+      </header>
+
+      {/* ── Franja de volver al inicio (fondo blanco) ── */}
+      <div className="w-full bg-white px-6 md:px-10 py-3 border-b border-[#eeeeee]">
+        <button
+          onClick={onVolver}
+          className="flex items-center gap-1 text-[#3351A6] text-sm font-medium hover:opacity-75 transition-opacity"
+        >
+          <ChevronLeftIcon className="w-4 h-4" />
+          Volver al inicio
+        </button>
+      </div>
+
+      {/* ── Contenido principal ── */}
+      <main className="flex-1 px-4 md:px-8 lg:px-16 py-8">
+        {loadingProfile ? (
+          <div className="flex items-center justify-center py-24">
+            <p className="text-[#888888] text-sm">Cargando perfil...</p>
+          </div>
+        ) : errorProfile ? (
+          <div className="flex items-center justify-center py-24">
+            <p className="text-[#F46036] text-sm">{errorProfile}</p>
+          </div>
+        ) : profile ? (
+          <div className="flex flex-col gap-5 max-w-[640px] mx-auto">
+
+            {/* ── Card 1: Encabezado de empresa ── */}
+            <div className="bg-white rounded-xl shadow-sm border border-[#e2e2e2] px-6 py-5 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                {/* Avatar con inicial */}
+                <div className="w-14 h-14 rounded-xl bg-[#3B82F6] flex items-center justify-center flex-shrink-0">
+                  <span className="font-bold text-white text-2xl leading-none">{initials}</span>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-bold text-[#1a1a2e] text-xl leading-tight">
+                    {profile.nombre}
+                  </span>
+                  <span className="text-[#888888] text-sm">{profile.contactoNombre}</span>
+                </div>
+              </div>
+              {/* Botón Editar (sin funcionalidad por ahora) */}
+              <button
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-[#d0d0d0] bg-white text-[#555555] text-sm font-medium hover:bg-[#fafafa] transition-colors flex-shrink-0"
+                disabled
+              >
+                <PencilIcon className="w-3.5 h-3.5" />
+                Editar
+              </button>
+            </div>
+
+            {/* ── Card 2: Info de contacto + estadísticas ── */}
+            <div className="bg-white rounded-xl shadow-sm border border-[#e2e2e2] px-6 py-6 flex flex-col gap-5">
+              {/* Acerca de */}
+              <div>
+                <h2 className="font-bold text-[#1a1a2e] text-[15px] mb-2">
+                  Acerca de tu empresa
+                </h2>
+                <p className="text-[#666666] text-sm leading-relaxed">
+                  {profile.descripcion}
+                </p>
+              </div>
+
+              {/* Grid de contacto — 2 columnas */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 pt-1">
+                {/* Ubicación */}
+                <div className="flex items-start gap-3">
+                  <MapPinIcon className="w-4 h-4 text-[#aaaaaa] mt-0.5 flex-shrink-0" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-[#888888]">
+                      Ubicación
+                    </span>
+                    <span className="text-[#333333] text-sm">{profile.ubicacion}</span>
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className="flex items-start gap-3">
+                  <MailIcon className="w-4 h-4 text-[#aaaaaa] mt-0.5 flex-shrink-0" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-[#888888]">
+                      Email
+                    </span>
+                    <span className="text-[#333333] text-sm break-all">{profile.email}</span>
+                  </div>
+                </div>
+
+                {/* Teléfono */}
+                <div className="flex items-start gap-3">
+                  <PhoneIcon className="w-4 h-4 text-[#aaaaaa] mt-0.5 flex-shrink-0" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-[#888888]">
+                      Teléfono
+                    </span>
+                    <span className="text-[#333333] text-sm">{profile.telefono}</span>
+                  </div>
+                </div>
+
+                {/* Website */}
+                <div className="flex items-start gap-3">
+                  <GlobeIcon className="w-4 h-4 text-[#aaaaaa] mt-0.5 flex-shrink-0" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-[#888888]">
+                      Website
+                    </span>
+                    <span className="text-[#333333] text-sm">{profile.website}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Estadísticas */}
+              <div className="flex gap-3 pt-1">
+                <StatCard value={profile.cantUbicaciones} label="Ubicación" color="blue" />
+                <StatCard value={profile.cantPostulantes} label="Postulantes" color="orange" />
+                <StatCard value={profile.cantOfertas} label="Ofertas" color="green" />
+              </div>
+            </div>
+
+            {/* ── Card 3: Ofertas laborales ── */}
+            <div className="bg-white rounded-xl shadow-sm border border-[#e2e2e2] px-6 py-6">
+              <div className="mb-4">
+                <h2 className="font-bold text-[#1a1a2e] text-[15px]">Ofertas laborales</h2>
+                {!loadingJobs && (
+                  <p className="text-[#888888] text-sm mt-0.5">
+                    {jobs.length} {jobs.length === 1 ? 'posición' : 'posiciones'} en total
+                  </p>
+                )}
+              </div>
+
+              {loadingJobs ? (
+                <p className="text-[#888888] text-sm py-4">Cargando ofertas...</p>
+              ) : jobs.length === 0 ? (
+                <p className="text-[#aaaaaa] text-sm py-4">No hay ofertas publicadas.</p>
+              ) : (
+                <div>
+                  {jobs.map((offer, idx) => (
+                    <JobOfferRow
+                      key={offer.id}
+                      offer={offer}
+                      isLast={idx === jobs.length - 1}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
+        ) : null}
+      </main>
+
+      {/* ── Footer institucional ── */}
+      <footer className="w-full bg-[#1E2749] px-4 py-6 text-center mt-auto">
+        <p className="text-white text-sm font-medium">
+          &copy; 2025 Portal de Empleos del Instituto Madero.
+        </p>
+        <p className="text-[#6e7f9e] text-xs mt-1">
+          Desarrollado por estudiantes de la Tecnicatura Universitaria en Programación &mdash; UTN FRBA.
+        </p>
+      </footer>
+    </div>
+  );
+};

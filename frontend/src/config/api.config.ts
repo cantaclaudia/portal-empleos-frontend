@@ -14,4 +14,3 @@ export const API_CONFIG = {
     GET_CANDIDATE_PROFILE: '/portalEmpleos/v1/getCandidateProfile',
   },
 };
-

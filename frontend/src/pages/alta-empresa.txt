@@ -1,0 +1,291 @@
+import React, { useState } from 'react';
+
+// ── Tipos ────────────────────────────────────────────────────────────────────
+
+interface AltaEmpresaForm {
+  nombre: string;
+  cuit: string;
+  descripcion: string;
+}
+
+interface FormErrors {
+  nombre?: string;
+  cuit?: string;
+  descripcion?: string;
+}
+
+// Payload que se enviará al backend
+interface AltaEmpresaPayload {
+  nombre: string;
+  cuit: string;
+  descripcion: string;
+}
+
+const INITIAL_FORM: AltaEmpresaForm = {
+  nombre: '',
+  cuit: '',
+  descripcion: '',
+};
+
+// ── Validación ───────────────────────────────────────────────────────────────
+
+function validarFormulario(form: AltaEmpresaForm): FormErrors {
+  const errors: FormErrors = {};
+  if (!form.nombre.trim()) errors.nombre = 'El nombre de la empresa es obligatorio.';
+  if (!form.cuit.trim()) {
+    errors.cuit = 'El CUIT es obligatorio.';
+  } else if (!/^\d{10,11}$/.test(form.cuit.replace(/-/g, ''))) {
+    errors.cuit = 'Ingresá un CUIT válido (10 u 11 dígitos).';
+  }
+  if (!form.descripcion.trim()) errors.descripcion = 'La descripción es obligatoria.';
+  return errors;
+}
+
+// ── Props ────────────────────────────────────────────────────────────────────
+
+interface AltaEmpresaProps {
+  onVolver?: () => void;
+}
+
+// ── Componente ───────────────────────────────────────────────────────────────
+
+export const AltaEmpresa: React.FC<AltaEmpresaProps> = ({ onVolver }) => {
+  const [form, setForm] = useState<AltaEmpresaForm>(INITIAL_FORM);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    // Limpia el error del campo al editarlo
+    if (errors[name as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+    if (submitError) setSubmitError(null);
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const validationErrors = validarFormulario(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    const payload: AltaEmpresaPayload = {
+      nombre: form.nombre.trim(),
+      cuit: form.cuit.trim(),
+      descripcion: form.descripcion.trim(),
+    };
+
+    try {
+      // TODO: Reemplazar con llamada a API real: POST /api/admin/empresas
+      console.log('[AltaEmpresa] Payload a enviar:', payload);
+      // Simula latencia de red
+      await new Promise((res) => setTimeout(res, 400));
+      setSubmitted(true);
+      setForm(INITIAL_FORM);
+    } catch {
+      setSubmitError('Ocurrió un error al registrar la empresa. Intentá de nuevo.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#EFEFEF]">
+
+      {/* ── Navbar institucional ── */}
+      <header className="w-full bg-[#1E2749] px-6 md:px-10 py-4 flex items-center gap-4">
+        <div className="flex flex-col gap-[5px] cursor-pointer">
+          <span className="block w-[22px] h-[2px] bg-white rounded-sm" />
+          <span className="block w-[22px] h-[2px] bg-white rounded-sm" />
+          <span className="block w-[22px] h-[2px] bg-white rounded-sm" />
+        </div>
+        <div className="flex flex-col leading-none ml-1">
+          <span className="font-bold text-white text-xl tracking-tight leading-tight">
+            Portal de Empleos
+          </span>
+          <span className="font-normal text-[#a8b4d4] text-sm tracking-wide leading-tight">
+            Instituto Madero
+          </span>
+        </div>
+      </header>
+
+      {/* ── Hero / título ── */}
+      <section className="w-full bg-[#1E2749] px-6 py-10 pb-12 flex flex-col items-center gap-2">
+        <h1 className="font-bold text-white text-3xl md:text-[34px] tracking-tight text-center">
+          Alta de empresa
+        </h1>
+        <p className="text-[#a8b4d4] text-base md:text-[17px] text-center">
+          Registrá una nueva empresa en el portal de empleos
+        </p>
+      </section>
+
+      {/* ── Contenido principal ── */}
+      <main className="flex-1 px-4 md:px-8 lg:px-16 py-8">
+        <div className="bg-white rounded-xl shadow-sm border border-[#e2e2e2] max-w-[520px] mx-auto overflow-hidden">
+
+          {/* Encabezado de sección */}
+          <div className="px-7 py-4 border-b border-[#e8e8e8]">
+            <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-[#1a1a2e]">
+              Datos de la empresa
+            </span>
+          </div>
+
+          {/* ── Estado: éxito ── */}
+          {submitted ? (
+            <div className="flex flex-col items-center gap-3 px-7 py-12">
+              <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
+                <svg className="w-7 h-7 text-green-600" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M5 13l4 4L19 7"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <p className="font-bold text-[#1E2749] text-lg text-center">
+                ¡Empresa registrada!
+              </p>
+              <p className="text-[#666666] text-sm text-center leading-relaxed">
+                La empresa ya está disponible para que los reclutadores la seleccionen al crear su cuenta.
+              </p>
+              <button
+                onClick={() => setSubmitted(false)}
+                className="mt-2 text-[#3351A6] text-sm font-semibold hover:opacity-75 transition-opacity"
+              >
+                Registrar otra empresa
+              </button>
+            </div>
+          ) : (
+
+            /* ── Formulario ── */
+            <form onSubmit={handleRegister} noValidate className="px-7 py-6 flex flex-col gap-5">
+
+              {/* Nombre de la empresa */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[#333333] text-sm font-medium">
+                  Nombre de la empresa{' '}
+                  <span className="text-[#E53E3E]">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="nombre"
+                  value={form.nombre}
+                  onChange={handleChange}
+                  placeholder="Ej: TechCorp SA"
+                  maxLength={120}
+                  className={`w-full border rounded-lg px-4 py-2.5 text-sm text-[#333333] placeholder:text-[#aaaaaa] outline-none transition-colors ${
+                    errors.nombre
+                      ? 'border-[#E53E3E] focus:ring-1 focus:ring-[#E53E3E]/30'
+                      : 'border-[#d0d0d0] focus:border-[#3351A6] focus:ring-1 focus:ring-[#3351A6]/30'
+                  }`}
+                />
+                {errors.nombre && (
+                  <p className="text-[#E53E3E] text-xs">{errors.nombre}</p>
+                )}
+              </div>
+
+              {/* CUIT */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[#333333] text-sm font-medium">
+                  CUIT{' '}
+                  <span className="text-[#E53E3E]">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="cuit"
+                  value={form.cuit}
+                  onChange={handleChange}
+                  placeholder="Ej: 30712345670"
+                  maxLength={13}
+                  className={`w-full border rounded-lg px-4 py-2.5 text-sm text-[#333333] placeholder:text-[#aaaaaa] outline-none transition-colors ${
+                    errors.cuit
+                      ? 'border-[#E53E3E] focus:ring-1 focus:ring-[#E53E3E]/30'
+                      : 'border-[#d0d0d0] focus:border-[#3351A6] focus:ring-1 focus:ring-[#3351A6]/30'
+                  }`}
+                />
+                {errors.cuit && (
+                  <p className="text-[#E53E3E] text-xs">{errors.cuit}</p>
+                )}
+              </div>
+
+              {/* Descripción */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[#333333] text-sm font-medium">
+                  Descripción{' '}
+                  <span className="text-[#E53E3E]">*</span>
+                </label>
+                <textarea
+                  name="descripcion"
+                  value={form.descripcion}
+                  onChange={handleChange}
+                  placeholder="Describí los servicios o rubro de la empresa"
+                  rows={4}
+                  maxLength={1000}
+                  className={`w-full border rounded-lg px-4 py-2.5 text-sm text-[#333333] placeholder:text-[#aaaaaa] outline-none transition-colors resize-y min-h-[100px] ${
+                    errors.descripcion
+                      ? 'border-[#E53E3E] focus:ring-1 focus:ring-[#E53E3E]/30'
+                      : 'border-[#d0d0d0] focus:border-[#3351A6] focus:ring-1 focus:ring-[#3351A6]/30'
+                  }`}
+                />
+                {errors.descripcion && (
+                  <p className="text-[#E53E3E] text-xs">{errors.descripcion}</p>
+                )}
+              </div>
+
+              {/* Nota informativa */}
+              <div className="bg-[#EBF2FB] border border-[#C8D9F0] rounded-lg px-4 py-3">
+                <p className="text-[#3351A6] text-xs leading-relaxed">
+                  Todos los campos son obligatorios. Una vez registrada, la empresa
+                  podrá ser seleccionada por los reclutadores al crear su cuenta.
+                </p>
+              </div>
+
+              {/* Error de envío */}
+              {submitError && (
+                <p className="text-[#E53E3E] text-xs text-center font-medium">
+                  {submitError}
+                </p>
+              )}
+
+              {/* Botón registrar */}
+              <button
+                type="submit"
+                disabled={submitting}
+                className={`w-full py-3.5 rounded-lg font-bold text-sm tracking-widest text-white uppercase transition-all duration-200 ${
+                  submitting
+                    ? 'bg-[#F46036]/50 cursor-not-allowed'
+                    : 'bg-[#F46036] hover:bg-[#e2552f] active:scale-[0.99] cursor-pointer'
+                }`}
+              >
+                {submitting ? 'Registrando...' : 'Registrar empresa'}
+              </button>
+
+            </form>
+          )}
+        </div>
+      </main>
+
+      {/* ── Footer institucional ── */}
+      <footer className="w-full bg-[#1E2749] px-4 py-6 text-center mt-auto">
+        <p className="text-white text-sm font-medium">
+          &copy; 2025 Portal de Empleos del Instituto Madero.
+        </p>
+        <p className="text-[#6e7f9e] text-xs mt-1">
+          Desarrollado por estudiantes de la Tecnicatura Universitaria en Programación &mdash; UTN FRBA.
+        </p>
+      </footer>
+    </div>
+  );
+};

@@ -17,7 +17,7 @@ import {
 import { Card, CardContent } from '../components/ui/card';
 import { Footer } from '../components/ui/footer';
 import AvailableJobsService from '../services/available-jobs.service';
-import type { AvailableJob, ApplicationStatusData } from '../services/available-jobs.service';
+import type { AvailableJob} from '../services/available-jobs.service';
 import { ERROR_CODES } from '../constants/error-codes';
 
 type ApplyState = 'idle' | 'loading' | 'applied' | 'already_applied' | 'error';
@@ -396,9 +396,7 @@ export const DetalleEmpleo: React.FC = () => {
                       </div>
                     </div>
 
-                    <button className="w-full py-2.5 rounded-lg border border-[#3351A6] text-[#3351A6] text-sm font-semibold hover:bg-[#f0f4ff] transition-colors duration-200">
-                      Ver perfil de la empresa
-                    </button>
+
                   </CardContent>
                 </Card>
               </div>

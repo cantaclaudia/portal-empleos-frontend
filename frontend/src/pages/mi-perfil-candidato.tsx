@@ -1,44 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ChevronLeftIcon, PencilIcon, MapPinIcon, MailIcon, PhoneIcon,
-  GlobeIcon, LinkIcon, DownloadIcon,
+  ChevronLeftIcon, MailIcon, DownloadIcon,
 } from 'lucide-react';
 import { Footer } from '../components/ui/footer';
 import candidateService from '../services/candidate.service';
 import authService from '../services/auth.service';
+import { CandidateProfileData } from '../types/candidate.types';
 
-// ── Tipos ─────────────────────────────────────────────────────────────────────
-interface ProfileData {
-  name: string;
-  last_name: string;
-  email: string;
-  job_title: string;
-  skill_list: string[];
-  resume_url: string;
-}
 
 export const MiPerfilCandidato: React.FC = () => {
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [profile, setProfile] = useState<CandidateProfileData | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const user = authService.getUser();
+      const user = authService.getUser();
 
-        // Extracción defensiva del id: el tipo declarado no incluye id,
-        // pero el objeto en runtime puede traerlo desde la sesión.
-        const userId = user ? (user as unknown as { id: string }).id : undefined;
+      const userId = user?.user_id;
 
-        if (typeof userId === 'string' && userId.length > 0) {
-          const data = await candidateService.getCandidateProfile(userId);
-          setProfile(data as unknown as ProfileData);
-        } else {
-          console.error('No se encontró ID de usuario en la sesión');
+      if (userId) {
+        try {
+          const data = await candidateService.getCandidateProfile(String(userId));
+          if (data) setProfile(data);
+        } catch (err) {
+          console.error('Error al cargar perfil:', err);
         }
-      } catch (err) {
-        console.error('Error al cargar perfil:', err);
       }
     };
     fetchData();
@@ -48,12 +35,10 @@ export const MiPerfilCandidato: React.FC = () => {
 
   return (
     <div className="w-full min-h-screen bg-[#F0F2F5]">
-      {/* ── Hero ───────────────────────────────────────────────────────── */}
       <div className="w-full bg-[#1E2749] py-8 flex items-center justify-center">
         <h1 className="text-white font-semibold text-[26px] tracking-wide">Mi perfil</h1>
       </div>
 
-      {/* ── Contenido ──────────────────────────────────────────────────── */}
       <div className="px-4 md:px-16 py-8 max-w-[1200px] mx-auto">
         <button
           onClick={() => navigate('/candidato')}
@@ -63,24 +48,28 @@ export const MiPerfilCandidato: React.FC = () => {
         </button>
 
         <div className="flex flex-col lg:flex-row gap-5">
+          
           {/* Columna Izquierda */}
           <div className="flex flex-col gap-5 flex-1">
             <div className="bg-white shadow-sm rounded-xl px-6 py-5">
               <h2 className="font-bold text-[#1a1a2e] text-[22px]">{profile.name} {profile.last_name}</h2>
-              <p className="text-[#F46036] font-semibold text-[15px]">{profile.job_title}</p>
+              <p className="text-[#F46036] font-semibold text-[15px]">{profile.job_title ?? 'Puesto no especificado'}</p>
             </div>
 
             <div className="bg-white shadow-sm rounded-xl px-6 py-6">
               <h3 className="font-bold text-[#1a1a2e] text-[17px] mb-3">Habilidades</h3>
               <div className="flex flex-wrap gap-2">
-                {profile.skill_list.map((skill) => (
-                  <span key={skill} className="border border-[#cccccc] bg-white text-[#555555] text-[13px] font-medium px-3.5 py-[5px] rounded-full">
+                {profile.skill_list?.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="border border-[#cccccc] bg-white text-[#555555] text-[13px] font-medium px-3.5 py-[5px] rounded-full"
+                  >
                     {skill}
                   </span>
                 ))}
               </div>
             </div>
-          </div>
+          </div> 
 
           {/* Columna Derecha */}
           <div className="w-full lg:w-[330px]">
@@ -99,10 +88,11 @@ export const MiPerfilCandidato: React.FC = () => {
             >
               <DownloadIcon className="w-4 h-4" /> DESCARGAR CV
             </a>
-          </div>
-        </div>
+          </div> 
+        </div> 
+        
+        <Footer />
       </div>
-      <Footer />
     </div>
   );
 };
