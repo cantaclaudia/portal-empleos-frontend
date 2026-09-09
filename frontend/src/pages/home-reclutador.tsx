@@ -3,7 +3,6 @@ import {
   MenuIcon,
   FileTextIcon,
   UsersIcon,
-  MapPinIcon,
   SearchIcon,
   UserIcon,
   XIcon,
@@ -17,7 +16,6 @@ import React, { useState, useEffect, useRef, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { HeaderLogo } from "../components/ui/header-logo";
-import availableJobsService, { type AvailableJob } from "../services/available-jobs.service";
 import AuthService from "../services/auth.service";
 import StatsService from "../services/stats.service";
 import { ERROR_CODES } from "../constants/error-codes";
@@ -27,6 +25,7 @@ import { ROUTES } from "../routes";
 const SearchInput = (): JSX.Element => {
   const [inputValue, setInputValue] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+
   const searchRef = useRef<HTMLDivElement>(null);
 
   const allOptions = [
@@ -34,23 +33,30 @@ const SearchInput = (): JSX.Element => {
     "Alta empresa",
     "Postulaciones recibidas",
     "Inicio",
-    "Configuración"
+    "Configuración",
   ];
 
-  const filteredOptions = allOptions.filter(option =>
+  const filteredOptions = allOptions.filter((option) =>
     option.toLowerCase().includes(inputValue.toLowerCase())
   );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setShowSuggestions(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
+
 
   const handleOptionClick = (option: string) => {
     setInputValue(option);
@@ -114,51 +120,6 @@ const SectionTitle = ({ children, className = "" }: SectionTitleProps): JSX.Elem
     <h2 className={`font-bold text-[#05073c] text-[28px] leading-[33.6px] ${className}`}>
       {children}
     </h2>
-  );
-};
-
-interface JobCardProps {
-  title: string;
-  location: string;
-  description: string;
-  salary: string;
-}
-
-const JobCard = ({
-  title,
-  location,
-  description,
-  salary,
-}: JobCardProps): JSX.Element => {
-  return (
-    <div className="bg-white rounded-[12px] shadow-md p-4 md:p-8 hover:shadow-lg transition-shadow duration-200 border border-gray-200">
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4 gap-2">
-        <h3 className="font-bold text-[#05073c] text-[20px] md:text-[22px] leading-[28px] md:leading-[30.8px] flex-1">
-          {title}
-        </h3>
-      </div>
-
-      <div className="flex items-center gap-2 mb-4 text-[#666666]">
-        <MapPinIcon className="w-5 h-5 flex-shrink-0" />
-        <span className="text-[16px] leading-[22.4px]">
-          {location}
-        </span>
-      </div>
-
-      <p className="text-[#333333] text-[16px] leading-[24px] mb-4">
-        {description}
-      </p>
-
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pt-4 border-t border-gray-200 gap-4">
-        <span className="font-semibold text-[#05073c] text-[16px]">
-          {salary}
-        </span>
-
-        <Button className="bg-[#05073c] hover:bg-[#05073c]/90 text-white px-6 py-3 rounded-[8px] font-semibold text-[16px] transition-colors duration-200 w-full md:w-auto">
-          Ver detalles
-        </Button>
-      </div>
-    </div>
   );
 };
 
@@ -227,7 +188,12 @@ interface SideMenuProps {
   companyName: string;
 }
 
-const SideMenu = ({ isOpen, onClose, userName, companyName }: SideMenuProps): JSX.Element => {
+const SideMenu = ({
+  isOpen,
+  onClose,
+  userName,
+  companyName,
+}: SideMenuProps): JSX.Element | null => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -238,7 +204,6 @@ const SideMenu = ({ isOpen, onClose, userName, companyName }: SideMenuProps): JS
   const menuItems = [
     { icon: HomeIcon, label: 'Inicio', path: ROUTES.HOME_RECLUTADOR },
     { icon: PlusIcon, label: 'Crear nueva oferta', path: ROUTES.CREAR_OFERTA },
-    { icon: BriefcaseIcon, label: 'Alta empresa', path: ROUTES.ALTA_EMPRESA },
     { icon: UsersIcon, label: 'Postulaciones recibidas', path: ROUTES.POSTULACIONES_RECIBIDAS },
     { icon: SettingsIcon, label: 'Configuración', path: ROUTES.HOME_RECLUTADOR },
   ];
@@ -307,58 +272,41 @@ const SideMenu = ({ isOpen, onClose, userName, companyName }: SideMenuProps): JS
 
 export const HomeReclutador = (): JSX.Element => {
   const navigate = useNavigate();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [jobs, setJobs] = useState<AvailableJob[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [companyName, setCompanyName] = useState<string>('Empresa');
-  const [stats, setStats] = useState<{ total_job_offers: number; total_companies: number; total_candidates: number; successful_job_offers: number } | null>(null);
+
+  const [stats, setStats] = useState<{
+    total_job_offers: number;
+    total_companies: number;
+    total_candidates: number;
+    successful_job_offers: number;
+  } | null>(null);
 
   const user = AuthService.getUser();
-  const userName = user ? `${user.first_name} ${user.last_name}` : 'Empleador';
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const result = await availableJobsService.getAvailableJobs();
+  const userName = user
+    ? `${user.first_name} ${user.last_name}`
+    : "Empleador";
 
-        if (result.code !== ERROR_CODES.SUCCESS) {
-          setCompanyName('Empresa');
-          setJobs([]);
-          return;
-        }
+  const companyName = "Empresa";
 
-        const userCompanyId = user?.user_id ?? 1;
-        const filteredJobs = result.data.filter(job => job.company_id === userCompanyId);
-        setJobs(filteredJobs);
-
-        if (filteredJobs.length > 0) {
-          setCompanyName(filteredJobs[0].company_name);
-        } else {
-          const companyJob = result.data.find(job => job.company_id === userCompanyId);
-          setCompanyName(companyJob ? companyJob.company_name : 'Empresa');
-        }
-      } catch {
-        setCompanyName('Empresa');
-        setJobs([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
+   useEffect(() => {
     const fetchStats = async () => {
       try {
         const result = await StatsService.getStats();
+
         if (result.code === ERROR_CODES.SUCCESS) {
           setStats(result.data);
         }
       } catch {
-        // Stats are optional
+        /*
+         * Lugar para las estadisticas *
+         */
       }
     };
 
-    fetchJobs();
     fetchStats();
-  }, [user]);
+  }, []);
 
   const managementItems = [
     {
@@ -387,7 +335,7 @@ export const HomeReclutador = (): JSX.Element => {
       title: "Estadísticas",
       count: stats ? `${stats.successful_job_offers} ofertas exitosas` : "Resumen general",
       description: "Visualizá estadísticas generales de la plataforma.",
-      onClick: () => {},
+      onClick: () => { },
     },
   ];
 
