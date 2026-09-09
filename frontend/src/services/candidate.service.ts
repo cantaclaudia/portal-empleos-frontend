@@ -3,13 +3,10 @@ import { API_CONFIG } from '../config/api.config';
 import errorHandler from './error-handler.service';
 import type { RegisterCandidateRequest } from '../types/candidate.types';
 import type { ApiResponse } from './error-handler.service';
-import { CandidateProfileData } from '../types/candidate.types';
+import type { ErrorCode } from '../constants/error-codes';
 
 class CandidateService {
-  async registerCandidate(
-    data: RegisterCandidateRequest
-  ): Promise<void> {
-
+  async registerCandidate(data: RegisterCandidateRequest): Promise<void> {
     if (data.name.length > 20) {
       throw new Error('El nombre no puede exceder 20 caracteres');
     }
@@ -32,32 +29,14 @@ class CandidateService {
         data
       );
 
-      if (errorHandler.isSuccess(response.code)) {
+      if (errorHandler.isSuccess(response.code as ErrorCode)) {
         return;
       }
 
       errorHandler.handleApiError(response, 'REGISTER_CANDIDATE');
-
     } catch (error) {
-      errorHandler.wrapConnectionError(error);
+      throw errorHandler.wrapConnectionError(error);
     }
-  }
-
-  async getCandidateProfile(candidateId: string): Promise<CandidateProfileData | undefined> {
-  try {
-    const response = await apiService.post<ApiResponse & { data: CandidateProfileData }>(
-      API_CONFIG.ENDPOINTS.GET_CANDIDATE_PROFILE,
-      { candidate_id: candidateId }
-    );
-
-    if (errorHandler.isSuccess(response.code)) {
-      return response.data;
-    }
-    
-    errorHandler.handleApiError(response, 'GET_CANDIDATE_PROFILE');
-  } catch (error) {
-    errorHandler.wrapConnectionError(error);
-  }
   }
 }
 

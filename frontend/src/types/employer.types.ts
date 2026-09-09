@@ -12,6 +12,24 @@ export interface RegisterEmployerResponse {
 }
 
 export interface Company {
-  id: number;
+  company_id: number;
   name: string;
+}
+
+export interface GetCompaniesResponse {
+  code: string;
+  data: Company[];
+  description: string;
+}
+
+export interface CreateCompanyRequest {
+  name: string;
+  description: string;
+  tax_id: string;
+}
+
+export interface CreateCompanyResponse {
+  code: string;
+  description: string;
+  data?: { company_id: number };
 }

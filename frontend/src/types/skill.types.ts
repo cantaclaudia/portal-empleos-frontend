@@ -1,6 +1,6 @@
 export interface Skill {
   skill_id: number;
-  skill_name: string;
+  name: string;
 }
 
 export interface GetSkillsResponse {

@@ -213,14 +213,12 @@ export const RegistroCandidato = (): JSX.Element => {
         email: email.trim(),
         password: encryptedPassword,
         resume_url: cvLink.trim(),
-        skill_list: selectedSkills.map((s) => parseInt(s)),
+        skill_list: selectedSkills,
       };
 
       await CandidateService.registerCandidate(requestBody);
 
-      navigate('/login', {
-        state: { successMessage: 'Cuenta creada correctamente. Por favor, iniciá sesión.' }
-      });
+      navigate('/login');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al registrar usuario');
     } finally {

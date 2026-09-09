@@ -2,11 +2,11 @@ import { apiService } from './api.service';
 import { API_CONFIG } from '../config/api.config';
 import errorHandler from './error-handler.service';
 import type { RegisterEmployerRequest, RegisterEmployerResponse } from '../types/employer.types';
+import type { ErrorCode } from '../constants/error-codes';
+import type { ApiResponse } from './error-handler.service';
 
 class EmployerService {
-  async registerEmployer(
-    data: RegisterEmployerRequest
-  ): Promise<RegisterEmployerResponse> {
+  async registerEmployer(data: RegisterEmployerRequest): Promise<RegisterEmployerResponse> {
     if (data.name.length > 20) {
       throw new Error('El nombre no puede exceder 20 caracteres');
     }
@@ -26,11 +26,11 @@ class EmployerService {
         data
       );
 
-      if (errorHandler.isSuccess(response.code)) {
+      if (errorHandler.isSuccess(response.code as ErrorCode)) {
         return response;
       }
 
-      throw errorHandler.handleApiError(response, 'REGISTER_EMPLOYER');
+      throw errorHandler.handleApiError(response as ApiResponse, 'REGISTER_EMPLOYER');
     } catch (error) {
       throw errorHandler.wrapConnectionError(error);
     }

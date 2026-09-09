@@ -7,8 +7,9 @@ import { Label } from "../components/ui/label";
 import { HeaderLogo } from "../components/ui/header-logo";
 import { ErrorMessage } from "../components/ui/error-message";
 import JSEncrypt from "jsencrypt";
-import { API_CONFIG } from "../config/api.config";
-import { ENDPOINT_ERROR_MESSAGES, ERROR_CODES, COMMON_ERROR_MESSAGES } from "../constants/error-codes";
+import { ERROR_CODES, COMMON_ERROR_MESSAGES } from "../constants/error-codes";
+import EmployerService from "../services/employer.service";
+import CompanyService from "../services/company.service";
 
 import {
   Select,
@@ -50,35 +51,20 @@ export const RegistroReclutador = (): JSX.Element => {
         setLoadingCompanies(true);
         setCompaniesLoadError(null);
 
-        const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.GET_COMPANIES_LIST}`, {
-          method: 'POST',
-          headers: {
-            'x-access-token': API_CONFIG.TOKEN,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({}),
-        });
-
-        const result = await response.json();
+        const result = await CompanyService.getCompaniesList();
 
         if (result.code === ERROR_CODES.SUCCESS && Array.isArray(result.data)) {
           const formattedCompanies = result.data.map(
-            (company: { company_id: number; name: string }) => ({
+            (company) => ({
               value: company.company_id.toString(),
               label: company.name,
             })
           );
           setCompanyOptions(formattedCompanies);
-        } else {
-          const message =
-            ENDPOINT_ERROR_MESSAGES.GET_COMPANIES[result.code as keyof typeof ENDPOINT_ERROR_MESSAGES.GET_COMPANIES]
-            ?? result.description
-            ?? COMMON_ERROR_MESSAGES.DEFAULT;
-          setCompaniesLoadError(message);
         }
       } catch (err) {
         console.error("Error loading companies:", err);
-        setCompaniesLoadError(COMMON_ERROR_MESSAGES.CONNECTION_ERROR);
+        setCompaniesLoadError(err instanceof Error ? err.message : COMMON_ERROR_MESSAGES.CONNECTION_ERROR);
       } finally {
         setLoadingCompanies(false);
       }
@@ -163,35 +149,11 @@ export const RegistroReclutador = (): JSX.Element => {
         last_name: lastName.trim(),
         email: email.trim(),
         password: encryptedPassword,
-        company_id: companyId,
+        company_id: parseInt(companyId),
       };
 
-      console.log('Sending employer registration:', requestBody);
-
-      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REGISTER_EMPLOYER}`, {
-        method: 'POST',
-        headers: {
-          'x-access-token': API_CONFIG.TOKEN,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      const result = await response.json();
-
-      console.log('Registration API Response:', result);
-
-      if (result.code === ERROR_CODES.SUCCESS) {
-        navigate('/login', {
-          state: { successMessage: 'Cuenta creada correctamente. Por favor, iniciá sesión.' }
-        });
-      } else {
-        const message =
-          ENDPOINT_ERROR_MESSAGES.REGISTER_EMPLOYER[result.code as keyof typeof ENDPOINT_ERROR_MESSAGES.REGISTER_EMPLOYER] ||
-          result.description ||
-          ENDPOINT_ERROR_MESSAGES.REGISTER_EMPLOYER[ERROR_CODES.INTERNAL_ERROR];
-        throw new Error(message);
-      }
+      await EmployerService.registerEmployer(requestBody);
+      navigate('/login');
     } catch (err) {
       console.error('Error during registration:', err);
       setError(err instanceof Error ? err.message : 'Error al registrar usuario');

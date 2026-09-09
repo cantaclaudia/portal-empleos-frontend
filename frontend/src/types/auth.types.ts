@@ -16,6 +16,9 @@ export interface UserData {
   last_name: string;
   role: 'employer' | 'candidate';
   user_id: number;
+  email?: string;
+  resume_url?: string;
+  skill_list?: Array<string | number>;
 }
 
 export interface TokenResponse {

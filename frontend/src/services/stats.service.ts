@@ -1,15 +1,15 @@
 import { apiService } from './api.service';
 import { API_CONFIG } from '../config/api.config';
 import errorHandler from './error-handler.service';
+import type { GetStatsResponse } from '../types/application.types';
 import type { ErrorCode } from '../constants/error-codes';
 import type { ApiResponse } from './error-handler.service';
-import type { GetSkillsResponse } from '../types/skill.types';
 
-class SkillService {
-  async getSkillsList(): Promise<GetSkillsResponse> {
+class StatsService {
+  async getStats(): Promise<GetStatsResponse> {
     try {
-      const response = await apiService.post<GetSkillsResponse>(
-        API_CONFIG.ENDPOINTS.GET_SKILLS_LIST,
+      const response = await apiService.post<GetStatsResponse>(
+        API_CONFIG.ENDPOINTS.GET_STATS,
         {}
       );
 
@@ -17,11 +17,11 @@ class SkillService {
         return response;
       }
 
-      throw errorHandler.handleApiError(response as ApiResponse, 'GET_SKILLS');
+      throw errorHandler.handleApiError(response as ApiResponse, 'GET_STATS');
     } catch (error) {
       throw errorHandler.wrapConnectionError(error);
     }
   }
 }
 
-export default new SkillService();
+export default new StatsService();

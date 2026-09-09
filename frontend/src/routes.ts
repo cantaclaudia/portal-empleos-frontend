@@ -5,4 +5,9 @@ export const ROUTES = {
   SELECCION_PERFIL: '/seleccion-de-perfil',
   REGISTRO_CANDIDATO: '/registro-candidato',
   REGISTRO_RECLUTADOR: '/registro-reclutador',
+  JOB_DETAIL: '/detalle-empleo/:jobIndex',
+  MIS_POSTULACIONES: '/mis-postulaciones',
+  ALTA_EMPRESA: '/alta-empresa',
+  CREAR_OFERTA: '/crear-oferta',
+  POSTULACIONES_RECIBIDAS: '/postulaciones-recibidas',
 };
