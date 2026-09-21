@@ -2,6 +2,7 @@ export interface Application {
   application_id: number;
   job_title: string;
   application_date: string;
+  company_name?: string;
 }
 
 export interface GetUserApplicationsRequest {
