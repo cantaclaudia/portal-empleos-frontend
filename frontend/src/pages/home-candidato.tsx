@@ -384,10 +384,7 @@ export const HomeCandidato: React.FC = () => {
 
       <section className="flex w-full min-h-[200px] md:min-h-[240px] lg:min-h-[278px] flex-col items-center justify-center gap-4 md:gap-6 px-4 py-6 md:py-8 bg-[#1E2749]">
         <div className="flex items-center justify-center px-2">
-          <h2 className="font-semibold text-[#FAFAFA] text-xl md:text-2xl lg:text-[26px] tracking-[0] leading-tight text-center">
-            Bienvenido, {user?.first_name || 'Candidato'}
-          </h2>
-          <p className="font-normal text-white/80 text-base md:text-lg text-center">
+           <p className="font-normal text-white/80 text-lg md:text-xl text-center">
             ¿Qué tipo de empleo estás buscando?
           </p>
         </div>
@@ -397,7 +394,7 @@ export const HomeCandidato: React.FC = () => {
             ref={areaRef}
             className="rounded-t-lg flex items-center gap-2 md:gap-2.5 px-4 md:px-8 lg:px-[60px] py-3 bg-white relative"
           >
-            <SearchIcon className="w-5 h-5 md:w-[22px] md:h-[22px] lg:w-[25px] lg:h-[25px] text-[#8c8c8c] flex-shrink-0" />
+            <SearchIcon className="w-4 h-4 md:w-[18px] md:h-[18px] text-[#8c8c8c] flex-shrink-0" />
             <InputHomeCandidato
               type="text"
               placeholder="Seleccioná tus áreas de interés"
