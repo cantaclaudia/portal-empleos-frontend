@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home as HomeIcon, Menu as MenuIcon, Search as SearchIcon, FileText as FileTextIcon, User as UserIcon, Settings as SettingsIcon, X as XIcon, MapPin as MapPinIcon, Plus as PlusIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from 'lucide-react';
+import { Home as HomeIcon, Menu as MenuIcon, Search as SearchIcon, FileText as FileTextIcon, User as UserIcon, Settings as SettingsIcon, X as XIcon, MapPin as MapPinIcon, Plus as PlusIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Building2 as BuildingIcon } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { InputHomeCandidato } from '../components/ui/input-home-candidato';
 import { Card, CardContent } from '../components/ui/card';
@@ -236,9 +236,9 @@ export const HomeCandidato: React.FC = () => {
   };
 
   const handleViewMore = (job: AvailableJob) => {
-  sessionStorage.setItem('selected_job', JSON.stringify(job));
-  navigate('/detalle-empleo');
-};
+    sessionStorage.setItem('selected_job', JSON.stringify(job));
+    navigate('/detalle-empleo');
+  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -259,8 +259,8 @@ export const HomeCandidato: React.FC = () => {
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${currentPage === 1
-              ? 'text-[#757575] cursor-not-allowed'
-              : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
+            ? 'text-[#757575] cursor-not-allowed'
+            : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
             }`}
         >
           <ChevronLeftIcon className="w-4 h-4 md:w-5 md:h-5" />
@@ -271,8 +271,8 @@ export const HomeCandidato: React.FC = () => {
             key={page}
             onClick={() => handlePageChange(page)}
             className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded font-semibold text-sm md:text-base transition-colors cursor-pointer ${currentPage === page
-                ? 'bg-[#F46036] text-white'
-                : 'text-[#F46036] hover:bg-[#fff5f2]'
+              ? 'bg-[#F46036] text-white'
+              : 'text-[#F46036] hover:bg-[#fff5f2]'
               }`}
           >
             {page}
@@ -283,8 +283,8 @@ export const HomeCandidato: React.FC = () => {
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${currentPage === totalPages
-              ? 'text-[#757575] cursor-not-allowed'
-              : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
+            ? 'text-[#757575] cursor-not-allowed'
+            : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
             }`}
         >
           <ChevronRightIcon className="w-4 h-4 md:w-5 md:h-5" />
@@ -385,10 +385,7 @@ export const HomeCandidato: React.FC = () => {
 
       <section className="flex w-full min-h-[200px] md:min-h-[240px] lg:min-h-[278px] flex-col items-center justify-center gap-4 md:gap-6 px-4 py-6 md:py-8 bg-[#1E2749]">
         <div className="flex items-center justify-center px-2">
-          <h2 className="font-semibold text-[#FAFAFA] text-xl md:text-2xl lg:text-[26px] tracking-[0] leading-tight text-center">
-            Bienvenido, {user?.first_name || 'Candidato'}
-          </h2>
-          <p className="font-normal text-white/80 text-base md:text-lg text-center">
+          <p className="font-normal text-white/80 text-lg md:text-xl text-center">
             ¿Qué tipo de empleo estás buscando?
           </p>
         </div>
@@ -521,14 +518,14 @@ export const HomeCandidato: React.FC = () => {
                             key={option}
                             onClick={() => handleFilterChange(section.title, option)}
                             className={`flex items-center gap-3 px-6 py-2.5 text-left transition-all duration-200 ${isFilterActive(section.title, option)
-                                ? 'bg-[#f0f4ff]'
-                                : 'hover:bg-[#fafafa]'
+                              ? 'bg-[#f0f4ff]'
+                              : 'hover:bg-[#fafafa]'
                               }`}
                           >
                             <div
                               className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${isFilterActive(section.title, option)
-                                  ? 'border-[#3351A6] bg-[#3351A6] shadow-sm'
-                                  : 'border-[#cccccc] bg-white'
+                                ? 'border-[#3351A6] bg-[#3351A6] shadow-sm'
+                                : 'border-[#cccccc] bg-white'
                                 }`}
                             >
                               {isFilterActive(section.title, option) && (
@@ -551,8 +548,8 @@ export const HomeCandidato: React.FC = () => {
                             </div>
                             <span
                               className={`text-[15px] tracking-[0] leading-[21px] transition-colors duration-200 ${isFilterActive(section.title, option)
-                                  ? 'text-[#3351A6] font-semibold'
-                                  : 'text-[#666666] font-normal'
+                                ? 'text-[#3351A6] font-semibold'
+                                : 'text-[#666666] font-normal'
                                 }`}
                             >
                               {option}
@@ -619,14 +616,14 @@ export const HomeCandidato: React.FC = () => {
                         key={option}
                         onClick={() => handleFilterChange(section.title, option)}
                         className={`flex items-center gap-3 px-6 py-2.5 text-left transition-all duration-200 ${isFilterActive(section.title, option)
-                            ? 'bg-[#f0f4ff]'
-                            : 'hover:bg-[#fafafa]'
+                          ? 'bg-[#f0f4ff]'
+                          : 'hover:bg-[#fafafa]'
                           }`}
                       >
                         <div
                           className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${isFilterActive(section.title, option)
-                              ? 'border-[#3351A6] bg-[#3351A6] shadow-sm'
-                              : 'border-[#cccccc] bg-white'
+                            ? 'border-[#3351A6] bg-[#3351A6] shadow-sm'
+                            : 'border-[#cccccc] bg-white'
                             }`}
                         >
                           {isFilterActive(section.title, option) && (
@@ -649,8 +646,8 @@ export const HomeCandidato: React.FC = () => {
                         </div>
                         <span
                           className={`text-[15px] tracking-[0] leading-[21px] transition-colors duration-200 ${isFilterActive(section.title, option)
-                              ? 'text-[#3351A6] font-semibold'
-                              : 'text-[#666666] font-normal'
+                            ? 'text-[#3351A6] font-semibold'
+                            : 'text-[#666666] font-normal'
                             }`}
                         >
                           {option}
@@ -745,11 +742,17 @@ export const HomeCandidato: React.FC = () => {
                   >
                     <CardContent className="flex flex-col gap-3 md:gap-4 px-5 md:px-6 py-4 md:py-5">
                       <div className="w-full">
-                        <h3 className="font-bold text-[#333333] text-lg md:text-xl lg:text-[22px] tracking-[0] leading-tight mb-1.5">
+                        <h3 className="font-bold text-[#333333] text-lg md:text-xl lg:text-[22px] tracking-[0] leading-tight mb-1">
                           {job.job_title}
                         </h3>
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <BuildingIcon className="w-4 h-4 text-[#757575] flex-shrink-0" />
+                          <p className="font-medium text-[#757575] text-sm md:text-[15px] tracking-[0] leading-tight">
+                            {job.company_name}
+                          </p>
+                        </div>
                         <p className="font-semibold text-[#F46036] text-base md:text-lg tracking-[0] leading-tight">
-                          {job.location} / {formatSalary(job.salary)}
+                          {job.location} | ${formatSalary(job.salary)}
                         </p>
                       </div>
 
