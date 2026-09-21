@@ -647,6 +647,7 @@ def get_available_jobs(cnx, cursor, final_response, company_id, request_id=None)
         if company_id:
             query = '''
                     SELECT 
+                        ed.job_offer_id,
                         em.name AS company_name,
                         em.company_id,
                         e.title AS job_title,
@@ -672,7 +673,8 @@ def get_available_jobs(cnx, cursor, final_response, company_id, request_id=None)
 
         else:
             query = '''
-                    SELECT 
+                    SELECT
+                        ed.job_offer_id,
                         em.name AS company_name,
                         em.company_id,
                         e.title AS job_title,

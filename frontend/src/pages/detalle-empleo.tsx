@@ -23,6 +23,8 @@ export const JobDetail: React.FC = () => {
   const [applicationId, setApplicationId] = useState<number | null>(null);
   const [checkingApplication, setCheckingApplication] = useState(true);
   const [applicationStatus, setApplicationStatus] = useState<number | null>(null);
+  const [isApplying, setIsApplying] = useState(false);
+  const [applicationError, setApplicationError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadSelectedJob = async () => {
@@ -46,15 +48,12 @@ export const JobDetail: React.FC = () => {
 
         const activeJob = availableJobsResponse.data.some(
           (availableJob) =>
-            availableJob.company_id === selectedJob.company_id &&
-            availableJob.job_title === selectedJob.job_title &&
-            availableJob.location === selectedJob.location &&
-            availableJob.salary === selectedJob.salary
+            availableJob.job_offer_id === selectedJob.job_offer_id
         );
 
         setIsJobActive(activeJob);
 
-        // Si la oferta no está activa, no necesitamos consultar postulaciones
+        // Si la oferta no está activa no necesitamos consultar postulaciones
         if (!activeJob) {
           return;
         }
@@ -142,6 +141,73 @@ export const JobDetail: React.FC = () => {
       path: ROUTES.HOME_CANDIDATO,
     },
   ];
+
+  const handleApply = async () => {
+    if (!user?.user_id) {
+      setApplicationError('No se pudo identificar al candidato.');
+      return;
+    }
+
+    if (!job?.job_offer_id) {
+      setApplicationError('No se pudo identificar la oferta.');
+      return;
+    }
+
+    if (isApplying) {
+      return;
+    }
+
+    try {
+      setIsApplying(true);
+      setApplicationError(null);
+
+      // Registrar la postulación
+      await ApplicationService.applyForJob(
+        {
+          job_offer_id: String(job.job_offer_id),
+          candidate_id: String(user.user_id),
+        },
+        String(user.user_id)
+      );
+
+      // Volvemos a consultar las postulaciones
+      // porque applyForJob no devuelve el application_id
+      const applicationsResponse =
+        await ApplicationService.getUserApplications({
+          candidate_id: String(user.user_id),
+        });
+
+      const existingApplication = applicationsResponse.data.find(
+        (application) =>
+          application.job_title === job.job_title &&
+          application.company_name === job.company_name
+      );
+
+      if (existingApplication) {
+        setApplicationId(existingApplication.application_id);
+
+        const statusResponse =
+          await ApplicationService.getApplicationStatus(
+            {
+              application_id: String(existingApplication.application_id),
+            },
+            String(user.user_id)
+          );
+
+        setApplicationStatus(statusResponse.data.status);
+      } else {
+        setApplicationStatus(3);
+      }
+    } catch (error) {
+      console.error('Error al postularse:', error);
+
+      setApplicationError(
+        'No se pudo registrar la postulación. Intentá nuevamente.'
+      );
+    } finally {
+      setIsApplying(false);
+    }
+  };
 
   return (
     <div className="bg-[#EFEFEF] w-full min-h-screen flex flex-col">
@@ -332,12 +398,20 @@ export const JobDetail: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                <div className="flex justify-center pt-2">
+                <div className="flex flex-col items-center gap-3 pt-2">
+                  {applicationError && (
+                    <p className="text-[#f46036] text-sm md:text-base text-center">
+                      {applicationError}
+                    </p>
+                  )}
+
                   <Button
-                    className="h-12 md:h-[56px] w-full max-w-[400px] rounded-lg bg-[#f46036] px-6 py-3 transition-colors"
+                    onClick={handleApply}
+                    disabled={isApplying}
+                    className="h-12 md:h-[56px] w-full max-w-[400px] rounded-lg bg-[#f46036] px-6 py-3 transition-colors disabled:opacity-60"
                   >
                     <span className="text-base md:text-lg font-medium text-white">
-                      Postularse
+                      {isApplying ? 'Postulando...' : 'Postularse'}
                     </span>
                   </Button>
                 </div>
