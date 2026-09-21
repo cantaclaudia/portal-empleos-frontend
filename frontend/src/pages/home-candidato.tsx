@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home as HomeIcon, Menu as MenuIcon, Search as SearchIcon, FileText as FileTextIcon, User as UserIcon, Settings as SettingsIcon, Bone as XIcon, MapPin as MapPinIcon, Plus as PlusIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from 'lucide-react';
+import { Home as HomeIcon, Menu as MenuIcon, Search as SearchIcon, FileText as FileTextIcon, User as UserIcon, Settings as SettingsIcon, X as XIcon, MapPin as MapPinIcon, Plus as PlusIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { InputHomeCandidato } from '../components/ui/input-home-candidato';
 import { Card, CardContent } from '../components/ui/card';
@@ -235,9 +235,10 @@ export const HomeCandidato: React.FC = () => {
     return `${num.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const handleViewMore = (index: number) => {
-    navigate(`/detalle-empleo/${index}`);
-  };
+  const handleViewMore = (job: AvailableJob) => {
+  sessionStorage.setItem('selected_job', JSON.stringify(job));
+  navigate('/detalle-empleo');
+};
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -757,7 +758,7 @@ export const HomeCandidato: React.FC = () => {
 
                       <div className="flex w-full items-center justify-between gap-4 pt-1">
                         <button
-                          onClick={() => handleViewMore(startIndex + index)}
+                          onClick={() => handleViewMore(job)}
                           className="font-bold text-[#3351A6] text-sm md:text-base tracking-[0] leading-tight hover:opacity-80 transition-opacity cursor-pointer"
                         >
                           Ver más

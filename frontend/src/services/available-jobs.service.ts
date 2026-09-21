@@ -13,13 +13,17 @@ interface AvailableJobsResponse {
 }
 
 class AvailableJobsService {
-  async getAvailableJobs(): Promise<AvailableJobsResponse> {
+  async getAvailableJobs(companyId?: number): Promise<AvailableJobsResponse> {
     try {
       const user = AuthService.getUser();
 
+      const body = companyId !== undefined 
+      ? { company_id: String(companyId) } 
+      : {};
+
       const response = await apiService.post<AvailableJobsResponse>(
         API_CONFIG.ENDPOINTS.GET_AVAILABLE_JOBS,
-        {},
+        body,
         {
           user_id: String(user?.user_id ?? ''),
         }

@@ -5,7 +5,7 @@ import { SeleccionPerfil } from './pages/seleccion-perfil';
 import { RegistroCandidato } from './pages/registro-candidato';
 import { RegistroReclutador } from './pages/registro-reclutador';
 import { HomeReclutador } from './pages/home-reclutador';
-import { JobDetail } from './pages/job-detail';
+import { JobDetail } from './pages/detalle-empleo';
 import { MisPostulaciones } from './pages/mis-postulaciones';
 import { AltaEmpresa } from './pages/alta-empresa';
 import { CrearOferta } from './pages/crear-oferta';

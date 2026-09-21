@@ -19,18 +19,27 @@ import type {
 } from '../types/application.types';
 
 class ApplicationService {
-  async applyForJob(data: ApplyForJobRequest): Promise<ApplyForJobResponse> {
+  async applyForJob(
+    data: ApplyForJobRequest,
+    userId: string
+  ): Promise<ApplyForJobResponse> {
     try {
       const response = await apiService.post<ApplyForJobResponse>(
         API_CONFIG.ENDPOINTS.APPLY_FOR_A_JOB,
-        data
+        data,
+        {
+          user_id: userId,
+        }
       );
 
       if (errorHandler.isSuccess(response.code as ErrorCode)) {
         return response;
       }
 
-      throw errorHandler.handleApiError(response as ApiResponse, 'APPLY_FOR_A_JOB');
+      throw errorHandler.handleApiError(
+        response as ApiResponse,
+        'APPLY_FOR_A_JOB'
+      );
     } catch (error) {
       throw errorHandler.wrapConnectionError(error);
     }
@@ -96,14 +105,14 @@ class ApplicationService {
     }
   }
 
-  async getApplicantsInformation( data: GetApplicantsInformationRequest, userId: string): Promise<GetApplicantsInformationResponse> {
+  async getApplicantsInformation(data: GetApplicantsInformationRequest, userId: string): Promise<GetApplicantsInformationResponse> {
     try {
       const response = await apiService.post<GetApplicantsInformationResponse>(
         API_CONFIG.ENDPOINTS.GET_APPLICANTS_INFORMATION,
         data,
-      {
-        user_id: userId,
-      }
+        {
+          user_id: userId,
+        }
       );
 
       if (errorHandler.isSuccess(response.code as ErrorCode)) {
