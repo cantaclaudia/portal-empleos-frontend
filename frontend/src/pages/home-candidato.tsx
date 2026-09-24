@@ -236,7 +236,7 @@ export const HomeCandidato: React.FC = () => {
   };
 
   const handleViewMore = (job: AvailableJob) => {
-    sessionStorage.setItem('selected_job', JSON.stringify(job));
+    sessionStorage.setItem('selected_job_offer_id', String(job.job_offer_id));
     navigate('/detalle-empleo');
   };
 
@@ -385,7 +385,7 @@ export const HomeCandidato: React.FC = () => {
 
       <section className="flex w-full min-h-[200px] md:min-h-[240px] lg:min-h-[278px] flex-col items-center justify-center gap-4 md:gap-6 px-4 py-6 md:py-8 bg-[#1E2749]">
         <div className="flex items-center justify-center px-2">
-           <p className="font-normal text-white/80 text-lg md:text-xl text-center">
+          <p className="font-normal text-white/80 text-lg md:text-xl text-center">
             ¿Qué tipo de empleo estás buscando?
           </p>
         </div>

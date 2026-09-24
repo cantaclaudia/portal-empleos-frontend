@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu as MenuIcon, X as XIcon, Home as HomeIcon, Search as SearchIcon, FileText as FileTextIcon, Settings as SettingsIcon, User as UserIcon, MapPin as MapPinIcon, ChevronLeft as ChevronLeftIcon, Clock as ClockIcon, XCircle as XCircleIcon, AlertCircle as AlertCircleIcon } from 'lucide-react';
+import { Menu as MenuIcon, X as XIcon, Home as HomeIcon, Search as SearchIcon, FileText as FileTextIcon, Settings as SettingsIcon, User as UserIcon, MapPin as MapPinIcon, Clock as ClockIcon, XCircle as XCircleIcon, AlertCircle as AlertCircleIcon } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { HeaderLogo } from '../components/ui/header-logo';
@@ -30,45 +30,41 @@ export const JobDetail: React.FC = () => {
   useEffect(() => {
     const loadSelectedJob = async () => {
       try {
-        const storedJob = sessionStorage.getItem('selected_job');
+        const storedJobOfferId = sessionStorage.getItem('selected_job_offer_id');
 
-        if (!storedJob) {
+        if (!storedJobOfferId) {
           setError('No se encontró el empleo solicitado.');
           return;
         }
 
-        const selectedJob: AvailableJob = JSON.parse(storedJob);
+        const jobOfferId = Number(storedJobOfferId);
 
-        setJob(selectedJob);
+        // Buscamos la oferta completa (con descripción, requisitos, salario, etc.)
+        const availableJobsResponse = await AvailableJobsService.getAvailableJobs();
 
-        const availableJobsResponse =
-          await AvailableJobsService.getAvailableJobs(
-            selectedJob.company_id
-          );
-
-        const activeJob = availableJobsResponse.data.some(
-          (availableJob) =>
-            availableJob.job_offer_id === selectedJob.job_offer_id
+        const fullJob = availableJobsResponse.data.find(
+          (availableJob) => availableJob.job_offer_id === jobOfferId
         );
 
-        setIsJobActive(activeJob);
-
-        if (!activeJob) {
+        if (!fullJob) {
+          // No está entre las activas: la oferta ya no existe o fue dada de baja
+          setIsJobActive(false);
+          setJob(null);
+          setError('Esta oferta ya no se encuentra disponible.');
           return;
         }
 
-        if (user?.user_id) {
-          const applicationsResponse =
-            await ApplicationService.getUserApplications({
-              candidate_id: String(user.user_id),
-            });
+        setJob(fullJob);
+        setIsJobActive(true);
 
-          const existingApplication =
-            applicationsResponse.data.find(
-              (application) =>
-                application.job_title === selectedJob.job_title &&
-                application.company_name === selectedJob.company_name
-            );
+        if (user?.user_id) {
+          const applicationsResponse = await ApplicationService.getUserApplications({
+            candidate_id: String(user.user_id),
+          });
+
+          const existingApplication = applicationsResponse.data.find(
+            (application) => application.job_offer_id === jobOfferId
+          );
 
           if (existingApplication) {
             const applicationId = existingApplication.application_id;
@@ -76,9 +72,7 @@ export const JobDetail: React.FC = () => {
             setApplicationId(applicationId);
 
             const statusResponse = await ApplicationService.getApplicationStatus(
-              {
-                application_id: String(applicationId),
-              },
+              { application_id: String(applicationId) },
               String(user.user_id)
             );
 
@@ -86,11 +80,7 @@ export const JobDetail: React.FC = () => {
           }
         }
       } catch (err) {
-        console.error(
-          'Error al cargar la oferta o consultar la postulación:',
-          err
-        );
-
+        console.error('Error al cargar la oferta o consultar la postulación:', err);
         setError('No se pudo cargar el empleo solicitado.');
       } finally {
         setCheckingApplication(false);
@@ -165,9 +155,7 @@ export const JobDetail: React.FC = () => {
         });
 
       const existingApplication = applicationsResponse.data.find(
-        (application) =>
-          application.job_title === job.job_title &&
-          application.company_name === job.company_name
+        (application) => application.job_offer_id === job.job_offer_id
       );
 
       if (existingApplication) {
@@ -315,16 +303,6 @@ export const JobDetail: React.FC = () => {
           </div>
         </>
       )}
-
-      <div className="w-full bg-[#EFEFEF] pt-4 pb-2 md:pt-6 px-4 md:px-8 lg:px-[62px] flex">
-        <button
-          onClick={() => navigate(ROUTES.HOME_CANDIDATO)}
-          className="flex items-center gap-1 text-[#06083C]/70 text-sm font-medium hover:text-[#06083C] transition-colors"
-        >
-          <ChevronLeftIcon className="w-4 h-4" />
-          Volver al inicio
-        </button>
-      </div>
 
       <main className="flex-1 py-5 md:py-8 md:pb-8">
         <div className="max-w-[1200px] mx-auto px-4 md:px-8 lg:px-[62px]">

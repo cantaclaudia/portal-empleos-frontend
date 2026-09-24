@@ -3,6 +3,12 @@ export interface Application {
   job_title: string;
   application_date: string;
   company_name?: string;
+  job_offer_id: number;
+  company_id: number;
+  job_description: string;
+  requirements: string;
+  salary: string;
+  location: string;
 }
 
 export interface GetUserApplicationsRequest {

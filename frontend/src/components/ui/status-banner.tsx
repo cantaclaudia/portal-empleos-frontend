@@ -10,6 +10,8 @@ export const getStatusInfo = (status: number | null) => {
         text: 'Gracias por tu interés en esta oferta.',
         iconBg: 'bg-[#FDECEC]',
         iconColor: 'text-[#B23B3B]',
+        badgeBg: 'bg-[#FDECEC]',
+        badgeText: 'text-[#B23B3B]',
       };
     case 1:
       return {
@@ -18,6 +20,8 @@ export const getStatusInfo = (status: number | null) => {
         text: 'La empresa se pondrá en contacto para continuar el proceso.',
         iconBg: 'bg-[#EAF3DE]',
         iconColor: 'text-[#3B6D11]',
+        badgeBg: 'bg-[#EAF3DE]',
+        badgeText: 'text-[#3B6D11]',
       };
     case 2:
       return {
@@ -26,6 +30,8 @@ export const getStatusInfo = (status: number | null) => {
         text: 'Te avisaremos cuando haya novedades.',
         iconBg: 'bg-[#E8F0FE]',
         iconColor: 'text-[#3358B8]',
+        badgeBg: 'bg-[#E8F0FE]',
+        badgeText: 'text-[#3358B8]',
       };
     case 3:
       return {
@@ -34,6 +40,8 @@ export const getStatusInfo = (status: number | null) => {
         text: 'Te avisaremos cuando haya novedades.',
         iconBg: 'bg-[#FDF6E3]',
         iconColor: 'text-[#96751F]',
+        badgeBg: 'bg-[#FDF6E3]',
+        badgeText: 'text-[#96751F]',
       };
     default:
       return {
@@ -42,6 +50,8 @@ export const getStatusInfo = (status: number | null) => {
         text: '',
         iconBg: 'bg-[#f5f5f5]',
         iconColor: 'text-[#757575]',
+        badgeBg: 'bg-[#f5f5f5]',
+        badgeText: 'text-[#757575]',
       };
   }
 };
@@ -70,5 +80,18 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({ status }) => {
         )}
       </div>
     </div>
+  );
+};
+
+interface StatusBadgeProps {
+  status: number | null;
+}
+
+export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
+  const config = getStatusInfo(status);
+  return (
+    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${config.badgeBg} ${config.badgeText}`}>
+      {config.title}
+    </span>
   );
 };
