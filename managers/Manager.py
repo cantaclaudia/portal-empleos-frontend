@@ -720,8 +720,11 @@ def get_user_applications(cnx, cursor, final_response, candidate_id, request_id=
                 SELECT 
                     s.application_id,
                     s.application_date,
+                    ed.job_offer_id,
                     e.title AS job_title,   
-                    emp.name AS company_name 
+                    emp.name AS company_name,
+                    CAST(ed.salary AS CHAR) AS salary,
+                    u.name AS location
                 FROM    
                     Empleos_Disponibles ed
                 JOIN    
@@ -733,6 +736,9 @@ def get_user_applications(cnx, cursor, final_response, candidate_id, request_id=
                 JOIN    
                     Empresas emp 
                     ON ed.company_id = emp.company_id
+                JOIN
+                    Ubicaciones u
+                    ON ed.location_id = u.location_id
                 WHERE   
                     s.candidate_id = %s;
                 '''
