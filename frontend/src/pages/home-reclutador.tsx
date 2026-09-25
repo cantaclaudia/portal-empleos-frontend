@@ -7,19 +7,18 @@ import {
   UserIcon,
   XIcon,
   HomeIcon,
-  SettingsIcon,
-  BarChartIcon,
   BriefcaseIcon,
-  type LucideIcon
 } from "lucide-react";
 import React, { useState, useEffect, useRef, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { HeaderLogo } from "../components/ui/header-logo";
-import AuthService from "../services/auth.service";
-import StatsService from "../services/stats.service";
-import { ERROR_CODES } from "../constants/error-codes";
 import { Footer } from "../components/ui/footer";
+import AuthService from "../services/auth.service";
+import ApplicationService from "../services/application.service";
+import AvailableJobsService from "../services/available-jobs.service";
+import StatsService from "../services/stats.service";
+import type { Application, Stats } from "../types/application.types";
 import { ROUTES } from "../routes";
 
 const SearchInput = (): JSX.Element => {
@@ -56,7 +55,6 @@ const SearchInput = (): JSX.Element => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
 
   const handleOptionClick = (option: string) => {
     setInputValue(option);
@@ -110,76 +108,34 @@ const SearchInput = (): JSX.Element => {
   );
 };
 
-interface SectionTitleProps {
-  children: React.ReactNode;
-  className?: string;
+interface StatCardProps {
+  value: string;
+  label: string;
 }
 
-const SectionTitle = ({ children, className = "" }: SectionTitleProps): JSX.Element => {
-  return (
-    <h2 className={`font-bold text-[#05073c] text-[28px] leading-[33.6px] ${className}`}>
-      {children}
-    </h2>
-  );
-};
+const StatCard = ({ value, label }: StatCardProps): JSX.Element => (
+  <div className="bg-white rounded-[12px] shadow-md p-6 flex flex-col gap-1 border border-gray-100">
+    <span className="font-bold text-[#05073c] text-[30px] leading-[1.1]">
+      {value}
+    </span>
+    <span className="font-semibold text-[#05073c] text-[15px]">{label}</span>
+  </div>
+);
 
-interface ManagementCardProps {
-  icon: LucideIcon;
-  title: string;
-  count: string;
-  description: string;
-  onClick: () => void;
+interface NumberBlockProps {
+  value: number | null;
+  loading: boolean;
+  label: string;
 }
 
-const ManagementCard = ({
-  icon: Icon,
-  title,
-  count,
-  description,
-  onClick,
-}: ManagementCardProps): JSX.Element => {
-  return (
-    <div
-      onClick={onClick}
-      className="w-full max-w-[1194px] bg-white rounded-[12px] shadow-md hover:shadow-lg transition-all duration-200 p-4 md:p-8 flex items-center gap-4 md:gap-6 border border-gray-200 cursor-pointer hover:border-[#f46036]"
-    >
-      <div className="flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-[#05073c] rounded-[12px] flex-shrink-0">
-        <Icon className="w-8 h-8 md:w-10 md:h-10 text-white" />
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <h3 className="font-bold text-[#05073c] text-[18px] md:text-[22px] leading-[25.2px] md:leading-[30.8px] mb-2">
-          {title}
-        </h3>
-        <p className="font-semibold text-[#f46036] text-[16px] md:text-[18px] leading-[22.4px] md:leading-[25.2px] mb-2">
-          {count}
-        </p>
-        <p className="text-[#666666] text-[14px] md:text-[16px] leading-[19.6px] md:leading-[22.4px]">
-          {description}
-        </p>
-      </div>
-
-      <div className="flex items-center justify-center flex-shrink-0">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-[#05073c]"
-        >
-          <path
-            d="M9 18L15 12L9 6"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-    </div>
-  );
-};
+const NumberBlock = ({ value, loading, label }: NumberBlockProps): JSX.Element => (
+  <div className="flex flex-col gap-0.5">
+    <span className="font-bold text-[#05073c] text-[28px] leading-[1.1]">
+      {loading ? "—" : value !== null ? value.toLocaleString("es-AR") : "—"}
+    </span>
+    <span className="text-[#666666] text-[13.5px]">{label}</span>
+  </div>
+);
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -202,10 +158,10 @@ const SideMenu = ({
   };
 
   const menuItems = [
-    { icon: HomeIcon, label: 'Inicio', path: ROUTES.HOME_RECLUTADOR },
-    { icon: PlusIcon, label: 'Crear nueva oferta', path: ROUTES.CREAR_OFERTA },
-    { icon: UsersIcon, label: 'Postulaciones recibidas', path: ROUTES.POSTULACIONES_RECIBIDAS },
-    { icon: SettingsIcon, label: 'Configuración', path: ROUTES.HOME_RECLUTADOR },
+    { icon: HomeIcon, label: "Inicio", path: ROUTES.HOME_RECLUTADOR },
+    { icon: PlusIcon, label: "Crear nueva oferta", path: ROUTES.CREAR_OFERTA },
+    { icon: BriefcaseIcon, label: "Alta empresa", path: ROUTES.ALTA_EMPRESA },
+    { icon: UsersIcon, label: "Postulaciones recibidas", path: ROUTES.POSTULACIONES_RECIBIDAS },
   ];
 
   if (!isOpen) return <></>;
@@ -272,75 +228,91 @@ const SideMenu = ({
 
 export const HomeReclutador = (): JSX.Element => {
   const navigate = useNavigate();
+  const user = AuthService.getUser();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const [stats, setStats] = useState<{
-    total_job_offers: number;
-    total_companies: number;
-    total_candidates: number;
-    successful_job_offers: number;
-  } | null>(null);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [jobsCount, setJobsCount] = useState<number | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
-  const user = AuthService.getUser();
-
-  const userName = user
-    ? `${user.first_name} ${user.last_name}`
-    : "Empleador";
-
+  const userName = user ? `${user.first_name} ${user.last_name}` : "Empleador";
   const companyName = "Empresa";
 
-   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const result = await StatsService.getStats();
+  // TODO(backend): /login no devuelve company_id. Hasta que lo devuelva (o
+  // exista un endpoint tipo "empresa del usuario logueado"), se usa el mismo
+  // workaround que ya tiene postulaciones-recibidas.tsx: tratar el user_id
+  // como si fuera el company_id. Cuando el back agregue el campo real, el
+  // único cambio necesario es esta línea.
+  const companyId = user?.user_id?.toString() ?? "1";
 
-        if (result.code === ERROR_CODES.SUCCESS) {
-          setStats(result.data);
-        }
-      } catch {
-        /*
-         * Lugar para las estadisticas *
-         */
+  useEffect(() => {
+    let active = true;
+
+    const load = async () => {
+      const [applicationsResult, jobsResult, statsResult] = await Promise.allSettled([
+        ApplicationService.getApplicationsWithCompanyId(
+          { company_id: companyId },
+          companyId
+        ),
+        AvailableJobsService.getAvailableJobs(Number(companyId)),
+        StatsService.getStats(),
+      ]);
+
+      if (!active) return;
+
+      let hadError = false;
+
+      if (applicationsResult.status === "fulfilled") {
+        setApplications(applicationsResult.value.data || []);
+      } else {
+        hadError = true;
       }
+
+      if (jobsResult.status === "fulfilled") {
+        setJobsCount(jobsResult.value.data.length);
+      } else {
+        hadError = true;
+      }
+
+      if (statsResult.status === "fulfilled") {
+        setStats(statsResult.value.data);
+      } else {
+        hadError = true;
+      }
+
+      setLoadError(hadError);
+      setLoading(false);
     };
 
-    fetchStats();
-  }, []);
+    load();
+    return () => {
+      active = false;
+    };
+  }, [companyId]);
 
-  const managementItems = [
-    {
-      icon: FileTextIcon,
-      title: "Crear nueva oferta",
-      count: stats ? `${stats.total_job_offers} ofertas activas` : "Publicá nuevas búsquedas",
-      description: "Creá y publicá ofertas laborales para encontrar talento.",
-      onClick: () => navigate(ROUTES.CREAR_OFERTA),
-    },
-    {
-      icon: UsersIcon,
-      title: "Postulaciones recibidas",
-      count: stats ? `${stats.total_candidates} candidatos` : "Revisá postulaciones",
-      description: "Revisá quién se postuló a tus búsquedas y gestioná sus aplicaciones.",
-      onClick: () => navigate(ROUTES.POSTULACIONES_RECIBIDAS),
-    },
-    {
-      icon: BriefcaseIcon,
-      title: "Alta empresa",
-      count: stats ? `${stats.total_companies} empresas` : "Registrá una empresa",
-      description: "Dá de alta una nueva empresa para publicar ofertas.",
-      onClick: () => navigate(ROUTES.ALTA_EMPRESA),
-    },
-    {
-      icon: BarChartIcon,
-      title: "Estadísticas",
-      count: stats ? `${stats.successful_job_offers} ofertas exitosas` : "Resumen general",
-      description: "Visualizá estadísticas generales de la plataforma.",
-      onClick: () => { },
-    },
-  ];
+  const sortedApplications = [...applications].sort((a, b) =>
+    b.application_date.localeCompare(a.application_date)
+  );
+  const latestApplications = sortedApplications.slice(0, 4);
+  const distinctJobTitles = new Set(applications.map((a) => a.job_title)).size;
+
+  const formatDate = (dateStr: string): string => {
+    try {
+      return new Date(dateStr).toLocaleDateString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    } catch {
+      return dateStr;
+    }
+  };
 
   return (
-    <div className="bg-[#EFEFEF] w-full flex flex-col overflow-x-hidden">
+    <div className="bg-[#EFEFEF] w-full flex flex-col overflow-x-hidden min-h-screen">
       <nav className="flex w-full items-center gap-3 px-4 md:px-16 py-6 bg-[#05073c] shadow-lg">
         <Button
           variant="ghost"
@@ -385,17 +357,89 @@ export const HomeReclutador = (): JSX.Element => {
         </div>
       </section>
 
-      <section className="flex flex-col items-center justify-center gap-6 px-4 md:px-20 py-12 w-full">
-        <div className="w-full max-w-[1194px] px-4 md:px-0">
-          <SectionTitle className="mb-4">Tu espacio de gestión</SectionTitle>
+      <section className="flex flex-col items-center gap-6 px-4 md:px-20 py-12 w-full -mt-10 md:-mt-14 relative z-10">
+        <div className="w-full max-w-[1194px] grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatCard
+            value={loading ? "—" : String(applications.length)}
+            label="Postulaciones recibidas"
+          />
+          <StatCard
+            value={loading || jobsCount === null ? "—" : String(jobsCount)}
+            label="Ofertas abiertas"
+          />
+          <StatCard
+            value={loading ? "—" : String(distinctJobTitles)}
+            label="Puestos con postulaciones"
+          />
         </div>
-        <div className="flex flex-col items-center gap-6 w-full px-4 md:px-0">
-          {managementItems.map((item, index) => (
-            <ManagementCard key={index} {...item} />
-          ))}
+
+        {loadError && (
+          <div className="w-full max-w-[1194px] bg-[#fff4ed] border border-[#f46036]/30 text-[#a83f1c] text-[14px] rounded-[8px] px-5 py-3">
+            No pudimos cargar toda la información. Volvé a intentar más tarde.
+          </div>
+        )}
+
+        <div className="w-full max-w-[1194px] bg-white rounded-[12px] shadow-md border border-gray-100 overflow-hidden">
+          <div className="flex items-center justify-between gap-3 px-6 py-5">
+            <h2 className="font-bold text-[#05073c] text-[18px]">
+              Últimas postulaciones a tu empresa
+            </h2>
+            {applications.length > 0 && (
+              <button
+                onClick={() => navigate(ROUTES.POSTULACIONES_RECIBIDAS)}
+                className="text-[#f46036] font-semibold text-[13.5px] hover:underline"
+              >
+                Ver las {applications.length}
+              </button>
+            )}
+          </div>
+
+          {loading ? (
+            <p className="px-6 pb-6 text-[#757575] text-[14px]">Cargando postulaciones...</p>
+          ) : latestApplications.length === 0 ? (
+            <p className="px-6 pb-6 text-[#757575] text-[14px]">
+              Todavía no recibiste postulaciones.
+            </p>
+          ) : (
+            latestApplications.map((app) => (
+              <div
+                key={app.application_id}
+                className="flex items-center gap-4 px-6 py-4 border-t border-gray-100"
+              >
+                <div className="w-10 h-10 rounded-[10px] bg-[#eceef6] text-[#3b4a86] flex items-center justify-center flex-shrink-0">
+                  <FileTextIcon className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-[#05073c] text-[15px] leading-snug truncate">
+                    {app.job_title}
+                  </p>
+                  <p className="text-[#666666] text-[13.5px]">
+                    Solicitud #{app.application_id}, {formatDate(app.application_date)}
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate(ROUTES.POSTULACIONES_RECIBIDAS)}
+                  className="text-[#05073c] font-semibold text-[13.5px] border border-gray-200 rounded-[8px] px-3.5 py-1.5 hover:bg-gray-50 whitespace-nowrap"
+                >
+                  Ver candidato
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="w-full max-w-[1194px] bg-white rounded-[12px] shadow-md border border-gray-100 p-6">
+          <h2 className="font-bold text-[#05073c] text-[18px] mb-5">
+            La plataforma en números
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <NumberBlock value={stats?.total_candidates ?? null} loading={loading} label="Candidatos" />
+            <NumberBlock value={stats?.total_companies ?? null} loading={loading} label="Empresas" />
+            <NumberBlock value={stats?.total_job_offers ?? null} loading={loading} label="Ofertas publicadas" />
+            <NumberBlock value={stats?.successful_job_offers ?? null} loading={loading} label="Ofertas conseguidas" />
+          </div>
         </div>
       </section>
-
 
       <Footer />
     </div>
