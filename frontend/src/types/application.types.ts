@@ -2,6 +2,7 @@ export interface Application {
   application_id: number;
   job_title: string;
   application_date: string;
+  candidate_id: number;
   company_name?: string;
   job_offer_id: number;
   company_id: number;
@@ -75,6 +76,7 @@ export interface ApplicantExperience {
 }
 
 export interface ApplicantInfo {
+  candidate_id: number;
   email: string;
   first_name: string;
   last_name: string;
