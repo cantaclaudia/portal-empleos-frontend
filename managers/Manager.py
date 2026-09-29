@@ -585,42 +585,53 @@ def get_applicants_information(cnx, cursor, final_response, job_offer_id, reques
         #todo verificar query
         #verificamos que haya una busqueda activa (status = 1)
         query = '''
-                SELECT 
-                    u.name AS first_name,
-                    u.last_name AS last_name,
-                    c.resume_url,
-                    u.email,
-                    GROUP_CONCAT(DISTINCT s.name) AS skills,
-                    JSON_ARRAYAGG(
+                 SELECT 
+            u.user_id AS candidate_id,
+            u.name AS first_name,
+            u.last_name AS last_name,
+            c.resume_url,
+            u.email,
+
+            (
+                SELECT GROUP_CONCAT(DISTINCT s2.name)
+                FROM Habilidades_x_Candidato hc2
+                JOIN Habilidades s2
+                    ON hc2.skill_id = s2.skill_id
+                WHERE hc2.candidate_id = c.candidate_id
+            ) AS skills,
+
+            COALESCE(
+                (
+                    SELECT JSON_ARRAYAGG(
                         JSON_OBJECT(
-                            'job_name', e.title,
-                            'start_date', ex.start_date,
-                            'end_date', ex.end_date,
-                            'company_name', em.name
+                            'job_name', e2.title,
+                            'start_date', ex2.start_date,
+                            'end_date', ex2.end_date,
+                            'company_name', em2.name
                         )
-                    ) AS experience
-                FROM 
-                    Solicitudes sol
-                JOIN 
-                    Candidatos c ON sol.candidate_id = c.candidate_id
-                JOIN 
-                    Usuarios u ON c.candidate_id = u.user_id
-                LEFT JOIN 
-                    Habilidades_x_Candidato hc ON c.candidate_id = hc.candidate_id
-                LEFT JOIN 
-                    Habilidades s ON hc.skill_id = s.skill_id
-                LEFT JOIN 
-                    Experiencias ex ON c.candidate_id = ex.candidate_id
-                LEFT JOIN 
-                    Empleos e ON ex.job_id = e.job_id
-                LEFT JOIN 
-                    Empresas em ON ex.company_id = em.company_id
-                WHERE 
-                    sol.job_offer_id = %s
-                GROUP BY 
-                    u.user_id;
-                ;
-                '''
+                    )
+                    FROM Experiencias ex2
+                    LEFT JOIN Empleos e2
+                        ON ex2.job_id = e2.job_id
+                    LEFT JOIN Empresas em2
+                        ON ex2.company_id = em2.company_id
+                    WHERE ex2.candidate_id = c.candidate_id
+                ),
+                JSON_ARRAY()
+            ) AS experience
+
+        FROM Solicitudes sol
+
+        JOIN Candidatos c
+            ON sol.candidate_id = c.candidate_id
+
+        JOIN Usuarios u
+            ON c.candidate_id = u.user_id
+
+        WHERE sol.job_offer_id = %s
+
+        GROUP BY u.user_id;
+        '''
 
         values = (job_offer_id,)
         cursor.execute(query, values)
@@ -801,16 +812,15 @@ def get_application_with_company_id(cnx, cursor, final_response, company_id, req
         query = '''
                 SELECT 
                     s.application_id,
+                    s.job_offer_id,
+                    s.candidate_id,
                     e.title AS job_title,
                     s.application_date
                 FROM 
                     Solicitudes s
-                JOIN 
-                    Empleos_Disponibles ed ON s.job_offer_id = ed.job_offer_id
-                JOIN 
-                    Empleos e ON ed.job_id = e.job_id
-                WHERE 
-                    ed.company_id = %s
+                JOIN Empleos_Disponibles ed ON s.job_offer_id = ed.job_offer_id
+                JOIN Empleos e ON ed.job_id = e.job_id
+                WHERE ed.company_id = %s
                 '''
 
         values = (company_id,)
