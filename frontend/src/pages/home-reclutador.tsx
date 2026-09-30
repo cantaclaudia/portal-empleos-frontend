@@ -3,13 +3,14 @@ import {
   MenuIcon,
   FileTextIcon,
   UsersIcon,
-  SearchIcon,
   UserIcon,
   XIcon,
   HomeIcon,
   BriefcaseIcon,
+  BarChartIcon,
+  type LucideIcon,
 } from "lucide-react";
-import React, { useState, useEffect, useRef, type JSX } from "react";
+import React, { useState, useEffect, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { HeaderLogo } from "../components/ui/header-logo";
@@ -17,125 +18,47 @@ import { Footer } from "../components/ui/footer";
 import AuthService from "../services/auth.service";
 import ApplicationService from "../services/application.service";
 import AvailableJobsService from "../services/available-jobs.service";
-import StatsService from "../services/stats.service";
-import type { Application, Stats } from "../types/application.types";
+import type { Application } from "../types/application.types";
+import type { Job } from "../types/job.types";
 import { ROUTES } from "../routes";
 import { formatDate } from "../utils/format-date";
 
-const SearchInput = (): JSX.Element => {
-  const [inputValue, setInputValue] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-
-  const searchRef = useRef<HTMLDivElement>(null);
-
-  const allOptions = [
-    "Crear nueva oferta",
-    "Alta empresa",
-    "Postulaciones recibidas",
-    "Inicio",
-    "Configuración",
-  ];
-
-  const filteredOptions = allOptions.filter((option) =>
-    option.toLowerCase().includes(inputValue.toLowerCase())
-  );
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const handleOptionClick = (option: string) => {
-    setInputValue(option);
-    setShowSuggestions(false);
-  };
-
-  const handleClear = () => {
-    setInputValue("");
-    setShowSuggestions(false);
-  };
-
-  return (
-    <div ref={searchRef} className="relative flex-1">
-      <div className="relative">
-        <SearchIcon className="absolute left-3 md:left-5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10" />
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => {
-            setInputValue(e.target.value);
-            setShowSuggestions(true);
-          }}
-          onFocus={() => setShowSuggestions(true)}
-          placeholder="Seleccionar área de interés"
-          className="w-full h-[54px] pl-11 md:pl-14 pr-10 md:pr-12 py-3 bg-white rounded-[8px] border-2 border-transparent focus:border-[#f46036] focus:outline-none shadow-md transition-all duration-200 text-[16px] md:text-[18px] text-[#05073c] placeholder:text-gray-400"
-        />
-        {inputValue && (
-          <button
-            onClick={handleClear}
-            className="absolute right-3 md:right-5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#05073c] transition-colors"
-          >
-            <XIcon className="w-5 h-5" />
-          </button>
-        )}
-      </div>
-
-      {showSuggestions && filteredOptions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[8px] shadow-lg border border-gray-200 z-20 max-h-[300px] overflow-y-auto">
-          {filteredOptions.map((option, index) => (
-            <button
-              key={index}
-              onClick={() => handleOptionClick(option)}
-              className="w-full px-4 md:px-6 py-3 text-left text-[16px] text-[#05073c] hover:bg-[#f46036]/10 transition-colors duration-150 cursor-pointer"
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-interface StatCardProps {
-  value: string;
+interface AccessTileProps {
+  icon: LucideIcon;
   label: string;
+  value?: string;
+  sublabel?: string;
+  primary?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
 }
 
-const StatCard = ({ value, label }: StatCardProps): JSX.Element => (
-  <div className="bg-white rounded-[12px] shadow-md p-6 flex flex-col gap-1 border border-gray-100">
-    <span className="font-bold text-[#05073c] text-[30px] leading-[1.1]">
-      {value}
-    </span>
-    <span className="font-semibold text-[#05073c] text-[15px]">{label}</span>
-  </div>
-);
-
-interface NumberBlockProps {
-  value: number | null;
-  loading: boolean;
-  label: string;
-}
-
-const NumberBlock = ({ value, loading, label }: NumberBlockProps): JSX.Element => (
-  <div className="flex flex-col gap-0.5">
-    <span className="font-bold text-[#05073c] text-[28px] leading-[1.1]">
-      {loading ? "—" : value !== null ? value.toLocaleString("es-AR") : "—"}
-    </span>
-    <span className="text-[#666666] text-[13.5px]">{label}</span>
-  </div>
+const AccessTile = ({
+  icon: Icon,
+  label,
+  value,
+  sublabel,
+  primary,
+  disabled,
+  onClick,
+}: AccessTileProps): JSX.Element => (
+  <button
+    onClick={disabled ? undefined : onClick}
+    disabled={disabled}
+    className={`flex flex-col gap-1.5 rounded-[14px] border p-[18px] text-left transition-colors ${primary
+        ? "bg-[#f46036] border-[#f46036] text-white hover:bg-[#d9512e]"
+        : disabled
+          ? "bg-white border-gray-100 opacity-60 cursor-default"
+          : "bg-white border-gray-100 hover:border-[#f46036]/40 hover:shadow-sm"
+      }`}
+  >
+    <Icon className="w-[22px] h-[22px]" />
+    {value !== undefined && <span className="font-bold text-2xl leading-none">{value}</span>}
+    <span className="font-bold text-sm">{label}</span>
+    {sublabel && (
+      <span className={`text-xs ${primary ? "text-white/85" : "text-[#666666]"}`}>{sublabel}</span>
+    )}
+  </button>
 );
 
 interface SideMenuProps {
@@ -234,8 +157,7 @@ export const HomeReclutador = (): JSX.Element => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [applications, setApplications] = useState<Application[]>([]);
-  const [jobsCount, setJobsCount] = useState<number | null>(null);
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
@@ -248,13 +170,12 @@ export const HomeReclutador = (): JSX.Element => {
     let active = true;
 
     const load = async () => {
-      const [applicationsResult, jobsResult, statsResult] = await Promise.allSettled([
+      const [applicationsResult, jobsResult] = await Promise.allSettled([
         ApplicationService.getApplicationsWithCompanyId(
           { company_id: companyId },
           companyId
         ),
         AvailableJobsService.getAvailableJobs(Number(companyId)),
-        StatsService.getStats(),
       ]);
 
       if (!active) return;
@@ -268,13 +189,7 @@ export const HomeReclutador = (): JSX.Element => {
       }
 
       if (jobsResult.status === "fulfilled") {
-        setJobsCount(jobsResult.value.data.length);
-      } else {
-        hadError = true;
-      }
-
-      if (statsResult.status === "fulfilled") {
-        setStats(statsResult.value.data);
+        setJobs(jobsResult.value.data || []);
       } else {
         hadError = true;
       }
@@ -293,7 +208,13 @@ export const HomeReclutador = (): JSX.Element => {
     b.application_date.localeCompare(a.application_date)
   );
   const latestApplications = sortedApplications.slice(0, 4);
-  const distinctJobTitles = new Set(applications.map((a) => a.job_title)).size;
+
+  // Proxy de "reciente": id más alto = oferta más nueva. getAvailableJobs no trae
+  // publication_date todavía (el back sí lo guarda en create_new_job_offer, pero
+  // no lo devuelve), así que no se puede ordenar por fecha real.
+  const recentJobs = [...jobs]
+    .sort((a, b) => (b.job_offer_id ?? 0) - (a.job_offer_id ?? 0))
+    .slice(0, 4);
 
   return (
     <div className="bg-[#EFEFEF] w-full flex flex-col overflow-x-hidden min-h-screen">
@@ -317,93 +238,83 @@ export const HomeReclutador = (): JSX.Element => {
         companyName={companyName}
       />
 
-      <section className="flex w-full flex-col items-center justify-center gap-8 px-4 md:px-10 py-16 bg-gradient-to-br from-[#1e2749] to-[#2a3558]">
-        <div className="inline-flex items-center justify-center gap-2.5 px-4">
-          <div className="flex flex-col items-center justify-center w-fit text-center">
-            <span className="text-white/90 text-[14px] md:text-[20px] leading-[25.2px] md:leading-[30.8px]">
-              Visualizá, gestioná y creá nuevas búsquedas laborales.
-            </span>
-          </div>
-        </div>
-
-        <div className="flex flex-row w-full max-w-[964px] items-center justify-center gap-3 md:gap-4 px-4">
-          <SearchInput />
-
-          <Button
-            onClick={() => navigate(ROUTES.CREAR_OFERTA)}
-            className="flex w-auto md:w-[230px] h-[54px] items-center justify-center gap-2 md:gap-3 px-4 md:px-6 py-3 bg-[#f46036] hover:bg-[#d9512e] rounded-[8px] shadow-md hover:shadow-lg transition-all duration-200 whitespace-nowrap"
-          >
-            <PlusIcon className="w-5 h-5 md:w-6 md:h-6" />
-            <span className="font-semibold text-white text-[14px] md:text-[18px] tracking-[0] leading-[normal]">
-              Crear oferta
-            </span>
-          </Button>
+      <section className="px-4 md:px-20 py-7 bg-gradient-to-r from-[#1e2749] to-[#2a3558] text-white">
+        <div className="flex flex-col items-center justify-center gap-y-1 text-center">
+          <h2 className="font-bold text-xl md:text-2xl">Tu espacio de gestión</h2>
+          <span className="text-white/60 text-sm">
+            Visualizá, gestioná y creá nuevas búsquedas laborales.
+          </span>
         </div>
       </section>
 
-      <section className="flex flex-col items-center gap-6 px-4 md:px-20 py-12 w-full -mt-10 md:-mt-14 relative z-10">
-        <div className="w-full max-w-[1194px] grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatCard
-            value={loading ? "—" : String(applications.length)}
-            label="Postulaciones recibidas"
-          />
-          <StatCard
-            value={loading || jobsCount === null ? "—" : String(jobsCount)}
-            label="Ofertas abiertas"
-          />
-          <StatCard
-            value={loading ? "—" : String(distinctJobTitles)}
-            label="Puestos con postulaciones"
-          />
-        </div>
-
+      <section className="flex flex-col gap-5 px-4 md:px-20 py-8 w-full max-w-[1194px] mx-auto">
         {loadError && (
-          <div className="w-full max-w-[1194px] bg-[#fff4ed] border border-[#f46036]/30 text-[#a83f1c] text-[14px] rounded-[8px] px-5 py-3">
+          <div className="bg-[#fff4ed] border border-[#f46036]/30 text-[#a83f1c] text-sm rounded-[8px] px-5 py-3">
             No pudimos cargar toda la información. Volvé a intentar más tarde.
           </div>
         )}
 
-        <div className="w-full max-w-[1194px] bg-white rounded-[12px] shadow-md border border-gray-100 overflow-hidden">
-          <div className="flex items-center justify-between gap-3 px-6 py-5">
-            <h2 className="font-bold text-[#05073c] text-[18px]">
-              Últimas postulaciones a tu empresa
-            </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+          <AccessTile
+            icon={PlusIcon}
+            label="Publicar oferta"
+            sublabel="Creá una nueva búsqueda"
+            primary
+            onClick={() => navigate(ROUTES.CREAR_OFERTA)}
+          />
+          <AccessTile
+            icon={BriefcaseIcon}
+            label="Trabajos publicados"
+            value={loading ? "—" : String(jobs.length)}
+            onClick={() => navigate(ROUTES.ALTA_EMPRESA)}
+          />
+          <AccessTile
+            icon={UsersIcon}
+            label="Postulaciones"
+            value={loading ? "—" : String(applications.length)}
+            onClick={() => navigate(ROUTES.POSTULACIONES_RECIBIDAS)}
+          />
+          <AccessTile
+            icon={BarChartIcon}
+            label="Estadísticas"
+            value="—"
+            sublabel="Próximamente"
+            disabled
+            onClick={() => { }}
+          />
+        </div>
+
+        <div className="bg-white rounded-[14px] border border-gray-100 overflow-hidden">
+          <div className="flex items-center justify-between gap-3 px-5 py-4">
+            <h3 className="font-bold text-[#05073c] text-base">Últimas postulaciones a tu empresa</h3>
             {applications.length > 0 && (
               <button
                 onClick={() => navigate(ROUTES.POSTULACIONES_RECIBIDAS)}
-                className="text-[#f46036] font-semibold text-[13.5px] hover:underline"
+                className="text-[#f46036] font-semibold text-sm hover:underline"
               >
                 Ver las {applications.length}
               </button>
             )}
           </div>
-
           {loading ? (
-            <p className="px-6 pb-6 text-[#757575] text-[14px]">Cargando postulaciones...</p>
+            <p className="px-5 pb-5 text-[#757575] text-sm">Cargando postulaciones...</p>
           ) : latestApplications.length === 0 ? (
-            <p className="px-6 pb-6 text-[#757575] text-[14px]">
-              Todavía no recibiste postulaciones.
-            </p>
+            <p className="px-5 pb-5 text-[#757575] text-sm">Todavía no recibiste postulaciones.</p>
           ) : (
             latestApplications.map((app) => (
-              <div
-                key={app.application_id}
-                className="flex items-center gap-4 px-6 py-4 border-t border-gray-100"
-              >
-                <div className="w-10 h-10 rounded-[10px] bg-[#eceef6] text-[#3b4a86] flex items-center justify-center flex-shrink-0">
-                  <FileTextIcon className="w-5 h-5" />
+              <div key={app.application_id} className="flex items-center gap-3.5 px-5 py-3.5 border-t border-gray-100">
+                <div className="w-9 h-9 rounded-[9px] bg-[#eceef6] text-[#3b4a86] flex items-center justify-center flex-shrink-0">
+                  <FileTextIcon className="w-[18px] h-[18px]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-[#05073c] text-[15px] leading-snug truncate">
-                    {app.job_title}
-                  </p>
-                  <p className="text-[#666666] text-[13.5px]">
+                  <p className="font-bold text-[#05073c] text-sm truncate">{app.job_title}</p>
+                  <p className="text-[#666666] text-xs">
                     Solicitud #{app.application_id}, {formatDate(app.application_date)}
                   </p>
                 </div>
                 <button
                   onClick={() => navigate(ROUTES.POSTULACIONES_RECIBIDAS)}
-                  className="text-[#05073c] font-semibold text-[13.5px] border border-gray-200 rounded-[8px] px-3.5 py-1.5 hover:bg-gray-50 whitespace-nowrap"
+                  className="text-[#05073c] font-semibold text-xs border border-gray-200 rounded-[8px] px-3 py-1.5 hover:bg-gray-50 whitespace-nowrap"
                 >
                   Ver candidato
                 </button>
@@ -412,16 +323,37 @@ export const HomeReclutador = (): JSX.Element => {
           )}
         </div>
 
-        <div className="w-full max-w-[1194px] bg-white rounded-[12px] shadow-md border border-gray-100 p-6">
-          <h2 className="font-bold text-[#05073c] text-[18px] mb-5">
-            La plataforma en números
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <NumberBlock value={stats?.total_candidates ?? null} loading={loading} label="Candidatos" />
-            <NumberBlock value={stats?.total_companies ?? null} loading={loading} label="Empresas" />
-            <NumberBlock value={stats?.total_job_offers ?? null} loading={loading} label="Ofertas publicadas" />
-            <NumberBlock value={stats?.successful_job_offers ?? null} loading={loading} label="Ofertas conseguidas" />
+        <div className="bg-white rounded-[14px] border border-gray-100 overflow-hidden">
+          <div className="flex items-center justify-between gap-3 px-5 py-4">
+            <h3 className="font-bold text-[#05073c] text-base">Publicaciones recientes</h3>
+            {jobs.length > 0 && (
+              <button
+                onClick={() => navigate(ROUTES.ALTA_EMPRESA)}
+                className="text-[#f46036] font-semibold text-sm hover:underline"
+              >
+                Ver todas
+              </button>
+            )}
           </div>
+          {loading ? (
+            <p className="px-5 pb-5 text-[#757575] text-sm">Cargando ofertas...</p>
+          ) : recentJobs.length === 0 ? (
+            <p className="px-5 pb-5 text-[#757575] text-sm">Todavía no publicaste ninguna oferta.</p>
+          ) : (
+            recentJobs.map((job) => (
+              <div key={job.job_offer_id} className="flex items-center gap-3.5 px-5 py-3.5 border-t border-gray-100">
+                <div className="w-9 h-9 rounded-[9px] bg-[#eceef6] text-[#3b4a86] flex items-center justify-center flex-shrink-0">
+                  <BriefcaseIcon className="w-[18px] h-[18px]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-[#05073c] text-sm truncate">{job.job_title}</p>
+                  <p className="text-[#666666] text-xs">
+                    {job.location} · ${job.salary}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </section>
 
