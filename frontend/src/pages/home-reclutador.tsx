@@ -20,6 +20,7 @@ import AvailableJobsService from "../services/available-jobs.service";
 import StatsService from "../services/stats.service";
 import type { Application, Stats } from "../types/application.types";
 import { ROUTES } from "../routes";
+import { formatDate } from "../utils/format-date";
 
 const SearchInput = (): JSX.Element => {
   const [inputValue, setInputValue] = useState("");
@@ -241,12 +242,7 @@ export const HomeReclutador = (): JSX.Element => {
   const userName = user ? `${user.first_name} ${user.last_name}` : "Empleador";
   const companyName = "Empresa";
 
-  // TODO(backend): /login no devuelve company_id. Hasta que lo devuelva (o
-  // exista un endpoint tipo "empresa del usuario logueado"), se usa el mismo
-  // workaround que ya tiene postulaciones-recibidas.tsx: tratar el user_id
-  // como si fuera el company_id. Cuando el back agregue el campo real, el
-  // único cambio necesario es esta línea.
-  const companyId = user?.user_id?.toString() ?? "1";
+  const companyId = user?.user_id?.toString() ?? "";
 
   useEffect(() => {
     let active = true;
@@ -298,18 +294,6 @@ export const HomeReclutador = (): JSX.Element => {
   );
   const latestApplications = sortedApplications.slice(0, 4);
   const distinctJobTitles = new Set(applications.map((a) => a.job_title)).size;
-
-  const formatDate = (dateStr: string): string => {
-    try {
-      return new Date(dateStr).toLocaleDateString("es-AR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-    } catch {
-      return dateStr;
-    }
-  };
 
   return (
     <div className="bg-[#EFEFEF] w-full flex flex-col overflow-x-hidden min-h-screen">
