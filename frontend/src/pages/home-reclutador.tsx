@@ -8,20 +8,24 @@ import {
   HomeIcon,
   BriefcaseIcon,
   BarChartIcon,
+  Building2 as BuildingIcon,
   type LucideIcon,
 } from "lucide-react";
 import React, { useState, useEffect, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
 import { HeaderLogo } from "../components/ui/header-logo";
 import { Footer } from "../components/ui/footer";
 import AuthService from "../services/auth.service";
 import ApplicationService from "../services/application.service";
-import AvailableJobsService from "../services/available-jobs.service";
 import type { Application } from "../types/application.types";
-import type { Job } from "../types/job.types";
 import { ROUTES } from "../routes";
 import { formatDate } from "../utils/format-date";
+import AvailableJobsService from "../services/available-jobs.service";
+import type { Job } from "../types/job.types";
+import { ERROR_CODES } from "../constants/error-codes";
+
 
 interface AccessTileProps {
   icon: LucideIcon;
@@ -46,10 +50,10 @@ const AccessTile = ({
     onClick={disabled ? undefined : onClick}
     disabled={disabled}
     className={`flex flex-col gap-1.5 rounded-[14px] border p-[18px] text-left transition-colors ${primary
-        ? "bg-[#f46036] border-[#f46036] text-white hover:bg-[#d9512e]"
-        : disabled
-          ? "bg-white border-gray-100 opacity-60 cursor-default"
-          : "bg-white border-gray-100 hover:border-[#f46036]/40 hover:shadow-sm"
+      ? "bg-[#f46036] border-[#f46036] text-white hover:bg-[#d9512e]"
+      : disabled
+        ? "bg-white border-gray-100 opacity-60 cursor-default"
+        : "bg-white border-gray-100 hover:border-[#f46036]/40 hover:shadow-sm"
       }`}
   >
     <Icon className="w-[22px] h-[22px]" />
@@ -60,6 +64,80 @@ const AccessTile = ({
     )}
   </button>
 );
+
+interface JobCardProps {
+  title: string;
+  companyName: string;
+  location?: string;
+  salary?: string;
+  description?: string;
+  actionLabel: string;
+  onAction: () => void;
+}
+
+const formatSalary = (salary: string): string => {
+  const num = parseFloat(salary);
+  return num.toLocaleString("es-AR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+const JobCard = ({
+  title,
+  companyName,
+  location,
+  salary,
+  description,
+  actionLabel,
+  onAction,
+}: JobCardProps): JSX.Element => {
+  const details = [location, salary ? `$${formatSalary(salary)}` : undefined]
+    .filter(Boolean)
+    .join(" | ");
+
+  return (
+    <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-shadow rounded-lg">
+      <CardContent className="flex flex-col gap-3 px-5 py-4">
+        <div className="w-full">
+          <h3 className="font-bold text-[#333333] text-base tracking-[0] leading-tight mb-1">
+            {title}
+          </h3>
+
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <BuildingIcon className="w-4 h-4 text-[#757575] flex-shrink-0" />
+            <p className="font-medium text-[#757575] text-sm tracking-[0] leading-tight">
+              {companyName}
+            </p>
+          </div>
+
+          {details && (
+            <p className="font-semibold text-[#F46036] text-sm tracking-[0] leading-tight">
+              {details}
+            </p>
+          )}
+        </div>
+
+        {description && (
+          <div className="w-full">
+            <p className="font-normal text-[#333333] text-sm tracking-[0] leading-relaxed">
+              {description}
+            </p>
+          </div>
+        )}
+
+        <div className="flex w-full items-center justify-between gap-4 pt-1">
+          <button
+            onClick={onAction}
+            className="font-bold text-[#3351A6] text-sm tracking-[0] leading-tight hover:opacity-80 transition-opacity cursor-pointer"
+          >
+            {actionLabel}
+          </button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -157,45 +235,72 @@ export const HomeReclutador = (): JSX.Element => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [applications, setApplications] = useState<Application[]>([]);
-  const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
   const userName = user ? `${user.first_name} ${user.last_name}` : "Empleador";
-  const companyName = "Empresa";
 
-  const companyId = user?.user_id?.toString() ?? "";
+  const rawCompanyId = (user as unknown as { company_id?: number | string | null } | null)
+    ?.company_id;
+  const companyId = rawCompanyId != null ? String(rawCompanyId) : "";
+
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobsLoading, setJobsLoading] = useState(true);
+  const [jobsError, setJobsError] = useState(false);
+  const companyName = jobs[0]?.company_name ?? "Empresa";
+
+  // company_id real del reclutador (viene del login)
+  const rawJobsCompanyId = (user as unknown as { company_id?: number | string | null } | null)
+    ?.company_id;
+  const jobsCompanyId = rawJobsCompanyId != null ? Number(rawJobsCompanyId) : undefined;
+
+  useEffect(() => {
+    let active = true;
+
+    if (jobsCompanyId === undefined) {
+      setJobsError(true);
+      setJobsLoading(false);
+      return;
+    }
+
+    const loadJobs = async () => {
+      const result = await AvailableJobsService.getAvailableJobs(jobsCompanyId);
+      if (!active) return;
+
+      if (result.code === ERROR_CODES.SUCCESS) {
+        setJobs(Array.isArray(result.data) ? result.data : []);
+        setJobsError(false);
+      } else {
+        setJobs([]);
+        setJobsError(true);
+      }
+      setJobsLoading(false);
+    };
+
+    loadJobs();
+    return () => {
+      active = false;
+    };
+  }, [jobsCompanyId]);
 
   useEffect(() => {
     let active = true;
 
     const load = async () => {
-      const [applicationsResult, jobsResult] = await Promise.allSettled([
-        ApplicationService.getApplicationsWithCompanyId(
+      try {
+        const result = await ApplicationService.getApplicationsWithCompanyId(
           { company_id: companyId },
-          companyId
-        ),
-        AvailableJobsService.getAvailableJobs(Number(companyId)),
-      ]);
-
-      if (!active) return;
-
-      let hadError = false;
-
-      if (applicationsResult.status === "fulfilled") {
-        setApplications(applicationsResult.value.data || []);
-      } else {
-        hadError = true;
+          String(user?.user_id ?? "")
+        );
+        if (!active) return;
+        setApplications(result.data || []);
+        setLoadError(false);
+      } catch {
+        if (!active) return;
+        setLoadError(true);
+      } finally {
+        if (active) setLoading(false);
       }
-
-      if (jobsResult.status === "fulfilled") {
-        setJobs(jobsResult.value.data || []);
-      } else {
-        hadError = true;
-      }
-
-      setLoadError(hadError);
-      setLoading(false);
     };
 
     load();
@@ -209,12 +314,10 @@ export const HomeReclutador = (): JSX.Element => {
   );
   const latestApplications = sortedApplications.slice(0, 4);
 
-  // Proxy de "reciente": id más alto = oferta más nueva. getAvailableJobs no trae
-  // publication_date todavía (el back sí lo guarda en create_new_job_offer, pero
-  // no lo devuelve), así que no se puede ordenar por fecha real.
   const recentJobs = [...jobs]
     .sort((a, b) => (b.job_offer_id ?? 0) - (a.job_offer_id ?? 0))
     .slice(0, 4);
+  const publishedJobsCount = jobs.length;
 
   return (
     <div className="bg-[#EFEFEF] w-full flex flex-col overflow-x-hidden min-h-screen">
@@ -265,8 +368,10 @@ export const HomeReclutador = (): JSX.Element => {
           <AccessTile
             icon={BriefcaseIcon}
             label="Trabajos publicados"
-            value={loading ? "—" : String(jobs.length)}
-            onClick={() => navigate(ROUTES.ALTA_EMPRESA)}
+            value={loading ? "—" : String(publishedJobsCount)}
+            disabled
+            sublabel="Pantalla en construcción"
+            onClick={() => { }}
           />
           <AccessTile
             icon={UsersIcon}
@@ -309,7 +414,7 @@ export const HomeReclutador = (): JSX.Element => {
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-[#05073c] text-sm truncate">{app.job_title}</p>
                   <p className="text-[#666666] text-xs">
-                    Solicitud #{app.application_id}, {formatDate(app.application_date)}
+                    {formatDate(app.application_date)}
                   </p>
                 </div>
                 <button
@@ -323,9 +428,11 @@ export const HomeReclutador = (): JSX.Element => {
           )}
         </div>
 
-        <div className="bg-white rounded-[14px] border border-gray-100 overflow-hidden">
-          <div className="flex items-center justify-between gap-3 px-5 py-4">
-            <h3 className="font-bold text-[#05073c] text-base">Publicaciones recientes</h3>
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center justify-between gap-4 px-2">
+            <h3 className="font-bold text-[#06083C] text-base">
+              Publicaciones recientes
+            </h3>
             {jobs.length > 0 && (
               <button
                 onClick={() => navigate(ROUTES.ALTA_EMPRESA)}
@@ -335,23 +442,45 @@ export const HomeReclutador = (): JSX.Element => {
               </button>
             )}
           </div>
-          {loading ? (
-            <p className="px-5 pb-5 text-[#757575] text-sm">Cargando ofertas...</p>
+
+          
+
+          {jobsLoading ? (
+            <Card className="bg-white border-0 shadow-sm">
+              <CardContent className="flex items-center justify-center px-8 py-12">
+                <p className="text-[#757575] text-sm text-center">
+                  Cargando ofertas...
+                </p>
+              </CardContent>
+            </Card>
+          ) : jobsError ? (
+            <Card className="bg-white border-0 shadow-sm">
+              <CardContent className="flex items-center justify-center px-8 py-12">
+                <p className="text-[#f46036] text-sm text-center">
+                  No pudimos cargar las publicaciones. Volvé a intentar más tarde.
+                </p>
+              </CardContent>
+            </Card>
           ) : recentJobs.length === 0 ? (
-            <p className="px-5 pb-5 text-[#757575] text-sm">Todavía no publicaste ninguna oferta.</p>
+            <Card className="bg-white border-0 shadow-sm">
+              <CardContent className="flex items-center justify-center px-8 py-12">
+                <p className="text-[#757575] text-sm text-center">
+                  Todavía no publicaste ninguna oferta.
+                </p>
+              </CardContent>
+            </Card>
           ) : (
             recentJobs.map((job) => (
-              <div key={job.job_offer_id} className="flex items-center gap-3.5 px-5 py-3.5 border-t border-gray-100">
-                <div className="w-9 h-9 rounded-[9px] bg-[#eceef6] text-[#3b4a86] flex items-center justify-center flex-shrink-0">
-                  <BriefcaseIcon className="w-[18px] h-[18px]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-[#05073c] text-sm truncate">{job.job_title}</p>
-                  <p className="text-[#666666] text-xs">
-                    {job.location} · ${job.salary}
-                  </p>
-                </div>
-              </div>
+              <JobCard
+                key={job.job_offer_id}
+                title={job.job_title}
+                companyName={job.company_name}
+                location={job.location}
+                salary={job.salary}
+                description={job.job_description}
+                actionLabel="Ver postulaciones"
+                onAction={() => navigate(ROUTES.POSTULACIONES_RECIBIDAS)}
+              />
             ))
           )}
         </div>
