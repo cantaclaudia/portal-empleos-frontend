@@ -234,33 +234,31 @@ def get_user_data(cnx, cursor, final_response, email, password, request_id=None)
     try:
 
         query_login = """
-                    SELECT  user_id,
-                            name,
-                            last_name,
+                    SELECT  u.user_id,
+                            u.name,
+                            u.last_name,
                             CASE 
-                                WHEN role = 0 THEN 'candidate'
-                                WHEN role = 1 THEN 'employer'
+                                WHEN u.role = 0 THEN 'candidate'
+                                WHEN u.role = 1 THEN 'employer'
                                 ELSE 'unknown'
-                            END AS role_description
-                    FROM    usuarios
-                    WHERE   email = %s 
-                    AND     encrypted_password = %s
+                            END AS role_description,
+                            exu.company_id
+                    FROM    usuarios u
+                    LEFT JOIN empresas_x_usuario exu ON exu.user_id = u.user_id
+                    WHERE   u.email = %s 
+                    AND     u.encrypted_password = %s
                       """
-        #en este punto habria que desencriptar la password?
         values = (email, password)
         cursor.execute(query_login, values)
         results_dict = cursor.fetchone()
 
         # si se encuentra un usuario con los datos ingresados, se devuelve la data
         if results_dict:
-            user_id = results_dict['user_id']
-            first_name = results_dict['name']
-            last_name = results_dict['last_name']
-            role_description = results_dict['role_description']
-            final_response['data'] = {'user_id': user_id,
-                                      'first_name': first_name,
-                                      'last_name': last_name,
-                                      'role': role_description}
+            final_response['data'] = {'user_id': results_dict['user_id'],
+                                      'first_name': results_dict['name'],
+                                      'last_name': results_dict['last_name'],
+                                      'role': results_dict['role_description'],
+                                      'company_id': results_dict['company_id']}
 
     except:
         logger.exception(f"{request_id} - error al realizar login")
