@@ -10,6 +10,7 @@ import AvailableJobsService from '../services/available-jobs.service';
 import type { AvailableJob } from '../services/available-jobs.service';
 import { ERROR_CODES } from "../constants/error-codes";
 import { Footer } from '../components/ui/footer';
+import { ROUTES } from '../routes';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -337,14 +338,20 @@ export const HomeCandidato: React.FC = () => {
             </div>
 
             <div className="flex flex-col py-4">
-              <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
+              <button
+                onClick={() => { navigate(ROUTES.HOME_CANDIDATO); setIsMenuOpen(false); }}
+                className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors"
+              >
                 <HomeIcon className="w-5 h-5 text-white flex-shrink-0" />
                 <span className="font-normal text-white text-base leading-[22.4px]">
                   Inicio
                 </span>
               </button>
 
-              <button className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors">
+              <button
+                onClick={() => { navigate(ROUTES.HOME_CANDIDATO); setIsMenuOpen(false); }}
+                className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors"
+              >
                 <SearchIcon className="w-5 h-5 text-white flex-shrink-0" />
                 <span className="font-normal text-white text-base leading-[22.4px]">
                   Buscar empleos
@@ -352,12 +359,22 @@ export const HomeCandidato: React.FC = () => {
               </button>
 
               <button
-                onClick={() => navigate('/mis-postulaciones')}
+                onClick={() => { navigate(ROUTES.MIS_POSTULACIONES); setIsMenuOpen(false); }}
                 className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors"
               >
                 <FileTextIcon className="w-5 h-5 text-white flex-shrink-0" />
                 <span className="font-normal text-white text-base leading-[22.4px]">
                   Mis postulaciones
+                </span>
+              </button>
+
+              <button
+                onClick={() => { navigate(ROUTES.PERFIL_CANDIDATO); setIsMenuOpen(false); }}
+                className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors"
+              >
+                <UserIcon className="w-5 h-5 text-white flex-shrink-0" />
+                <span className="font-normal text-white text-base leading-[22.4px]">
+                  Mi perfil
                 </span>
               </button>
 
@@ -385,7 +402,7 @@ export const HomeCandidato: React.FC = () => {
 
       <section className="flex w-full min-h-[140px] md:min-h-[160px] lg:min-h-[180px] flex-col items-center justify-center gap-4 px-4 py-5 bg-[#1E2749]">
         <div className="flex items-center justify-center px-2">
-          <p className="font-normal text-white/80 text-lg md\:text-xl text-center"> ¿Qué tipo de empleo estás buscando? </p>
+          <p className="font-normal text-white/80 text-lg md:text-xl text-center"> ¿Qué tipo de empleo estás buscando? </p>
         </div>
 
         <div className="flex flex-col w-full max-w-[90%] md:max-w-[600px] lg:max-w-[676px] relative">
@@ -677,7 +694,7 @@ export const HomeCandidato: React.FC = () => {
 
           <main className="flex flex-col gap-6 flex-1 pb-6 md:pb-[45px]">
             <div className="flex items-center justify-between gap-4 px-2">
-              <h1 className="font-bold text-[#06083C] text-xl md\:text-2xl lg\:text-[28px] tracking-[0] leading-tight"> Ofertas destacadas </h1>
+              <h1 className="font-bold text-[#06083C] text-xl md:text-2xl lg:text-[28px] tracking-[0] leading-tight"> Ofertas destacadas </h1>
               <button
                 onClick={() => setIsFilterOpen(true)}
                 className="lg:hidden flex items-center gap-2 px-4 py-2.5 bg-[#F46036] text-white rounded-lg hover:bg-[#2a4185] transition-colors shadow-sm"
@@ -712,7 +729,7 @@ export const HomeCandidato: React.FC = () => {
                 </CardContent>
               </Card>
             ) : error ? (
-              <Card className="bg-white border-0 shadow-sm">
+              <Card className="bg-white border border-[#dedede] shadow-sm rounded-xl">
                 <CardContent className="flex items-center justify-center px-8 py-12">
                   <p className="text-[#f46036] text-sm text-center">
                     {error}
@@ -720,7 +737,7 @@ export const HomeCandidato: React.FC = () => {
                 </CardContent>
               </Card>
             ) : filteredJobs.length === 0 ? (
-              <Card className="bg-white border-0 shadow-sm">
+              <Card className="bg-white border border-[#dedede] shadow-sm rounded-xl">
                 <CardContent className="flex items-center justify-center px-8 py-12">
                   <p className="text-[#757575] text-sm text-center">
                     {hasActiveFilters
@@ -733,9 +750,9 @@ export const HomeCandidato: React.FC = () => {
               <>
                 {paginatedJobs.map((job, index) => (
                   <Card
-  key={`${job.company_id}-${startIndex + index}`}
-  className="bg-white border border-[#dedede] shadow-sm hover:shadow-md transition-shadow rounded-xl"
->
+                    key={`${job.company_id}-${startIndex + index}`}
+                    className="bg-white border border-[#dedede] shadow-sm hover:shadow-md transition-shadow rounded-xl"
+                  >
                     <CardContent className="flex flex-col gap-3 px-5 py-4">
                       <div className="w-full">
                         <h3 className="font-bold text-[#333333] text-base tracking-[0] leading-tight mb-1">
