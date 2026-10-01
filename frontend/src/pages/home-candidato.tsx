@@ -11,7 +11,7 @@ import type { AvailableJob } from '../services/available-jobs.service';
 import { ERROR_CODES } from "../constants/error-codes";
 import { Footer } from '../components/ui/footer';
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 5;
 
 export const HomeCandidato: React.FC = () => {
   const navigate = useNavigate();
@@ -383,19 +383,17 @@ export const HomeCandidato: React.FC = () => {
         </>
       )}
 
-      <section className="flex w-full min-h-[200px] md:min-h-[240px] lg:min-h-[278px] flex-col items-center justify-center gap-4 md:gap-6 px-4 py-6 md:py-8 bg-[#1E2749]">
+      <section className="flex w-full min-h-[140px] md:min-h-[160px] lg:min-h-[180px] flex-col items-center justify-center gap-4 px-4 py-5 bg-[#1E2749]">
         <div className="flex items-center justify-center px-2">
-          <p className="font-normal text-white/80 text-lg md:text-xl text-center">
-            ¿Qué tipo de empleo estás buscando?
-          </p>
+          <p className="font-normal text-white/80 text-lg md\:text-xl text-center"> ¿Qué tipo de empleo estás buscando? </p>
         </div>
 
         <div className="flex flex-col w-full max-w-[90%] md:max-w-[600px] lg:max-w-[676px] relative">
           <div
             ref={areaRef}
-            className="rounded-t-lg flex items-center gap-2 md:gap-2.5 px-4 md:px-8 lg:px-[60px] py-3 bg-white relative"
+            className="rounded-t-lg flex items-center gap-2 px-4 md:px-6 lg:px-8 py-2 bg-white relative"
           >
-            <SearchIcon className="w-4 h-4 md:w-[18px] md:h-[18px] text-[#8c8c8c] flex-shrink-0" />
+            <SearchIcon className="w-4 h-4 text-[#8c8c8c] flex-shrink-0" />
             <InputHomeCandidato
               type="text"
               placeholder="Seleccioná tus áreas de interés"
@@ -405,7 +403,7 @@ export const HomeCandidato: React.FC = () => {
                 setShowAreaSuggestions(true);
               }}
               onFocus={() => setShowAreaSuggestions(true)}
-              className="border-0 shadow-none p-0 h-auto font-normal text-[#333333] text-base md:text-lg lg:text-[18px] tracking-[0] leading-tight focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#8c8c8c]"
+              className="border-0 shadow-none p-0 h-auto font-normal text-[#333333] text-sm tracking-[0] leading-tight focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#8c8c8c]"
             />
             {areaInput && (
               <button
@@ -422,7 +420,7 @@ export const HomeCandidato: React.FC = () => {
                   <button
                     key={suggestion}
                     onClick={() => handleAreaSelect(suggestion)}
-                    className="w-full px-4 md:px-8 lg:px-[60px] py-3 text-left hover:bg-gray-50 transition-colors font-normal text-[#333333] text-base md:text-base lg:text-[16px] tracking-[0] leading-[24px]"
+                    className="w-full px-4 md:px-8 lg:px-[60px] py-3 text-left hover:bg-gray-50 transition-colors font-normal text-[#333333] text-sm tracking-[0] leading-[24px]"
                   >
                     {suggestion}
                   </button>
@@ -433,9 +431,9 @@ export const HomeCandidato: React.FC = () => {
 
           <div
             ref={locationRef}
-            className="rounded-b-lg border-t border-[#757575] flex items-center gap-2 md:gap-2.5 px-4 md:px-8 lg:px-[60px] py-3 bg-white relative"
+            className="rounded-b-lg border-t border-[#757575] flex items-center gap-2 px-4 md:px-6 lg:px-8 py-2 bg-white relative"
           >
-            <MapPinIcon className="w-5 h-5 md:w-[22px] md:h-[22px] lg:w-[25px] lg:h-[25px] text-[#8c8c8c] flex-shrink-0" />
+            <MapPinIcon className="w-4 h-4 text-[#8c8c8c] flex-shrink-0" />
             <InputHomeCandidato
               type="text"
               placeholder="Ciudad o región"
@@ -445,7 +443,7 @@ export const HomeCandidato: React.FC = () => {
                 setShowLocationSuggestions(true);
               }}
               onFocus={() => setShowLocationSuggestions(true)}
-              className="border-0 shadow-none p-0 h-auto font-normal text-[#333333] text-base md:text-lg lg:text-[18px] tracking-[0] leading-tight focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#8c8c8c]"
+              className="border-0 shadow-none p-0 h-auto font-normal text-[#333333] text-sm tracking-[0] leading-tight focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#8c8c8c]"
             />
             {locationInput && (
               <button
@@ -462,7 +460,7 @@ export const HomeCandidato: React.FC = () => {
                   <button
                     key={suggestion}
                     onClick={() => handleLocationSelect(suggestion)}
-                    className="w-full px-4 md:px-8 lg:px-[60px] py-3 text-left hover:bg-gray-50 transition-colors font-normal text-[#333333] text-base md:text-base lg:text-[16px] tracking-[0] leading-[24px]"
+                    className="w-full px-4 md:px-8 lg:px-[60px] py-3 text-left hover:bg-gray-50 transition-colors font-normal text-[#333333] text-sm tracking-[0] leading-[24px]"
                   >
                     {suggestion}
                   </button>
@@ -488,7 +486,7 @@ export const HomeCandidato: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between px-6 py-4 border-b border-[#eeeeee]">
-                  <h2 className="font-bold text-[#333333] text-[22px] tracking-[-0.02em] leading-[28px]">
+                  <h2 className="font-bold text-[#333333] text-lg tracking-[-0.02em] leading-[24px]">
                     Filtrar resultados
                   </h2>
                   <button
@@ -507,7 +505,7 @@ export const HomeCandidato: React.FC = () => {
                         }`}
                     >
                       <div className="flex items-center gap-2 px-6 pt-5 pb-3">
-                        <h3 className="font-semibold text-[#555555] text-base tracking-[0] leading-[22px]">
+                        <h3 className="font-semibold text-[#555555] text-sm tracking-[0] leading-[20px]">
                           {section.title}
                         </h3>
                       </div>
@@ -547,7 +545,7 @@ export const HomeCandidato: React.FC = () => {
                               )}
                             </div>
                             <span
-                              className={`text-[15px] tracking-[0] leading-[21px] transition-colors duration-200 ${isFilterActive(section.title, option)
+                              className={`text-sm tracking-[0] leading-[20px] transition-colors duration-200 ${isFilterActive(section.title, option)
                                 ? 'text-[#3351A6] font-semibold'
                                 : 'text-[#666666] font-normal'
                                 }`}
@@ -568,7 +566,7 @@ export const HomeCandidato: React.FC = () => {
                                   }`}
                               />
                             </div>
-                            <span className="font-medium text-[#999999] text-[14px] tracking-[0] leading-[20px] group-hover:text-[#3351A6] transition-colors duration-200">
+                            <span className="font-medium text-[#999999] text-[13px] tracking-[0] leading-[18px] group-hover:text-[#3351A6] transition-colors duration-200">
                               {expandedSections[section.title] ? 'Ver menos' : 'Ver más'}
                             </span>
                           </button>
@@ -581,7 +579,7 @@ export const HomeCandidato: React.FC = () => {
                 <div className="flex items-center gap-3 px-6 py-4 border-t border-[#eeeeee] bg-white">
                   <button
                     onClick={() => setIsFilterOpen(false)}
-                    className="flex-1 px-6 py-3 bg-[#F46036] text-white rounded-lg hover:bg-[#e2552f] transition-colors font-semibold text-base"
+                    className="flex-1 px-6 py-3 bg-[#F46036] text-white rounded-lg hover:bg-[#e2552f] transition-colors font-semibold text-sm"
                   >
                     Aplicar filtros
                   </button>
@@ -591,8 +589,8 @@ export const HomeCandidato: React.FC = () => {
           )}
 
           <aside className="hidden lg:flex flex-col bg-white rounded-xl border border-[#dedede] shadow-sm max-h-[calc(100vh-3rem)] sticky top-6 w-[380px]">
-            <div className="flex items-center px-6 py-6 bg-gradient-to-b from-[#fafafa] to-white border-b border-[#eeeeee] flex-shrink-0">
-              <h2 className="font-bold text-[#333333] text-[22px] tracking-[-0.02em] leading-[28px]">
+            <div className="flex items-center px-6 py-5 bg-gradient-to-b from-[#fafafa] to-white border-b border-[#eeeeee] flex-shrink-0 rounded-t-xl">
+              <h2 className="font-bold text-[#333333] text-lg tracking-[-0.02em] leading-[24px]">
                 Filtros
               </h2>
             </div>
@@ -605,7 +603,7 @@ export const HomeCandidato: React.FC = () => {
                     }`}
                 >
                   <div className="flex items-center gap-2 px-6 pt-5 pb-3">
-                    <h3 className="font-semibold text-[#555555] text-base tracking-[0] leading-[22px]">
+                    <h3 className="font-semibold text-[#555555] text-sm tracking-[0] leading-[20px]">
                       {section.title}
                     </h3>
                   </div>
@@ -645,7 +643,7 @@ export const HomeCandidato: React.FC = () => {
                           )}
                         </div>
                         <span
-                          className={`text-[15px] tracking-[0] leading-[21px] transition-colors duration-200 ${isFilterActive(section.title, option)
+                          className={`text-sm tracking-[0] leading-[20px] transition-colors duration-200 ${isFilterActive(section.title, option)
                             ? 'text-[#3351A6] font-semibold'
                             : 'text-[#666666] font-normal'
                             }`}
@@ -666,7 +664,7 @@ export const HomeCandidato: React.FC = () => {
                               }`}
                           />
                         </div>
-                        <span className="font-medium text-[#999999] text-[14px] tracking-[0] leading-[20px] group-hover:text-[#3351A6] transition-colors duration-200">
+                        <span className="font-medium text-[#999999] text-[13px] tracking-[0] leading-[18px] group-hover:text-[#3351A6] transition-colors duration-200">
                           {expandedSections[section.title] ? 'Ver menos' : 'Ver más'}
                         </span>
                       </button>
@@ -679,9 +677,7 @@ export const HomeCandidato: React.FC = () => {
 
           <main className="flex flex-col gap-6 flex-1 pb-6 md:pb-[45px]">
             <div className="flex items-center justify-between gap-4 px-2">
-              <h1 className="font-bold text-[#06083C] text-xl md:text-2xl lg:text-[28px] tracking-[0] leading-tight">
-                Ofertas destacadas
-              </h1>
+              <h1 className="font-bold text-[#06083C] text-xl md\:text-2xl lg\:text-[28px] tracking-[0] leading-tight"> Ofertas destacadas </h1>
               <button
                 onClick={() => setIsFilterOpen(true)}
                 className="lg:hidden flex items-center gap-2 px-4 py-2.5 bg-[#F46036] text-white rounded-lg hover:bg-[#2a4185] transition-colors shadow-sm"
@@ -708,25 +704,25 @@ export const HomeCandidato: React.FC = () => {
             </div>
 
             {loading ? (
-              <Card className="bg-white border-0 shadow-sm">
-                <CardContent className="flex flex-col items-center justify-center gap-4 px-8 py-16">
-                  <p className="font-normal text-[#757575] text-xl tracking-[0] leading-7 text-center">
+              <Card className="bg-white border border-[#dedede] shadow-sm rounded-xl">
+                <CardContent className="flex items-center justify-center px-8 py-12">
+                  <p className="text-[#757575] text-sm text-center">
                     Cargando empleos...
                   </p>
                 </CardContent>
               </Card>
             ) : error ? (
               <Card className="bg-white border-0 shadow-sm">
-                <CardContent className="flex flex-col items-center justify-center gap-4 px-8 py-16">
-                  <p className="font-normal text-[#f46036] text-xl tracking-[0] leading-7 text-center">
+                <CardContent className="flex items-center justify-center px-8 py-12">
+                  <p className="text-[#f46036] text-sm text-center">
                     {error}
                   </p>
                 </CardContent>
               </Card>
             ) : filteredJobs.length === 0 ? (
               <Card className="bg-white border-0 shadow-sm">
-                <CardContent className="flex flex-col items-center justify-center gap-4 px-8 py-16">
-                  <p className="font-normal text-[#757575] text-xl tracking-[0] leading-7 text-center">
+                <CardContent className="flex items-center justify-center px-8 py-12">
+                  <p className="text-[#757575] text-sm text-center">
                     {hasActiveFilters
                       ? 'No hay empleos que coincidan con los filtros seleccionados'
                       : 'No hay empleos de momento'}
@@ -737,27 +733,27 @@ export const HomeCandidato: React.FC = () => {
               <>
                 {paginatedJobs.map((job, index) => (
                   <Card
-                    key={`${job.company_id}-${startIndex + index}`}
-                    className="bg-white border-0 shadow-sm hover:shadow-md transition-shadow rounded-lg"
-                  >
-                    <CardContent className="flex flex-col gap-3 md:gap-4 px-5 md:px-6 py-4 md:py-5">
+  key={`${job.company_id}-${startIndex + index}`}
+  className="bg-white border border-[#dedede] shadow-sm hover:shadow-md transition-shadow rounded-xl"
+>
+                    <CardContent className="flex flex-col gap-3 px-5 py-4">
                       <div className="w-full">
-                        <h3 className="font-bold text-[#333333] text-lg md:text-xl lg:text-[22px] tracking-[0] leading-tight mb-1">
+                        <h3 className="font-bold text-[#333333] text-base tracking-[0] leading-tight mb-1">
                           {job.job_title}
                         </h3>
                         <div className="flex items-center gap-1.5 mb-1.5">
                           <BuildingIcon className="w-4 h-4 text-[#757575] flex-shrink-0" />
-                          <p className="font-medium text-[#757575] text-sm md:text-[15px] tracking-[0] leading-tight">
+                          <p className="font-medium text-[#757575] text-sm tracking-[0] leading-tight">
                             {job.company_name}
                           </p>
                         </div>
-                        <p className="font-semibold text-[#F46036] text-base md:text-lg tracking-[0] leading-tight">
+                        <p className="font-semibold text-[#F46036] text-sm tracking-[0] leading-tight">
                           {job.location} | ${formatSalary(job.salary)}
                         </p>
                       </div>
 
                       <div className="w-full">
-                        <p className="font-normal text-[#333333] text-sm md:text-base tracking-[0] leading-relaxed">
+                        <p className="font-normal text-[#333333] text-sm tracking-[0] leading-relaxed">
                           {job.job_description}
                         </p>
                       </div>
@@ -765,12 +761,10 @@ export const HomeCandidato: React.FC = () => {
                       <div className="flex w-full items-center justify-between gap-4 pt-1">
                         <button
                           onClick={() => handleViewMore(job)}
-                          className="font-bold text-[#3351A6] text-sm md:text-base tracking-[0] leading-tight hover:opacity-80 transition-opacity cursor-pointer"
+                          className="font-bold text-[#3351A6] text-sm tracking-[0] leading-tight hover:opacity-80 transition-opacity cursor-pointer"
                         >
                           Ver más
                         </button>
-
-
                       </div>
                     </CardContent>
                   </Card>
