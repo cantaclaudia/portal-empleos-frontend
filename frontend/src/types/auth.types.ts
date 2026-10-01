@@ -16,6 +16,8 @@ export interface UserData {
   last_name: string;
   role: 'employer' | 'candidate';
   user_id: number;
+  company_id?: number | null;    // solo empleadores.
+  company_name?: string | null;  // solo empleadores.
   email?: string;
   resume_url?: string;
   skill_list?: Array<string | number>;

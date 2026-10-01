@@ -10,7 +10,6 @@ import {
   Users as UsersIcon,
   Settings as SettingsIcon,
   User as UserIcon,
-  ChevronLeft as ChevronLeftIcon,
   Mail as MailIcon,
   FileText as FileTextIcon,
 } from 'lucide-react';
@@ -250,7 +249,9 @@ export const PostulacionesRecibidas: React.FC = () => {
 
   const user = AuthService.getUser();
   const userId = user?.user_id?.toString() ?? '';
-  const companyId = user?.user_id?.toString() ?? '';
+  const rawCompanyId = (user as unknown as { company_id?: number | string | null } | null)
+    ?.company_id;
+  const companyId = rawCompanyId != null ? String(rawCompanyId) : '';
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -738,14 +739,6 @@ export const PostulacionesRecibidas: React.FC = () => {
                           {app.job_title}
                         </span>
 
-                        <span className="block text-[13.5px] text-[#666666]">
-                          Solicitud #{app.application_id}
-                          {app.application_date
-                            ? `, ${formatDate(
-                              app.application_date
-                            )}`
-                            : ''}
-                        </span>
                       </button>
                     );
                   })}
@@ -760,9 +753,8 @@ export const PostulacionesRecibidas: React.FC = () => {
                     <>
                       <div className="flex items-start justify-between gap-3 px-5 md:px-7 pt-6">
                         <p className="text-sm text-[#666666]">
-                          Solicitud #{selectedApp.application_id}
                           {selectedApp.application_date
-                            ? `, recibida el ${formatDate(
+                            ? `Recibida el ${formatDate(
                               selectedApp.application_date
                             )}`
                             : ''}
