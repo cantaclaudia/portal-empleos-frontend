@@ -11,4 +11,5 @@ export const ROUTES = {
   CREAR_OFERTA: '/crear-oferta',
   POSTULACIONES_RECIBIDAS: '/postulaciones-recibidas',
   PERFIL_CANDIDATO: '/perfil',
+  PERFIL_RECLUTADOR: '/perfil-reclutador',
 };

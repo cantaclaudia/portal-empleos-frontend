@@ -164,6 +164,7 @@ const SideMenu = ({
     { icon: PlusIcon, label: "Crear nueva oferta", path: ROUTES.CREAR_OFERTA },
     { icon: BriefcaseIcon, label: "Alta empresa", path: ROUTES.ALTA_EMPRESA },
     { icon: UsersIcon, label: "Postulaciones recibidas", path: ROUTES.POSTULACIONES_RECIBIDAS },
+    { icon: UserIcon, label: 'Mi perfil', path: ROUTES.PERFIL_RECLUTADOR },
   ];
 
   if (!isOpen) return <></>;
