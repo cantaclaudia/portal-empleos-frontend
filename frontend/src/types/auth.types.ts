@@ -14,10 +14,10 @@ export interface LoginResponse {
 export interface UserData {
   first_name: string;
   last_name: string;
-  role: 'employer' | 'candidate';
+  role: 'employer' | 'candidate' | 'admin';
   user_id: number;
-  company_id?: number | null;    // solo empleadores.
-  company_name?: string | null;  // solo empleadores.
+  company_id?: number | null;    
+  company_name?: string | null; 
   email?: string;
   resume_url?: string;
   skill_list?: Array<string | number>;

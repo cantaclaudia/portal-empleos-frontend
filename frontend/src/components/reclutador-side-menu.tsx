@@ -8,8 +8,7 @@ import {
 import { SideMenu, type SideMenuItem } from "./ui/side-menu";
 import { ROUTES } from "../routes";
 import AuthService from "../services/auth.service";
-import AvailableJobsService from "../services/available-jobs.service";
-import { ERROR_CODES } from "../constants/error-codes";
+import CompanyService from "../services/company.service";
 
 const RECLUTADOR_ITEMS: SideMenuItem[] = [
   { icon: HomeIcon, label: "Inicio", path: ROUTES.HOME_RECLUTADOR },
@@ -28,40 +27,54 @@ export const ReclutadorSideMenu: React.FC<ReclutadorSideMenuProps> = ({
   onClose,
 }) => {
   const user = AuthService.getUser();
-  const [companyName, setCompanyName] = useState("Empresa");
+  const [fetchedName, setFetchedName] = useState<string | null>(null);
 
-  const rawCompanyId = (user as unknown as { company_id?: number | string | null } | null)
-    ?.company_id;
-  const companyId = rawCompanyId != null ? Number(rawCompanyId) : undefined;
-
+  const userId = user?.user_id != null ? String(user.user_id) : "";
+  const companyId = user?.company_id ?? undefined;
   const userName = user ? `${user.first_name} ${user.last_name}` : "Empleador";
+
+  // Si el login ya trae el nombre, no hace falta pedirlo
+  const nameFromLogin = user?.company_name ?? null;
 
   useEffect(() => {
     // Solo se pide la primera vez que se abre el menú
-    if (!isOpen || companyId === undefined || companyName !== "Empresa") return;
+    if (
+      !isOpen ||
+      nameFromLogin ||
+      fetchedName ||
+      !userId ||
+      companyId === undefined
+    ) {
+      return;
+    }
 
     let active = true;
+
     const loadCompany = async () => {
-      const result = await AvailableJobsService.getAvailableJobs(companyId);
-      if (!active) return;
-      if (result.code === ERROR_CODES.SUCCESS && Array.isArray(result.data)) {
-        const name = result.data[0]?.company_name;
-        if (name) setCompanyName(name);
+      try {
+        const result = await CompanyService.getCompaniesList(userId);
+        if (!active) return;
+        const mine = (result.data || []).find(
+          (c) => String(c.company_id) === String(companyId)
+        );
+        if (mine?.name) setFetchedName(mine.name);
+      } catch {
+        // si falla, el menú muestra "Empresa"
       }
     };
 
-    loadCompany();
+    void loadCompany();
     return () => {
       active = false;
     };
-  }, [isOpen, companyId, companyName]);
+  }, [isOpen, nameFromLogin, fetchedName, userId, companyId]);
 
   return (
     <SideMenu
       isOpen={isOpen}
       onClose={onClose}
       userName={userName}
-      userSubtitle={companyName}
+      userSubtitle={nameFromLogin ?? fetchedName ?? "Empresa"}
       items={RECLUTADOR_ITEMS}
     />
   );

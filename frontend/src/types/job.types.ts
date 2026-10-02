@@ -30,6 +30,7 @@ export interface GetJobTypeListResponse {
 export interface CreateJobOfferRequest {
   company_id: string;
   job_id: string;
+  description: string; 
   salary: string;
   location: string;
 }
