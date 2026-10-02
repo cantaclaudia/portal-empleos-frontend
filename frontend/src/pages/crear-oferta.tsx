@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Menu as MenuIcon, CheckCircle as CheckCircleIcon } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -20,12 +19,20 @@ import LocationsService from '../services/locations.service';
 import type { Company } from '../types/employer.types';
 import type { JobType } from '../types/job.types';
 import type { Location } from '../types/location.types';
-import { ROUTES } from '../routes';
 import { ReclutadorSideMenu } from '../components/reclutador-side-menu';
 
+const DESCRIPTION_MAX = 200;
+const SALARY_MAX = 10;
+
 export const CrearOferta: React.FC = () => {
-  const navigate = useNavigate();
   const user = AuthService.getUser();
+  const userId = user?.user_id != null ? String(user.user_id) : '';
+
+  // La empresa es la del reclutador logueado
+  const rawCompanyId = (user as unknown as { company_id?: number | string | null } | null)
+    ?.company_id;
+  const companyId = rawCompanyId != null ? String(rawCompanyId) : '';
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -34,8 +41,8 @@ export const CrearOferta: React.FC = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [dataError, setDataError] = useState<string | null>(null);
 
-  const [companyId, setCompanyId] = useState('');
   const [jobId, setJobId] = useState('');
+  const [description, setDescription] = useState('');
   const [salary, setSalary] = useState('');
   const [locationId, setLocationId] = useState('');
 
@@ -43,20 +50,21 @@ export const CrearOferta: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const [companyError, setCompanyError] = useState(false);
   const [jobError, setJobError] = useState(false);
+  const [descError, setDescError] = useState(false);
   const [salaryError, setSalaryError] = useState(false);
   const [locationError, setLocationError] = useState(false);
+
+  const companyName =
+    companies.find((c) => c.company_id.toString() === companyId)?.name ?? 'Tu empresa';
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        if (!user) {
+        if (!userId) {
           setDataError('No se encontró el usuario autenticado.');
           return;
         }
-
-        const userId = user.user_id.toString();
 
         const [companiesResp, jobsResp, locationsResp] = await Promise.all([
           CompanyService.getCompaniesList(userId),
@@ -79,7 +87,7 @@ export const CrearOferta: React.FC = () => {
     };
 
     loadData();
-  }, [user]);
+  }, [userId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,13 +95,18 @@ export const CrearOferta: React.FC = () => {
     setSuccess(false);
 
     let hasError = false;
-    if (companyId === '') { setCompanyError(true); hasError = true; } else setCompanyError(false);
     if (jobId === '') { setJobError(true); hasError = true; } else setJobError(false);
+    if (description.trim() === '') { setDescError(true); hasError = true; } else setDescError(false);
     if (salary.trim() === '') { setSalaryError(true); hasError = true; } else setSalaryError(false);
     if (locationId === '') { setLocationError(true); hasError = true; } else setLocationError(false);
     if (hasError) return;
-    if (!user) {
+
+    if (!userId) {
       setError('No se encontró el usuario autenticado.');
+      return;
+    }
+    if (!companyId) {
+      setError('Tu usuario no tiene una empresa asociada.');
       return;
     }
 
@@ -104,16 +117,17 @@ export const CrearOferta: React.FC = () => {
         {
           company_id: companyId,
           job_id: jobId,
+          description: description.trim(),
           salary: salary.trim(),
           location: locationId,
         },
-        user.user_id.toString()
+        userId
       );
 
       setSuccess(true);
 
-      setCompanyId('');
       setJobId('');
+      setDescription('');
       setSalary('');
       setLocationId('');
     } catch (err) {
@@ -143,9 +157,7 @@ export const CrearOferta: React.FC = () => {
 
       <section className="w-full bg-[#1E2749] py-6 md:py-8">
         <div className="max-w-[1100px] mx-auto px-4 md:px-8">
-          <button onClick={() => navigate(ROUTES.HOME_RECLUTADOR)} className="flex items-center gap-1 text-white/80 text-sm font-medium hover:text-white transition-colors mb-4">
-          </button>
-          <h1 className="font-bold text-white text-2xl md:text-3xl">Crear oferta</h1>
+          <h1 className="font-bold text-white text-2xl md:text-3xl text-center">Crear oferta</h1>
         </div>
       </section>
 
@@ -167,18 +179,10 @@ export const CrearOferta: React.FC = () => {
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-6 bg-white rounded-xl shadow-sm p-6 md:p-8">
               <div className="flex flex-col gap-2">
-                <Label className="font-normal text-sm">Empresa <span className="text-[#cc2222]">*</span></Label>
-                <Select value={companyId} onValueChange={setCompanyId} disabled={loading}>
-                  <SelectTrigger className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-4 py-2 font-normal text-base text-[#333333]">
-                    {companyId ? companies.find(c => c.company_id.toString() === companyId)?.name : 'Seleccioná una empresa'}
-                  </SelectTrigger>
-                  <SelectContent>
-                    {companies.map(c => (
-                      <SelectItem key={c.company_id} value={c.company_id.toString()}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {companyError && <p className="text-[#cc2222] text-sm">Debés seleccionar una empresa</p>}
+                <Label className="font-normal text-sm">Empresa</Label>
+                <div className="min-h-[42px] flex items-center rounded-lg border border-[#d9d9d9] bg-[#f5f5f5] px-4 py-2 text-base text-[#555555] cursor-not-allowed">
+                  {companyName}
+                </div>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -200,10 +204,33 @@ export const CrearOferta: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-2">
+                <Label className="font-normal text-sm">Descripción <span className="text-[#cc2222]">*</span></Label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  maxLength={DESCRIPTION_MAX}
+                  placeholder="Ej: Esquema híbrido, 3 días de home office. L a V de 9 a 18 hs"
+                  className="h-auto min-h-[100px] bg-white rounded-lg border border-[#d9d9d9] px-3 py-2 font-normal text-base text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#f46036] focus:border-transparent transition-all"
+                  disabled={loading}
+                />
+                <div className="flex items-start justify-between gap-3">
+                  {descError ? (
+                    <p className="text-[#cc2222] text-sm">La descripción es obligatoria</p>
+                  ) : (
+                    <span />
+                  )}
+                  <span className="text-[#999999] text-xs tabular-nums whitespace-nowrap">
+                    {description.length}/{DESCRIPTION_MAX}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
                 <Label className="font-normal text-sm">Salario <span className="text-[#cc2222]">*</span></Label>
                 <Input
                   value={salary}
                   onChange={(e) => setSalary(e.target.value)}
+                  maxLength={SALARY_MAX}
                   placeholder="Ej: 120000.00"
                   className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-3 py-2"
                   disabled={loading}
@@ -232,7 +259,7 @@ export const CrearOferta: React.FC = () => {
                   disabled={loading}
                   className="h-12 rounded-lg bg-[#f46036] hover:bg-[#d9512e] px-12 py-3 font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {loading ? 'Creando...' : 'Crear oferta'}
+                  {loading ? 'Publicando...' : 'Publicar'}
                 </Button>
               </div>
             </form>

@@ -85,7 +85,7 @@ interface ActionMessage {
  * - Cuando haya suficientes postulaciones reales, borrá este bloque
  *   completo y los usos marcados con "MOCK" más abajo.
  * ===================================================================== */
-const USE_MOCKS = false;
+const USE_MOCKS = true;
 
 // MOCK: postulaciones ficticias que se suman a la real
 const MOCK_APPLICATIONS = [

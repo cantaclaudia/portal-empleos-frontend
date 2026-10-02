@@ -109,7 +109,7 @@ export const Login: React.FC = () => {
         first_name: 'Admin',
         last_name: 'Interno',
         role: 'admin',
-      } as unknown as Parameters<typeof AuthService.saveUser>[0]);
+      });
       navigate(ROUTES.ALTA_EMPRESA, { replace: true });
       return;
     }
@@ -133,7 +133,7 @@ export const Login: React.FC = () => {
         navigate('/home-candidato', { replace: true });
       } else if (userData.role === 'employer') {
         navigate('/home-reclutador', { replace: true });
-      } else if ((userData.role as string) === 'admin') {
+      } else if (userData.role === 'admin') {
         navigate(ROUTES.ALTA_EMPRESA, { replace: true });
       } else {
         setLoginError('Tipo de usuario no válido');

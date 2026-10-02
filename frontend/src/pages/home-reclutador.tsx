@@ -10,7 +10,7 @@ import {
   Building2 as BuildingIcon,
   type LucideIcon,
 } from "lucide-react";
-import React, { useState, useEffect, type JSX } from "react";
+import React, { useState, useEffect, useRef, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { HeaderLogo } from "../components/ui/header-logo";
@@ -33,7 +33,7 @@ import { ReclutadorSideMenu } from "../components/reclutador-side-menu";
  * - Cuando haya suficientes datos reales, borrá este bloque completo
  *   y todos los usos marcados con "MOCK" más abajo (Ctrl+F: MOCK).
  * ===================================================================== */
-const USE_MOCKS = false;
+const USE_MOCKS = true;
 const JOBS_PER_PAGE = 3;
 
 // MOCK: postulaciones ficticias que se suman a la real
@@ -242,12 +242,12 @@ export const HomeReclutador = (): JSX.Element => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [jobsPage, setJobsPage] = useState(1);
 
+  const publicacionesRef = useRef<HTMLDivElement>(null);
+
   // REAL: postulaciones que vienen del backend
   const [realApplications, setRealApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
-
-  const userName = user ? `${user.first_name} ${user.last_name}` : "Empleador";
 
   const rawCompanyId = (user as unknown as { company_id?: number | string | null } | null)
     ?.company_id;
@@ -262,6 +262,15 @@ export const HomeReclutador = (): JSX.Element => {
   const companyName = realJobs[0]?.company_name ?? "Empresa";
 
   const jobsCompanyId = rawCompanyId != null ? Number(rawCompanyId) : undefined;
+
+  // Lleva a postulaciones recibidas, opcionalmente ya filtrado por oferta o postulación
+  const goToApplications = (params?: { jobOfferId?: number; applicationId?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.jobOfferId !== undefined) query.set("job_offer_id", String(params.jobOfferId));
+    if (params?.applicationId !== undefined) query.set("application_id", String(params.applicationId));
+    const qs = query.toString();
+    navigate(qs ? `${ROUTES.POSTULACIONES_RECIBIDAS}?${qs}` : ROUTES.POSTULACIONES_RECIBIDAS);
+  };
 
   useEffect(() => {
     let active = true;
@@ -399,16 +408,17 @@ export const HomeReclutador = (): JSX.Element => {
             icon={BriefcaseIcon}
             label="Trabajos publicados"
             value={jobsLoading ? "—" : String(publishedJobsCount)}
-            disabled
-            sublabel="Pantalla en construcción"
-            onClick={() => { }}
+            sublabel="Ver publicaciones"
+            onClick={() =>
+              publicacionesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+            }
           />
           {/* MOCK: este número incluye las postulaciones ficticias mientras USE_MOCKS = true */}
           <AccessTile
             icon={UsersIcon}
             label="Postulaciones"
             value={loading ? "—" : String(applications.length)}
-            onClick={() => navigate(ROUTES.POSTULACIONES_RECIBIDAS)}
+            onClick={() => goToApplications()}
           />
           <AccessTile
             icon={BarChartIcon}
@@ -425,7 +435,7 @@ export const HomeReclutador = (): JSX.Element => {
             <h3 className="font-bold text-[#05073c] text-base">Últimas postulaciones a tu empresa</h3>
             {applications.length > 0 && (
               <button
-                onClick={() => navigate(ROUTES.POSTULACIONES_RECIBIDAS)}
+                onClick={() => goToApplications()}
                 className="text-[#f46036] font-semibold text-sm hover:underline"
               >
                 Ver todas
@@ -453,7 +463,7 @@ export const HomeReclutador = (): JSX.Element => {
                   </p>
                 </div>
                 <button
-                  onClick={() => navigate(ROUTES.POSTULACIONES_RECIBIDAS)}
+                  onClick={() => goToApplications({ applicationId: app.application_id })}
                   className="text-[#05073c] font-semibold text-xs border border-gray-200 rounded-[8px] px-3 py-1.5 hover:bg-gray-50 whitespace-nowrap"
                 >
                   Ver candidato
@@ -463,7 +473,10 @@ export const HomeReclutador = (): JSX.Element => {
           )}
         </div>
 
-        <div className="bg-white rounded-[14px] border border-gray-100 overflow-hidden">
+        <div
+          ref={publicacionesRef}
+          className="bg-white rounded-[14px] border border-gray-100 overflow-hidden scroll-mt-4"
+        >
           <div className="flex items-center justify-between gap-3 px-5 py-4">
             <h3 className="font-bold text-[#05073c] text-base">Publicaciones</h3>
             {!jobsLoading && jobs.length > 0 && (
@@ -494,7 +507,11 @@ export const HomeReclutador = (): JSX.Element => {
                   salary={job.salary}
                   description={job.job_description}
                   actionLabel="Ver postulaciones"
-                  onAction={() => navigate(ROUTES.POSTULACIONES_RECIBIDAS)}
+                  onAction={() =>
+                    job.job_offer_id !== undefined
+                      ? goToApplications({ jobOfferId: job.job_offer_id })
+                      : goToApplications()
+                  }
                   demo={isMock(job.job_offer_id)} // MOCK
                 />
               ))}
