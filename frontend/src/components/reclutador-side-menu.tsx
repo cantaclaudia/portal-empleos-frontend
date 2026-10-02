@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   Home as HomeIcon,
   Plus as PlusIcon,
-  Briefcase as BriefcaseIcon,
   Users as UsersIcon,
   User as UserIcon,
 } from "lucide-react";
@@ -15,7 +14,6 @@ import { ERROR_CODES } from "../constants/error-codes";
 const RECLUTADOR_ITEMS: SideMenuItem[] = [
   { icon: HomeIcon, label: "Inicio", path: ROUTES.HOME_RECLUTADOR },
   { icon: PlusIcon, label: "Crear nueva oferta", path: ROUTES.CREAR_OFERTA },
-  { icon: BriefcaseIcon, label: "Alta empresa", path: ROUTES.ALTA_EMPRESA },
   { icon: UsersIcon, label: "Postulaciones recibidas", path: ROUTES.POSTULACIONES_RECIBIDAS },
   { icon: UserIcon, label: "Mi perfil", path: ROUTES.PERFIL_RECLUTADOR },
 ];
