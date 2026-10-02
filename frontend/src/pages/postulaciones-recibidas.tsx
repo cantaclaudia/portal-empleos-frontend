@@ -85,6 +85,134 @@ interface ActionMessage {
   undoTo?: StatusCode;
 }
 
+/* =====================================================================
+ * DATOS MOCKEADOS (SOLO PARA DEMO DEL DISEÑO) 
+ * Nada de este bloque viene del backend.
+ * - Poné USE_MOCKS = false para apagar todo.
+ * - Los IDs son NEGATIVOS para no chocar con los IDs reales.
+ * - Cuando haya suficientes postulaciones reales, borrá este bloque
+ *   completo y los usos marcados con "MOCK" más abajo.
+ * ===================================================================== */
+const USE_MOCKS = false;
+
+// MOCK: postulaciones ficticias que se suman a la real
+const MOCK_APPLICATIONS = [
+  {
+    application_id: -1,
+    job_offer_id: -101,
+    candidate_id: -1,
+    job_title: 'Desarrollador Web Senior',
+    application_date: '2024-12-02',
+  },
+  {
+    application_id: -2,
+    job_offer_id: -101,
+    candidate_id: -2,
+    job_title: 'Desarrollador Web Senior',
+    application_date: '2024-12-01',
+  },
+  {
+    application_id: -3,
+    job_offer_id: -102,
+    candidate_id: -3,
+    job_title: 'Diseñador UX/UI',
+    application_date: '2024-11-30',
+  },
+  {
+    application_id: -4,
+    job_offer_id: -103,
+    candidate_id: -4,
+    job_title: 'Analista QA',
+    application_date: '2024-11-29',
+  },
+  {
+    application_id: -5,
+    job_offer_id: -103,
+    candidate_id: -5,
+    job_title: 'Analista QA',
+    application_date: '2024-11-28',
+  },
+] as unknown as Application[];
+
+// MOCK: estado inicial de cada postulación ficticia
+const MOCK_STATUS: Record<number, StatusCode> = {
+  [-1]: STATUS.IN_REVIEW,
+  [-2]: STATUS.ACCEPTED,
+  [-3]: STATUS.IN_REVIEW,
+  [-4]: STATUS.REJECTED,
+  [-5]: STATUS.IN_REVIEW,
+};
+
+// MOCK: candidato de cada postulación ficticia (mismo formato que devuelve el back)
+const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
+  [-1]: [
+    {
+      first_name: 'LAURA',
+      last_name: 'GARCÍA',
+      email: 'laura.garcia@ejemplo.com',
+      resume_url: 'www.ejemplo.com/cv-laura',
+      skills: 'React, Node.js, TypeScript, PostgreSQL, Git',
+      experience: [
+        { job_name: 'Desarrolladora Web Full Stack', company_name: 'TechNova Solutions', start_date: '2022-03-01', end_date: '2024-08-01' },
+        { job_name: 'Full Stack Developer Jr.', company_name: 'Digital Mind Studio', start_date: '2021-01-01', end_date: '2022-02-01' },
+      ],
+    },
+  ],
+  [-2]: [
+    {
+      first_name: 'MARTÍN',
+      last_name: 'ROMERO',
+      email: 'martin.romero@ejemplo.com',
+      resume_url: 'www.ejemplo.com/cv-martin',
+      skills: 'Angular, Java, Docker, AWS, Inglés',
+      experience: [
+        { job_name: 'Tech Lead', company_name: 'CloudWorks', start_date: '2020-05-01', end_date: null },
+        { job_name: 'Desarrollador Backend', company_name: 'Banco Andino', start_date: '2017-02-01', end_date: '2020-04-01' },
+      ],
+    },
+  ],
+  [-3]: [
+    {
+      first_name: 'SOFÍA',
+      last_name: 'FERNÁNDEZ',
+      email: 'sofia.fernandez@ejemplo.com',
+      resume_url: 'www.ejemplo.com/cv-sofia',
+      skills: 'Figma, Investigación de usuarios, Prototipado, Design Systems',
+      experience: [
+        { job_name: 'Diseñadora UX/UI', company_name: 'Creativa Studio', start_date: '2021-07-01', end_date: null },
+      ],
+    },
+  ],
+  [-4]: [
+    {
+      first_name: 'DIEGO',
+      last_name: 'PÉREZ',
+      email: 'diego.perez@ejemplo.com',
+      resume_url: 'www.ejemplo.com/cv-diego',
+      skills: 'Selenium, Cypress, Pruebas manuales, Jira',
+      experience: [
+        { job_name: 'QA Tester', company_name: 'Soft Quality', start_date: '2023-01-01', end_date: '2024-06-01' },
+      ],
+    },
+  ],
+  [-5]: [
+    {
+      first_name: 'CAMILA',
+      last_name: 'SOSA',
+      email: 'camila.sosa@ejemplo.com',
+      resume_url: 'www.ejemplo.com/cv-camila',
+      skills: 'Postman, Pruebas de API, Agile',
+      // Sin experiencia: sirve para ver el estado vacío del diseño
+      experience: [],
+    },
+  ],
+} as unknown as Record<number, ApplicantInfo[]>;
+
+// MOCK: las postulaciones reales tienen ID positivo, las ficticias negativo
+const isMock = (id: number | null | undefined): boolean =>
+  USE_MOCKS && typeof id === 'number' && id < 0;
+/* ============================ FIN DE MOCKS ============================ */
+
 /**
  * El back devuelve nombres en mayúsculas ("GERONIMO").
  */
@@ -112,6 +240,13 @@ const StatusChip = ({
     className={`inline-block rounded-full bg-[#eceef6] px-3 py-0.5 text-[12.5px] font-bold whitespace-nowrap ${STATUS_TEXT[status]}`}
   >
     {STATUS_LABEL[status]}
+  </span>
+);
+
+// MOCK: chip visible para distinguir datos de demo de los reales
+const DemoChip = (): JSX.Element => (
+  <span className="inline-block rounded-full bg-[#fff3ec] border border-[#fbdccd] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-[#f46036] whitespace-nowrap">
+    Demo
   </span>
 );
 
@@ -254,7 +389,8 @@ export const PostulacionesRecibidas: React.FC = () => {
   const companyId = rawCompanyId != null ? String(rawCompanyId) : '';
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [applications, setApplications] = useState<Application[]>([]);
+  // REAL: postulaciones que vienen del backend
+  const [realApplications, setRealApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState('');
@@ -272,6 +408,15 @@ export const PostulacionesRecibidas: React.FC = () => {
 
   const detailRef = useRef<HTMLDivElement>(null);
 
+  // MOCK: lista final = reales (backend) + ficticias (demo)
+  const applications = useMemo(
+    () =>
+      USE_MOCKS
+        ? [...realApplications, ...MOCK_APPLICATIONS]
+        : realApplications,
+    [realApplications]
+  );
+
   useEffect(() => {
     let active = true;
 
@@ -284,7 +429,7 @@ export const PostulacionesRecibidas: React.FC = () => {
           );
 
         if (active) {
-          setApplications(response.data || []);
+          setRealApplications(response.data || []);
         }
       } catch (err) {
         if (active) {
@@ -366,6 +511,20 @@ export const PostulacionesRecibidas: React.FC = () => {
       return;
     }
 
+    // MOCK: para postulaciones ficticias no se llama al backend,
+    // el detalle sale de MOCK_APPLICANTS / MOCK_STATUS.
+    if (isMock(selectedId)) {
+      setMessage(null);
+      setDetail({
+        applicants: MOCK_APPLICANTS[selectedId] ?? [],
+        status: MOCK_STATUS[selectedId] ?? null,
+        loading: false,
+        error: null,
+      });
+      return;
+    }
+
+    // REAL: a partir de acá todo sale del backend
     let active = true;
 
     setDetail({
@@ -376,13 +535,6 @@ export const PostulacionesRecibidas: React.FC = () => {
     setMessage(null);
 
     const loadDetail = async () => {
-      console.log(
-        'SELECTED APP:',
-        JSON.stringify(selectedApp, null, 2)
-      );
-
-      console.log('USER ID:', userId);
-
       const [applicantsResult, statusResult] =
         await Promise.allSettled([
           ApplicationService.getApplicantsInformation(
@@ -415,15 +567,6 @@ export const PostulacionesRecibidas: React.FC = () => {
       }
 
       if (applicantsResult.status === 'fulfilled') {
-        console.log(
-          'RESPUESTA CANDIDATOS:',
-          JSON.stringify(
-            applicantsResult.value.data,
-            null,
-            2
-          )
-        );
-
         setDetail({
           applicants:
             applicantsResult.value.data || [],
@@ -472,10 +615,15 @@ export const PostulacionesRecibidas: React.FC = () => {
     setMessage(null);
 
     try {
-      await ApplicationService.changeApplicationStatus({
-        application_id: String(target),
-        new_status: String(newStatus),
-      });
+      // MOCK: en postulaciones ficticias no se llama al backend,
+      // el cambio de estado solo se ve en pantalla (se pierde al cambiar de postulación).
+      if (!isMock(target)) {
+        // REAL: cambio de estado en el backend
+        await ApplicationService.changeApplicationStatus({
+          application_id: String(target),
+          new_status: String(newStatus),
+        });
+      }
 
       if (selectedIdRef.current !== target) return;
 
@@ -549,6 +697,10 @@ export const PostulacionesRecibidas: React.FC = () => {
         : 'postulaciones'
       } para ${puestos.length} ${puestos.length === 1 ? 'puesto' : 'puestos'
       }.`;
+
+  // MOCK: si el backend falla pero hay mocks, igual se muestra el diseño.
+  // Con USE_MOCKS = false vuelve a mostrarse el error real.
+  const showError = error !== null && applications.length === 0;
 
   return (
     <div className="bg-[#EFEFEF] w-full min-h-screen flex flex-col">
@@ -657,7 +809,7 @@ export const PostulacionesRecibidas: React.FC = () => {
                 </p>
               </CardContent>
             </Card>
-          ) : error ? (
+          ) : showError ? (
             <Card className="bg-white border-0 shadow-sm">
               <CardContent className="flex flex-col items-center justify-center py-16">
                 <p className="text-[#f46036] text-xl">
@@ -735,10 +887,13 @@ export const PostulacionesRecibidas: React.FC = () => {
                           : 'border-l-transparent hover:bg-[#eceef6]'
                           }`}
                       >
-                        <span className="block font-bold text-[#05073c] leading-snug">
-                          {app.job_title}
+                        <span className="flex items-center justify-between gap-2">
+                          <span className="block font-bold text-[#05073c] leading-snug">
+                            {app.job_title}
+                          </span>
+                          {/* MOCK: marca las postulaciones ficticias */}
+                          {isMock(app.application_id) && <DemoChip />}
                         </span>
-
                       </button>
                     );
                   })}
@@ -760,9 +915,13 @@ export const PostulacionesRecibidas: React.FC = () => {
                             : ''}
                         </p>
 
-                        {detail.status !== null && (
-                          <StatusChip status={detail.status} />
-                        )}
+                        <div className="flex items-center gap-2">
+                          {/* MOCK: marca el detalle de una postulación ficticia */}
+                          {isMock(selectedApp.application_id) && <DemoChip />}
+                          {detail.status !== null && (
+                            <StatusChip status={detail.status} />
+                          )}
+                        </div>
                       </div>
 
                       <div className="flex-1 px-5 md:px-7 py-5 flex flex-col gap-8">
