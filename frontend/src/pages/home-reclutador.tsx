@@ -4,7 +4,6 @@ import {
   FileTextIcon,
   UsersIcon,
   BriefcaseIcon,
-  BarChartIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   Building2 as BuildingIcon,
@@ -33,7 +32,7 @@ import { ReclutadorSideMenu } from "../components/reclutador-side-menu";
  * - Cuando haya suficientes datos reales, borrá este bloque completo
  *   y todos los usos marcados con "MOCK" más abajo (Ctrl+F: MOCK).
  * ===================================================================== */
-const USE_MOCKS = true;
+const USE_MOCKS = false;
 const JOBS_PER_PAGE = 3;
 
 // MOCK: postulaciones ficticias que se suman a la real
@@ -395,7 +394,7 @@ export const HomeReclutador = (): JSX.Element => {
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5">
           <AccessTile
             icon={PlusIcon}
             label="Publicar oferta"
@@ -419,14 +418,6 @@ export const HomeReclutador = (): JSX.Element => {
             label="Postulaciones"
             value={loading ? "—" : String(applications.length)}
             onClick={() => goToApplications()}
-          />
-          <AccessTile
-            icon={BarChartIcon}
-            label="Estadísticas"
-            value="—"
-            sublabel="Próximamente"
-            disabled
-            onClick={() => { }}
           />
         </div>
 
