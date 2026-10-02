@@ -10,6 +10,8 @@ import { MisPostulaciones } from './pages/mis-postulaciones';
 import { AltaEmpresa } from './pages/alta-empresa';
 import { CrearOferta } from './pages/crear-oferta';
 import { PostulacionesRecibidas } from './pages/postulaciones-recibidas';
+import { PerfilCandidato } from './pages/perfil-candidato';
+import { PerfilReclutador } from './pages/perfil-reclutador';
 import { ROUTES } from './routes';
 
 function App() {
@@ -27,6 +29,8 @@ function App() {
         <Route path={ROUTES.ALTA_EMPRESA} element={<AltaEmpresa />} />
         <Route path={ROUTES.CREAR_OFERTA} element={<CrearOferta />} />
         <Route path={ROUTES.POSTULACIONES_RECIBIDAS} element={<PostulacionesRecibidas />} />
+        <Route path={ROUTES.PERFIL_CANDIDATO} element={<PerfilCandidato />} />
+        <Route path={ROUTES.PERFIL_RECLUTADOR} element={<PerfilReclutador />} />
         <Route path="/" element={<Navigate to={ROUTES.LOGIN} replace />} />
       </Routes>
     </Router>

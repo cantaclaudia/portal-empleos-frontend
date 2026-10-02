@@ -202,7 +202,7 @@ def get_applicants_information(data_request):
 # Como candidato, se pueden consultar los puestos de trabajo disponibles.
 @bp.route('/getAvailableJobs', methods=['POST'])
 @AuthController.token_required(endpoint='getAvailableJobs', service_required=False)
-@AuthController.candidate_validation()
+@AuthController.candidate_or_employer_validation()
 def get_available_jobs(data_request):
     logger.info(f"{g.request_id} - ingresando a /getAvailableJobs")
 
