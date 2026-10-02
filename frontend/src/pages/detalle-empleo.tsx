@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Menu as MenuIcon, X as XIcon, Home as HomeIcon, Search as SearchIcon, FileText as FileTextIcon, Settings as SettingsIcon, User as UserIcon, MapPin as MapPinIcon, Clock as ClockIcon, XCircle as XCircleIcon, AlertCircle as AlertCircleIcon } from 'lucide-react';
+import { Menu as MenuIcon, MapPin as MapPinIcon, Clock as ClockIcon, XCircle as XCircleIcon, AlertCircle as AlertCircleIcon } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { HeaderLogo } from '../components/ui/header-logo';
@@ -8,12 +7,11 @@ import { Footer } from '../components/ui/footer';
 import AuthService from '../services/auth.service';
 import AvailableJobsService from '../services/available-jobs.service';
 import type { AvailableJob } from '../services/available-jobs.service';
-import { ROUTES } from '../routes';
 import ApplicationService from '../services/application.service';
 import { StatusBanner } from '../components/ui/status-banner';
+import { CandidatoSideMenu } from '../components/candidato-side-menu';
 
 export const JobDetail: React.FC = () => {
-  const navigate = useNavigate();
   const user = AuthService.getUser();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -91,11 +89,6 @@ export const JobDetail: React.FC = () => {
     loadSelectedJob();
   }, [user?.user_id]);
 
-  const handleLogout = () => {
-    AuthService.logout();
-    navigate(ROUTES.LOGIN);
-  };
-
   const formatSalary = (salary: string): string => {
     const num = parseFloat(salary);
 
@@ -114,13 +107,6 @@ export const JobDetail: React.FC = () => {
       .map((w) => w[0]?.toUpperCase())
       .join('');
   };
-
-  const menuItems = [
-    { icon: HomeIcon, label: 'Inicio', path: ROUTES.HOME_CANDIDATO },
-    { icon: SearchIcon, label: 'Buscar empleos', path: ROUTES.HOME_CANDIDATO },
-    { icon: FileTextIcon, label: 'Mis postulaciones', path: ROUTES.MIS_POSTULACIONES },
-    { icon: SettingsIcon, label: 'Configuración', path: ROUTES.HOME_CANDIDATO },
-  ];
 
   const handleApply = async () => {
     if (!user?.user_id) {
@@ -247,62 +233,10 @@ export const JobDetail: React.FC = () => {
         <HeaderLogo />
       </nav>
 
-      {isMenuOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/50 z-40"
-            onClick={() => setIsMenuOpen(false)}
-          />
-
-          <div className="fixed left-0 top-0 h-full w-[320px] bg-[#06083C] z-50 shadow-2xl flex flex-col">
-            <div className="flex items-center justify-end p-5">
-              <button
-                onClick={() => setIsMenuOpen(false)}
-                className="text-white hover:bg-white/10 rounded p-1 transition-colors"
-              >
-                <XIcon className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-4 px-6 pb-6 border-b border-white/20">
-              <div className="w-12 h-12 rounded-full bg-[#f46036] flex items-center justify-center flex-shrink-0">
-                <UserIcon className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex flex-col">
-                <p className="font-semibold text-white text-base">
-                  {user ? `${user.first_name} ${user.last_name}` : ''}
-                </p>
-                <p className="font-normal text-white/70 text-sm">Candidato</p>
-              </div>
-            </div>
-
-            <div className="flex flex-col py-4">
-              {menuItems.map((item) => (
-                <button
-                  key={item.label}
-                  onClick={() => {
-                    navigate(item.path);
-                    setIsMenuOpen(false);
-                  }}
-                  className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors"
-                >
-                  <item.icon className="w-5 h-5 text-white flex-shrink-0" />
-                  <span className="font-normal text-white text-base">{item.label}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-auto border-t border-white/20">
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-4 px-6 py-5 text-left hover:bg-white/5 transition-colors w-full"
-              >
-                <span className="font-normal text-white text-base">Cerrar sesión</span>
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+      <CandidatoSideMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+      />
 
       <main className="flex-1 py-5 md:py-8 md:pb-8">
         <div className="max-w-[1200px] mx-auto px-4 md:px-8 lg:px-[62px]">
@@ -321,7 +255,6 @@ export const JobDetail: React.FC = () => {
               </CardContent>
             </Card>
           ) : job ? (
-            // ⬇NUEVO wrapper: agrupa el grid + la franja de acción, uno debajo del otro
             <div className="flex flex-col gap-5 lg:gap-6">
 
               <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-5 lg:gap-8 items-start">
@@ -386,11 +319,9 @@ export const JobDetail: React.FC = () => {
                     </CardContent>
                   </Card>
 
-                  {/* En mobile, el estado/botón va justo debajo del contenido */}
                   <div className="lg:hidden">{renderActionBlock()}</div>
                 </div>
 
-                {/* Sidebar — solo desktop, sticky. SOLO ubicación/salario */}
                 <div className="hidden lg:flex flex-col gap-4 bg-white border border-[#eeeeee] rounded-xl p-5 shadow-sm sticky top-6">
                   <div>
                     <p className="text-xs text-[#999999] uppercase tracking-wide mb-1.5">Ubicación</p>
@@ -408,7 +339,6 @@ export const JobDetail: React.FC = () => {
                 </div>
               </div>
 
-              {/* franja de acción a ancho completo, debajo de las 2 columnas. Solo desktop */}
               <div className="hidden lg:grid grid-cols-[2fr_1fr] gap-8">
                 <div>{renderActionBlock()}</div>
               </div>

@@ -1,15 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, type JSX } from 'react';
 
-import { useNavigate } from 'react-router-dom';
-
 import {
   Menu as MenuIcon,
-  X as XIcon,
-  Home as HomeIcon,
-  Plus as PlusIcon,
-  Users as UsersIcon,
-  Settings as SettingsIcon,
-  User as UserIcon,
   Mail as MailIcon,
   FileText as FileTextIcon,
 } from 'lucide-react';
@@ -19,6 +11,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { HeaderLogo } from '../components/ui/header-logo';
 import { Footer } from '../components/ui/footer';
 import { ErrorMessage } from '../components/ui/error-message';
+import { ReclutadorSideMenu } from '../components/reclutador-side-menu';
 
 import AuthService from '../services/auth.service';
 import ApplicationService from '../services/application.service';
@@ -26,7 +19,6 @@ import ApplicationService from '../services/application.service';
 import type { Application, ApplicantInfo } from '../types/application.types';
 
 import { formatDate, formatMonthYear } from '../utils/format-date';
-import { ROUTES } from '../routes';
 
 const STATUS = {
   REJECTED: 0,
@@ -380,8 +372,6 @@ const ApplicantBlock = ({
 );
 
 export const PostulacionesRecibidas: React.FC = () => {
-  const navigate = useNavigate();
-
   const user = AuthService.getUser();
   const userId = user?.user_id?.toString() ?? '';
   const rawCompanyId = (user as unknown as { company_id?: number | string | null } | null)
@@ -661,34 +651,6 @@ export const PostulacionesRecibidas: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    AuthService.logout();
-    navigate(ROUTES.LOGIN);
-  };
-
-  const menuItems = [
-    {
-      icon: HomeIcon,
-      label: 'Inicio',
-      path: ROUTES.HOME_RECLUTADOR,
-    },
-    {
-      icon: PlusIcon,
-      label: 'Crear nueva oferta',
-      path: ROUTES.CREAR_OFERTA,
-    },
-    {
-      icon: UsersIcon,
-      label: 'Postulaciones recibidas',
-      path: ROUTES.POSTULACIONES_RECIBIDAS,
-    },
-    {
-      icon: SettingsIcon,
-      label: 'Configuración',
-      path: ROUTES.HOME_RECLUTADOR,
-    },
-  ];
-
   const subtitle =
     applications.length === 0
       ? null
@@ -717,73 +679,10 @@ export const PostulacionesRecibidas: React.FC = () => {
         <HeaderLogo />
       </nav>
 
-      {isMenuOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/50 z-40"
-            onClick={() => setIsMenuOpen(false)}
-          />
-
-          <div className="fixed left-0 top-0 h-full w-[320px] bg-[#06083C] z-50 shadow-2xl flex flex-col">
-            <div className="flex items-center justify-end p-5">
-              <button
-                onClick={() => setIsMenuOpen(false)}
-                className="text-white hover:bg-white/10 rounded p-1 transition-colors"
-              >
-                <XIcon className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-4 px-6 pb-6 border-b border-white/20">
-              <div className="w-12 h-12 rounded-full bg-[#f46036] flex items-center justify-center flex-shrink-0">
-                <UserIcon className="w-6 h-6 text-white" />
-              </div>
-
-              <div className="flex flex-col">
-                <p className="font-semibold text-white text-base">
-                  {user
-                    ? `${user.first_name} ${user.last_name}`
-                    : ''}
-                </p>
-
-                <p className="font-normal text-white/70 text-sm">
-                  Reclutador
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col py-4">
-              {menuItems.map((item) => (
-                <button
-                  key={item.label}
-                  onClick={() => {
-                    navigate(item.path);
-                    setIsMenuOpen(false);
-                  }}
-                  className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors"
-                >
-                  <item.icon className="w-5 h-5 text-white flex-shrink-0" />
-
-                  <span className="font-normal text-white text-base">
-                    {item.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-auto border-t border-white/20">
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-4 px-6 py-5 text-left hover:bg-white/5 transition-colors w-full"
-              >
-                <span className="font-normal text-white text-base">
-                  Cerrar sesión
-                </span>
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+      <ReclutadorSideMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+      />
 
       <section className="w-full bg-[#1E2749] py-6 md:py-8">
         <div className="max-w-[1100px] mx-auto px-4 md:px-8">

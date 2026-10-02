@@ -3,9 +3,6 @@ import {
   MenuIcon,
   FileTextIcon,
   UsersIcon,
-  UserIcon,
-  XIcon,
-  HomeIcon,
   BriefcaseIcon,
   BarChartIcon,
   ChevronLeftIcon,
@@ -26,6 +23,7 @@ import { formatDate } from "../utils/format-date";
 import AvailableJobsService from "../services/available-jobs.service";
 import type { Job } from "../types/job.types";
 import { ERROR_CODES } from "../constants/error-codes";
+import { ReclutadorSideMenu } from "../components/reclutador-side-menu";
 
 /* =====================================================================
  * DATOS MOCKEADOS (SOLO PARA DEMO DEL DISEÑO)
@@ -237,96 +235,6 @@ const JobCard = ({
   );
 };
 
-interface SideMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
-  userName: string;
-  companyName: string;
-}
-
-const SideMenu = ({
-  isOpen,
-  onClose,
-  userName,
-  companyName,
-}: SideMenuProps): JSX.Element | null => {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    AuthService.logout();
-    navigate(ROUTES.LOGIN);
-  };
-
-  const menuItems = [
-    { icon: HomeIcon, label: "Inicio", path: ROUTES.HOME_RECLUTADOR },
-    { icon: PlusIcon, label: "Crear nueva oferta", path: ROUTES.CREAR_OFERTA },
-    { icon: BriefcaseIcon, label: "Alta empresa", path: ROUTES.ALTA_EMPRESA },
-    { icon: UsersIcon, label: "Postulaciones recibidas", path: ROUTES.POSTULACIONES_RECIBIDAS },
-    { icon: UserIcon, label: 'Mi perfil', path: ROUTES.PERFIL_RECLUTADOR },
-  ];
-
-  if (!isOpen) return <></>;
-
-  return (
-    <>
-      <div
-        className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
-        onClick={onClose}
-      />
-      <div className="fixed left-0 top-0 h-full w-[320px] bg-[#06083C] z-50 shadow-2xl flex flex-col">
-        <div className="flex items-center justify-end p-5">
-          <button
-            onClick={onClose}
-            className="text-white hover:bg-white/10 rounded p-1 transition-colors"
-          >
-            <XIcon className="w-6 h-6" />
-          </button>
-        </div>
-
-        <div className="flex items-center gap-4 px-6 pb-6 border-b border-white/20">
-          <div className="w-12 h-12 rounded-full bg-[#f46036] flex items-center justify-center flex-shrink-0">
-            <UserIcon className="w-6 h-6 text-white" />
-          </div>
-          <div className="flex flex-col">
-            <p className="font-semibold text-white text-base leading-[22.4px]">
-              {userName}
-            </p>
-            <p className="font-normal text-white/70 text-sm leading-[19.6px]">
-              {companyName}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col py-4">
-          {menuItems.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => { navigate(item.path); onClose(); }}
-              className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors"
-            >
-              <item.icon className="w-5 h-5 text-white flex-shrink-0" />
-              <span className="font-normal text-white text-base leading-[22.4px]">
-                {item.label}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-auto border-t border-white/20">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-4 px-6 py-5 text-left hover:bg-white/5 transition-colors w-full"
-          >
-            <span className="font-normal text-white text-base leading-[22.4px]">
-              Cerrar sesión
-            </span>
-          </button>
-        </div>
-      </div>
-    </>
-  );
-};
-
 export const HomeReclutador = (): JSX.Element => {
   const navigate = useNavigate();
   const user = AuthService.getUser();
@@ -457,11 +365,9 @@ export const HomeReclutador = (): JSX.Element => {
         <HeaderLogo />
       </nav>
 
-      <SideMenu
+      <ReclutadorSideMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        userName={userName}
-        companyName={companyName}
       />
 
       <section className="px-4 md:px-20 py-7 bg-gradient-to-r from-[#1e2749] to-[#2a3558] text-white">
@@ -599,8 +505,8 @@ export const HomeReclutador = (): JSX.Element => {
                     onClick={() => setJobsPage(safeJobsPage - 1)}
                     disabled={safeJobsPage === 1}
                     className={`w-9 h-9 flex items-center justify-center rounded transition-colors ${safeJobsPage === 1
-                        ? "text-[#757575] cursor-not-allowed"
-                        : "text-[#F46036] hover:bg-[#fff5f2] cursor-pointer"
+                      ? "text-[#757575] cursor-not-allowed"
+                      : "text-[#F46036] hover:bg-[#fff5f2] cursor-pointer"
                       }`}
                   >
                     <ChevronLeftIcon className="w-4 h-4" />
@@ -611,8 +517,8 @@ export const HomeReclutador = (): JSX.Element => {
                       key={page}
                       onClick={() => setJobsPage(page)}
                       className={`w-9 h-9 flex items-center justify-center rounded font-semibold text-sm transition-colors cursor-pointer ${safeJobsPage === page
-                          ? "bg-[#F46036] text-white"
-                          : "text-[#F46036] hover:bg-[#fff5f2]"
+                        ? "bg-[#F46036] text-white"
+                        : "text-[#F46036] hover:bg-[#fff5f2]"
                         }`}
                     >
                       {page}
@@ -623,8 +529,8 @@ export const HomeReclutador = (): JSX.Element => {
                     onClick={() => setJobsPage(safeJobsPage + 1)}
                     disabled={safeJobsPage === totalJobsPages}
                     className={`w-9 h-9 flex items-center justify-center rounded transition-colors ${safeJobsPage === totalJobsPages
-                        ? "text-[#757575] cursor-not-allowed"
-                        : "text-[#F46036] hover:bg-[#fff5f2] cursor-pointer"
+                      ? "text-[#757575] cursor-not-allowed"
+                      : "text-[#F46036] hover:bg-[#fff5f2] cursor-pointer"
                       }`}
                   >
                     <ChevronRightIcon className="w-4 h-4" />

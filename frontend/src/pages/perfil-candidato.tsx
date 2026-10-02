@@ -1,19 +1,14 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Menu as MenuIcon,
-  X as XIcon,
-  Home as HomeIcon,
-  Search as SearchIcon,
-  FileText as FileTextIcon,
-  Settings as SettingsIcon,
-  User as UserIcon,
   Building2 as BuildingIcon,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { HeaderLogo } from '../components/ui/header-logo';
 import { Footer } from '../components/ui/footer';
+import { CandidatoSideMenu } from '../components/candidato-side-menu';
 import AuthService from '../services/auth.service';
 import ApplicationService from '../services/application.service';
 import type { Application } from '../types/application.types';
@@ -128,23 +123,10 @@ export const PerfilCandidato: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.user_id]);
 
-  const handleLogout = () => {
-    AuthService.logout();
-    navigate(ROUTES.LOGIN);
-  };
-
   const handleOpenJob = (jobOfferId: number) => {
     sessionStorage.setItem('selected_job_offer_id', String(jobOfferId));
     navigate('/detalle-empleo');
   };
-
-  const menuItems = [
-    { icon: HomeIcon, label: 'Inicio', path: ROUTES.HOME_CANDIDATO },
-    { icon: SearchIcon, label: 'Buscar empleos', path: ROUTES.HOME_CANDIDATO },
-    { icon: FileTextIcon, label: 'Mis postulaciones', path: ROUTES.MIS_POSTULACIONES },
-    { icon: UserIcon, label: 'Mi perfil', path: ROUTES.PERFIL_CANDIDATO },
-    { icon: SettingsIcon, label: 'Configuración', path: ROUTES.HOME_CANDIDATO },
-  ];
 
   const fullName = user ? `${user.first_name} ${user.last_name}` : '';
 
@@ -167,56 +149,10 @@ export const PerfilCandidato: React.FC = () => {
         <HeaderLogo />
       </nav>
 
-      {isMenuOpen && (
-        <>
-          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsMenuOpen(false)} />
-          <div className="fixed left-0 top-0 h-full w-[320px] bg-[#06083C] z-50 shadow-2xl flex flex-col">
-            <div className="flex items-center justify-end p-5">
-              <button
-                onClick={() => setIsMenuOpen(false)}
-                className="text-white hover:bg-white/10 rounded p-1 transition-colors"
-              >
-                <XIcon className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-4 px-6 pb-6 border-b border-white/20">
-              <div className="w-12 h-12 rounded-full bg-[#f46036] flex items-center justify-center flex-shrink-0">
-                <UserIcon className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex flex-col">
-                <p className="font-semibold text-white text-base">{fullName}</p>
-                <p className="font-normal text-white/70 text-sm">Candidato</p>
-              </div>
-            </div>
-
-            <div className="flex flex-col py-4">
-              {menuItems.map((item) => (
-                <button
-                  key={item.label}
-                  onClick={() => {
-                    navigate(item.path);
-                    setIsMenuOpen(false);
-                  }}
-                  className="flex items-center gap-4 px-6 py-4 text-left hover:bg-white/5 transition-colors"
-                >
-                  <item.icon className="w-5 h-5 text-white flex-shrink-0" />
-                  <span className="font-normal text-white text-base">{item.label}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-auto border-t border-white/20">
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-4 px-6 py-5 text-left hover:bg-white/5 transition-colors w-full"
-              >
-                <span className="font-normal text-white text-base">Cerrar sesión</span>
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+      <CandidatoSideMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+      />
 
       <section className="w-full bg-[#1E2749] py-6 md:py-8">
         <div className="max-w-[1100px] mx-auto px-4 md:px-8">
