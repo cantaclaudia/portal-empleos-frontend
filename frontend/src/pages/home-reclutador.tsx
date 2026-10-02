@@ -16,7 +16,6 @@ import {
 import React, { useState, useEffect, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { Card, CardContent } from "../components/ui/card";
 import { HeaderLogo } from "../components/ui/header-logo";
 import { Footer } from "../components/ui/footer";
 import AuthService from "../services/auth.service";

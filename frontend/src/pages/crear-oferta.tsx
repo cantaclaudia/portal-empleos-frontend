@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu as MenuIcon, Bone as XIcon, Home as HomeIcon, Plus as PlusIcon, Briefcase as BriefcaseIcon, Users as UsersIcon, Settings as SettingsIcon, User as UserIcon, ChevronLeft as ChevronLeftIcon, CheckCircle as CheckCircleIcon } from 'lucide-react';
+import { Menu as MenuIcon, Bone as XIcon, Home as HomeIcon, Plus as PlusIcon, Briefcase as BriefcaseIcon, Users as UsersIcon, Settings as SettingsIcon, User as UserIcon, CheckCircle as CheckCircleIcon } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -186,7 +186,6 @@ export const CrearOferta: React.FC = () => {
       <section className="w-full bg-[#1E2749] py-6 md:py-8">
         <div className="max-w-[1100px] mx-auto px-4 md:px-8">
           <button onClick={() => navigate(ROUTES.HOME_RECLUTADOR)} className="flex items-center gap-1 text-white/80 text-sm font-medium hover:text-white transition-colors mb-4">
-            <ChevronLeftIcon className="w-4 h-4" /> Volver al inicio
           </button>
           <h1 className="font-bold text-white text-2xl md:text-3xl">Crear oferta</h1>
         </div>
