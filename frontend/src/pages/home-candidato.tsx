@@ -241,6 +241,17 @@ export const HomeCandidato: React.FC = () => {
 
   const hasActiveFilters = Object.values(selectedFilters).some((arr) => arr.length > 0);
 
+  // Cantidad total de filtros marcados (para el contador y el botón "Limpiar")
+  const activeFiltersCount = Object.values(selectedFilters).reduce(
+    (total, values) => total + values.length,
+    0
+  );
+
+  const clearFilters = () => {
+    setSelectedFilters({ empresa: [], puesto: [], ubicación: [] });
+    setCurrentPage(1);
+  };
+
   const formatSalary = (salary: string): string => {
     const num = parseFloat(salary);
     return `${num.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -409,7 +420,7 @@ export const HomeCandidato: React.FC = () => {
 
       <section className="flex w-full min-h-[160px] md:min-h-[180px] flex-col items-center justify-center gap-5 px-4 py-6 bg-[#1E2749]">
         <div className="flex items-center justify-center px-2">
-          <p className="font-normal text-white/80 text-lg md:text-xl text-center">
+          <p className="font-normal text-white/80 text-base text-center">
             ¿Qué tipo de empleo estás buscando?
           </p>
         </div>
@@ -430,6 +441,7 @@ export const HomeCandidato: React.FC = () => {
               onChange={(e) => {
                 setAreaInput(e.target.value);
                 setShowAreaSuggestions(true);
+                setCurrentPage(1);
               }}
               onFocus={() => setShowAreaSuggestions(true)}
               className="border-0 shadow-none p-0 h-auto font-medium text-[#333333] text-sm md:text-base focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#999999] placeholder:font-normal w-full"
@@ -479,6 +491,7 @@ export const HomeCandidato: React.FC = () => {
               onChange={(e) => {
                 setLocationInput(e.target.value);
                 setShowLocationSuggestions(true);
+                setCurrentPage(1);
               }}
               onFocus={() => setShowLocationSuggestions(true)}
               className="border-0 shadow-none p-0 h-auto font-medium text-[#333333] text-sm md:text-base focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#999999] placeholder:font-normal w-full"
@@ -500,10 +513,10 @@ export const HomeCandidato: React.FC = () => {
                   <button
                     key={suggestion}
                     onClick={() => handleLocationSelect(suggestion)}
-                    className="w-full px-5 py-2.5 text-left hover:bg-[#e8f5f0] transition-colors flex items-center gap-3 group cursor-pointer"
+                    className="w-full px-5 py-2.5 text-left hover:bg-[#f0f4ff] transition-colors flex items-center gap-3 group cursor-pointer"
                   >
-                    <MapPinIcon className="w-4 h-4 text-[#757575] group-hover:text-[#17835a] transition-colors flex-shrink-0" />
-                    <span className="font-medium text-[#333333] text-sm group-hover:text-[#17835a] transition-colors">
+                    <MapPinIcon className="w-4 h-4 text-[#757575] group-hover:text-[#3351A6] transition-colors flex-shrink-0" />
+                    <span className="font-medium text-[#333333] text-sm group-hover:text-[#3351A6] transition-colors">
                       {suggestion}
                     </span>
                   </button>
@@ -559,9 +572,24 @@ export const HomeCandidato: React.FC = () => {
           {/* Sidebar de filtros para Desktop */}
           <aside className="hidden lg:flex flex-col bg-white rounded-xl border border-[#dedede] shadow-sm max-h-[calc(100vh-3rem)] sticky top-6 w-[380px]">
             <div className="flex items-center px-6 py-5 bg-gradient-to-b from-[#fafafa] to-white border-b border-[#eeeeee] flex-shrink-0 rounded-t-xl">
-              <h2 className="font-bold text-[#333333] text-lg tracking-[-0.02em] leading-[24px]">
-                Filtros
-              </h2>
+              <div className="flex w-full items-center justify-between gap-3">
+                <h2 className="font-bold text-[#333333] text-lg tracking-[-0.02em] leading-[24px]">
+                  Filtros
+                  {activeFiltersCount > 0 && (
+                    <span className="ml-2 rounded-full bg-[#eef3ff] px-2 py-0.5 text-xs font-semibold text-[#3351A6]">
+                      {activeFiltersCount}
+                    </span>
+                  )}
+                </h2>
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="text-sm font-semibold text-[#F46036] hover:underline"
+                  >
+                    Limpiar
+                  </button>
+                )}
+              </div>
             </div>
             {renderFilterList()}
           </aside>
@@ -579,12 +607,17 @@ export const HomeCandidato: React.FC = () => {
             )}
 
             <div className="flex items-center justify-between gap-4 px-2">
-              <h1 className="font-bold text-[#06083C] text-xl md:text-2xl lg:text-[28px] tracking-[0] leading-tight">
+              <h1 className="font-bold text-[#06083C] text-base tracking-[0] leading-tight">
                 Ofertas destacadas
+                {!loading && !error && (
+                  <span className="ml-3 text-sm font-normal text-[#757575]">
+                    {filteredJobs.length} {filteredJobs.length === 1 ? 'oferta' : 'ofertas'}
+                  </span>
+                )}
               </h1>
               <button
                 onClick={() => setIsFilterOpen(true)}
-                className="lg:hidden flex items-center gap-2 px-4 py-2.5 bg-[#F46036] text-white rounded-lg hover:bg-[#2a4185] transition-colors shadow-sm"
+                className="lg:hidden flex items-center gap-2 px-4 py-2.5 bg-[#F46036] text-white rounded-lg hover:bg-[#e2552f] transition-colors shadow-sm"
               >
                 <svg
                   width="18"
@@ -601,7 +634,9 @@ export const HomeCandidato: React.FC = () => {
                     strokeLinecap="round"
                   />
                 </svg>
-                <span className="font-semibold text-sm">Filtros</span>
+                <span className="font-semibold text-sm">
+                  Filtros{activeFiltersCount > 0 ? ` (${activeFiltersCount})` : ''}
+                </span>
               </button>
             </div>
 

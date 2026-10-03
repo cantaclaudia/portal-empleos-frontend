@@ -13,24 +13,24 @@ import type { ApiResponse } from './error-handler.service';
 
 class JobService {
   async getJobTypeList(userId: string): Promise<GetJobTypeListResponse> {
-  try {
-    const response = await apiService.post<GetJobTypeListResponse>(
-      API_CONFIG.ENDPOINTS.GET_JOB_TYPE_LIST,
-      {},
-      {
-        user_id: userId,
+    try {
+      const response = await apiService.post<GetJobTypeListResponse>(
+        API_CONFIG.ENDPOINTS.GET_JOB_TYPE_LIST,
+        {},
+        {
+          user_id: userId,
+        }
+      );
+
+      if (errorHandler.isSuccess(response.code as ErrorCode)) {
+        return response;
       }
-    );
 
-    if (errorHandler.isSuccess(response.code as ErrorCode)) {
-      return response;
+      throw errorHandler.handleApiError(response as ApiResponse, 'GET_JOB_TYPE_LIST');
+    } catch (error) {
+      throw errorHandler.wrapConnectionError(error);
     }
-
-    throw errorHandler.handleApiError(response as ApiResponse,'GET_JOB_TYPE_LIST');
-  } catch (error) {
-    throw errorHandler.wrapConnectionError(error);
   }
-}
 
   async createJobOffer(data: CreateJobOfferRequest, userId: string): Promise<CreateJobOfferResponse> {
     try {
@@ -52,11 +52,12 @@ class JobService {
     }
   }
 
-  async createNewJob(data: CreateNewJobRequest): Promise<CreateNewJobResponse> {
+  async createNewJob(data: CreateNewJobRequest, userId: string): Promise<CreateNewJobResponse> {
     try {
       const response = await apiService.post<CreateNewJobResponse>(
         API_CONFIG.ENDPOINTS.CREATE_NEW_JOB,
-        data
+        data,
+        { user_id: userId }
       );
 
       if (errorHandler.isSuccess(response.code as ErrorCode)) {

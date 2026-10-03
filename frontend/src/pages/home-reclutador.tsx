@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import React, { useState, useEffect, useRef, type JSX } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { HeaderLogo } from "../components/ui/header-logo";
 import { Footer } from "../components/ui/footer";
@@ -23,6 +23,7 @@ import AvailableJobsService from "../services/available-jobs.service";
 import type { Job } from "../types/job.types";
 import { ERROR_CODES } from "../constants/error-codes";
 import { ReclutadorSideMenu } from "../components/reclutador-side-menu";
+import { CrearOfertaModal } from "../components/crear-oferta-modal"; 
 
 /* =====================================================================
  * DATOS MOCKEADOS (SOLO PARA DEMO DEL DISEÑO)
@@ -236,10 +237,16 @@ const JobCard = ({
 
 export const HomeReclutador = (): JSX.Element => {
   const navigate = useNavigate();
+  const location = useLocation();
   const user = AuthService.getUser();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [jobsPage, setJobsPage] = useState(1);
+
+  // NUEVO: modal de crear oferta, recarga del listado y aviso de éxito
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [jobsReload, setJobsReload] = useState(0);
+  const [publishedNotice, setPublishedNotice] = useState(false);
 
   const publicacionesRef = useRef<HTMLDivElement>(null);
 
@@ -256,6 +263,18 @@ export const HomeReclutador = (): JSX.Element => {
   const [realJobs, setRealJobs] = useState<Job[]>([]);
   const [jobsLoading, setJobsLoading] = useState(true);
   const [jobsError, setJobsError] = useState(false);
+
+  useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  if (params.get("crear") === "1") {
+    setIsMenuOpen(false);
+    setIsCreateOpen(true);
+    // limpia el parámetro para que un refresh no reabra el modal
+    params.delete("crear");
+    const qs = params.toString();
+    navigate(qs ? `${location.pathname}?${qs}` : location.pathname, { replace: true });
+  }
+}, [location.search]);
 
   // El nombre de la empresa sale solo de datos reales
   const companyName = realJobs[0]?.company_name ?? "Empresa";
@@ -298,7 +317,7 @@ export const HomeReclutador = (): JSX.Element => {
     return () => {
       active = false;
     };
-  }, [jobsCompanyId]);
+  }, [jobsCompanyId, jobsReload]); // CAMBIO: jobsReload fuerza la recarga tras publicar
 
   useEffect(() => {
     let active = true;
@@ -325,6 +344,15 @@ export const HomeReclutador = (): JSX.Element => {
       active = false;
     };
   }, [companyId]);
+
+  // NUEVO: se ejecuta cuando el modal publica una oferta con éxito
+  const handleOfferPublished = () => {
+    setIsCreateOpen(false);
+    setJobsPage(1);
+    setJobsReload((n) => n + 1);
+    setPublishedNotice(true);
+    window.setTimeout(() => setPublishedNotice(false), 4000);
+  };
 
   // MOCK: lista final = reales (backend) + ficticias (demo).
   // Con USE_MOCKS = false queda solo lo real.
@@ -388,6 +416,13 @@ export const HomeReclutador = (): JSX.Element => {
       </section>
 
       <section className="flex flex-col gap-5 px-4 md:px-20 py-8 w-full max-w-[1194px] mx-auto">
+        {/* NUEVO: aviso al publicar una oferta */}
+        {publishedNotice && (
+          <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-[8px] px-5 py-3">
+            Oferta publicada correctamente.
+          </div>
+        )}
+
         {loadError && (
           <div className="bg-[#fff4ed] border border-[#f46036]/30 text-[#a83f1c] text-sm rounded-[8px] px-5 py-3">
             No pudimos cargar toda la información. Volvé a intentar más tarde.
@@ -400,7 +435,7 @@ export const HomeReclutador = (): JSX.Element => {
             label="Publicar oferta"
             sublabel="Creá una nueva búsqueda"
             primary
-            onClick={() => navigate(ROUTES.CREAR_OFERTA)}
+            onClick={() => setIsCreateOpen(true)} // CAMBIO: antes navigate(ROUTES.CREAR_OFERTA)
           />
           {/* MOCK: este número incluye las ofertas ficticias mientras USE_MOCKS = true */}
           <AccessTile
@@ -549,6 +584,13 @@ export const HomeReclutador = (): JSX.Element => {
           )}
         </div>
       </section>
+
+      {/* NUEVO: modal de crear oferta */}
+      <CrearOfertaModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onPublished={handleOfferPublished}
+      />
 
       <Footer />
     </div>
