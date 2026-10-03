@@ -1,15 +1,19 @@
-import { EyeOff, Eye } from "lucide-react";
 import React, { useState, useEffect, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { HeaderLogo } from "../components/ui/header-logo";
 import { ErrorMessage } from "../components/ui/error-message";
 import JSEncrypt from "jsencrypt";
 import { ERROR_CODES, COMMON_ERROR_MESSAGES } from "../constants/error-codes";
 import EmployerService from "../services/employer.service";
 import CompanyService from "../services/company.service";
+import {
+  RegistroLayout,
+  FormSection,
+  Field,
+  PasswordInput,
+  inputClass,
+} from "../components/registro-layout"; // NUEVO
 
 import {
   Select,
@@ -163,144 +167,120 @@ export const RegistroReclutador = (): JSX.Element => {
   };
 
   return (
-    <div className="bg-[#f2f2f2] w-full min-h-screen flex flex-col">
-      <header className="w-full bg-[#05073c] px-6 md:px-[50px] py-4">
-        <div className="flex items-center justify-start">
-          <HeaderLogo />
+    <RegistroLayout
+      role="reclutador"
+      title="Creá tu cuenta como reclutador"
+      subtitle="y publicá ofertas laborales"
+    >
+      {error && (
+        <div className="mb-5">
+          <ErrorMessage message={error} />
         </div>
-      </header>
+      )}
 
-      <main className="flex-1 w-full max-w-[1200px] mx-auto px-4 py-12">
-        <h2 className=" text-[#05073c] text-[28px] md:text-[32px] leading-tight mb-12 text-center">
-          <span className="font-bold">Creá tu cuenta como empresa </span>
-          <span className="font-normal">y publicá ofertas laborales</span>
-        </h2>
-
-        {error && <ErrorMessage message={error} />}
-
-        <form className="flex flex-col gap-8 max-w-[928px] mx-auto" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex flex-col gap-[5px]">
-              <Label className=" font-normal text-sm leading-normal">
-                Nombre <span className="text-[#cc2222]">*</span>
-              </Label>
+      <form className="flex flex-col gap-7" onSubmit={handleSubmit}>
+        <FormSection title="Datos personales">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <Field
+              label="Nombre"
+              required
+              error={nameError ? "Nombre obligatorio, máximo 20 caracteres" : undefined}
+            >
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ingresa tu/s nombre/s"
-                className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-3 py-2"
+                className={inputClass(nameError)}
                 maxLength={20}
                 disabled={loading}
               />
-              {nameError && <p className="text-[#cc2222] text-sm mt-1">Nombre obligatorio, máximo 20 caracteres</p>}
-            </div>
+            </Field>
 
-            <div className="flex flex-col gap-[5px]">
-              <Label className=" font-normal text-sm leading-normal">
-                Apellido <span className="text-[#cc2222]">*</span>
-              </Label>
+            <Field
+              label="Apellido"
+              required
+              error={lastNameError ? "Apellido obligatorio, máximo 20 caracteres" : undefined}
+            >
               <Input
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Ingresa tu/s apellido/s"
-                className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-3 py-2"
+                className={inputClass(lastNameError)}
                 maxLength={20}
                 disabled={loading}
               />
-              {lastNameError && <p className="text-[#cc2222] text-sm mt-1">Apellido obligatorio, máximo 20 caracteres</p>}
-            </div>
+            </Field>
           </div>
+        </FormSection>
 
-          <div className="flex flex-col gap-[5px]">
-            <Label className=" font-normal text-sm leading-normal">
-              Correo electrónico <span className="text-[#cc2222]">*</span>
-            </Label>
+        <FormSection title="Acceso">
+          <Field
+            label="Correo electrónico"
+            required
+            error={emailError ? "Email obligatorio, máximo 60 caracteres" : undefined}
+          >
             <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Ingresa tu correo electrónico"
-              className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-3 py-2"
+              className={inputClass(emailError)}
               maxLength={60}
               disabled={loading}
             />
-            {emailError && <p className="text-[#cc2222] text-sm mt-1">Email obligatorio, máximo 60 caracteres</p>}
+          </Field>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <Field
+              label="Contraseña"
+              required
+              error={
+                passwordFormatError
+                  ? "La contraseña debe tener máximo 30 caracteres"
+                  : undefined
+              }
+            >
+              <PasswordInput
+                value={password}
+                onChange={handlePasswordChange}
+                placeholder="Creá una contraseña segura"
+                disabled={loading}
+                hasError={passwordFormatError}
+                show={showPassword}
+                onToggle={() => setShowPassword(!showPassword)}
+              />
+            </Field>
+
+            <Field
+              label="Repetir contraseña"
+              required
+              error={passwordMismatchError ? "Las contraseñas no coinciden" : undefined}
+            >
+              <PasswordInput
+                value={confirmPassword}
+                onChange={handleConfirmPasswordChange}
+                placeholder="Confirmá tu contraseña"
+                disabled={loading}
+                hasError={passwordMismatchError}
+                show={showConfirmPassword}
+                onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
+              />
+            </Field>
           </div>
+          <p className="text-[#757575] text-xs -mt-2">
+            Máximo 30 caracteres. No admite símbolos especiales ni la letra ñ.
+          </p>
+        </FormSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex flex-col gap-[5px]">
-              <Label className=" font-normal text-sm leading-normal">
-                Contraseña <span className="text-[#cc2222]">*</span>
-              </Label>
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={handlePasswordChange}
-                  placeholder="Creá una contraseña segura"
-                  className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-3 py-2 pr-10"
-                  maxLength={30}
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#666666] hover:text-[#333333] transition-colors"
-                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-[5px]">
-              <Label className=" font-normal text-sm leading-normal">
-                Repetir contraseña <span className="text-[#cc2222]">*</span>
-              </Label>
-              <div className="relative">
-                <Input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={handleConfirmPasswordChange}
-                  placeholder="Confirmá tu contraseña"
-                  className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-3 py-2 pr-10"
-                  maxLength={30}
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#666666] hover:text-[#333333] transition-colors"
-                  aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-
-                {(passwordFormatError || passwordMismatchError) && (
-                  <div className="text-[#cc2222] text-sm mt-1">
-                    {passwordFormatError && <p>La contraseña debe tener máximo 30 caracteres</p>}
-                    {passwordMismatchError && <p>Las contraseñas no coinciden</p>}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-[5px]">
-            <Label className=" font-normal text-sm leading-normal">
-              Empresa <span className="text-[#cc2222]">*</span>
-            </Label>
+        <FormSection title="Empresa">
+          <Field
+            label="Empresa"
+            required
+            error={companyError ? "Debés seleccionar una empresa" : undefined}
+          >
             {companiesLoadError ? (
               <div className="h-auto min-h-[42px] bg-white rounded-lg border border-[#cc2222] px-4 py-2 flex items-center">
-                <p className=" font-normal text-sm text-[#cc2222]">
+                <p className="font-normal text-sm text-[#cc2222]">
                   {companiesLoadError}
                 </p>
               </div>
@@ -310,7 +290,11 @@ export const RegistroReclutador = (): JSX.Element => {
                 onValueChange={setCompanyId}
                 disabled={loadingCompanies || loading}
               >
-                <SelectTrigger className="h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-4 py-2 font-normal text-base text-[#b3b3b3]">
+                <SelectTrigger
+                  className={`h-auto min-h-[42px] bg-white rounded-lg border px-4 py-2 font-normal text-base text-[#b3b3b3] ${
+                    companyError ? "border-[#cc2222]" : "border-[#d9d9d9]"
+                  }`}
+                >
                   {companyId
                     ? companyOptions.find(option => option.value === companyId)?.label
                     : loadingCompanies
@@ -332,44 +316,17 @@ export const RegistroReclutador = (): JSX.Element => {
                 </SelectContent>
               </Select>
             )}
-            {companyError && <p className="text-[#cc2222] text-sm mt-1">Debés seleccionar una empresa</p>}
-          </div>
+          </Field>
+        </FormSection>
 
-          <div className="flex flex-col items-center gap-6 mt-4">
-            <Button
-              type="submit"
-              disabled={loading}
-              className="h-auto bg-[#f46036] hover:bg-[#f46036]/90 rounded-lg px-12 py-2.5  font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {loading ? 'Registrando...' : 'Registrarse'}
-            </Button>
-
-            <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-[928px] gap-4 md:gap-8 px-4">
-              <p className=" text-[16px] md:text-[18px] leading-[28px] text-center md:text-left">
-                <span className="text-[#2f2d38]">¿Ya tenés cuenta? </span>
-                <button
-                  type="button"
-                  onClick={() => navigate('/login')}
-                  className="text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer  font-medium"
-                >
-                  Iniciá sesión
-                </button>
-              </p>
-
-              <p className=" text-[16px] md:text-[18px] leading-[28px] text-center md:text-right">
-                <span className="text-[#2f2d38]">¿Sos candidato? </span>
-                <button
-                  type="button"
-                  onClick={() => navigate('/registro-candidato')}
-                  className="text-[#0088ff] hover:underline bg-transparent border-0 cursor-pointer  font-medium"
-                >
-                  Crear cuenta
-                </button>
-              </p>
-            </div>
-          </div>
-        </form>
-      </main>
-    </div>
+        <Button
+          type="submit"
+          disabled={loading}
+          className="h-11 w-full bg-[#f46036] hover:bg-[#d9512e] rounded-lg font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {loading ? 'Registrando...' : 'Registrarse'}
+        </Button>
+      </form>
+    </RegistroLayout>
   );
 };

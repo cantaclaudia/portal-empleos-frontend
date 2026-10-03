@@ -4,7 +4,6 @@ import { Button } from '../components/ui/button';
 import { Separator } from '../components/ui/separator';
 import { PageHeader } from '../components/ui/page-header';
 import { FormField } from '../components/ui/form-fields';
-import { LinkButton } from '../components/ui/link-button';
 import { ErrorMessage } from '../components/ui/error-message';
 import AuthService from '../services/auth.service';
 import { AuthAside } from '../components/ui/auth-aside';
@@ -13,6 +12,7 @@ import { ROUTES } from '../routes';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -82,7 +82,9 @@ export const Login: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (loading) return;
+
     setLoginError(null);
 
     const isEmailValid = validateEmail(email);
@@ -127,86 +129,88 @@ export const Login: React.FC = () => {
     <div className="bg-[#f2f2f2] flex min-h-screen w-full flex-col md:flex-row">
       <AuthAside />
 
-      <main className="flex w-full md:w-1/2 flex-col items-center justify-center gap-3 md:gap-4 py-8 md:py-10 px-4">
-        <form onSubmit={handleLogin} className="flex w-full flex-col items-center gap-3 md:gap-4">
-          <PageHeader
-            title="Iniciar sesión"
-            subtitle="Conectá con oportunidades y talento."
-          />
+      <main className="flex w-full md:w-1/2 flex-col items-center justify-center py-8 md:py-10 px-4">
+        <div className="flex w-full max-w-[560px] flex-col items-center gap-4 bg-white rounded-[14px] border border-gray-100 shadow-sm py-8 md:py-10">
 
-          <div className="h-1 md:h-3" />
+          <form
+            onSubmit={handleLogin}
+            className="flex w-full flex-col items-center gap-4"
+          >
+            <PageHeader
+              title="Iniciar sesión"
+              subtitle="Conectá con oportunidades y talento."
+            />
 
-          {loginError && <ErrorMessage message={loginError} />}
+            {loginError && (
+              <ErrorMessage message={loginError} />
+            )}
 
-          <FormField
-            label="Correo electrónico"
-            type="email"
-            placeholder="Ingresa tu correo electrónico"
-            required
-            value={email}
-            onChange={handleEmailChange}
-            error={emailError}
-            maxLength={50}
-          />
+            <FormField
+              label="Correo electrónico"
+              type="email"
+              placeholder="Ingresa tu correo electrónico"
+              required
+              value={email}
+              onChange={handleEmailChange}
+              error={emailError}
+              maxLength={50}
+            />
 
-          <FormField
-            label="Contraseña"
-            type="password"
-            placeholder="Ingresa tu contraseña"
-            required
-            value={password}
-            onChange={handlePasswordChange}
-            error={passwordError}
-            maxLength={30}
-            showPasswordToggle
-          />
+            <FormField
+              label="Contraseña"
+              type="password"
+              placeholder="Ingresa tu contraseña"
+              required
+              value={password}
+              onChange={handlePasswordChange}
+              error={passwordError}
+              maxLength={30}
+              showPasswordToggle
+            />
 
-          <div className="flex w-full max-w-[500px] items-center justify-between px-4 py-1">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 rounded border-[#d9d9d9] text-[#f46036] focus:ring-[#f46036]"
-              />
-              <span className="text-sm text-[#333333]">
-                Recordar mi usuario
-              </span>
-            </label>
+            <div className="flex w-full max-w-[500px] items-center justify-between px-4 py-1">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-[#d9d9d9] accent-[#f46036] focus:ring-[#f46036]"
+                />
 
-            <LinkButton>
-              ¿Olvidaste tu contraseña?
-            </LinkButton>
+                <span className="text-sm text-[#333333]">
+                  Recordar mi usuario
+                </span>
+              </label>
+            </div>
+
+            <div className="w-full max-w-[500px] px-4">
+              <Button
+                type="submit"
+                disabled={loading || !!emailError || !!passwordError}
+                className="h-11 md:h-[52px] w-full items-center justify-center rounded-lg bg-[#f46036] px-6 py-3 hover:bg-[#d9512e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="text-sm md:text-base leading-normal tracking-[0] font-medium text-white">
+                  {loading ? 'Ingresando...' : 'Ingresar'}
+                </span>
+              </Button>
+            </div>
+          </form>
+
+          <div className="w-full max-w-[500px] px-4 mt-2">
+            <Separator className="h-px w-full" />
           </div>
 
-          <Button
-            type="submit"
-            disabled={loading || !!emailError || !!passwordError}
-            className="h-12 md:h-[56px] w-full max-w-[500px] mx-4 items-center justify-center rounded-lg bg-[#f46036] px-6 py-3 hover:bg-[#f46036]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span className="text-base md:text-lg leading-normal tracking-[0] font-medium text-white">
-              {loading ? 'Ingresando...' : 'Ingresar'}
-            </span>
-          </Button>
-        </form>
-
-        <div className="h-4 md:h-6" />
-
-        <div className="flex w-full max-w-[500px] flex-col items-start px-4 py-2">
-          <Separator className="h-px w-full" />
-        </div>
-
-        <div className="h-4 md:h-6" />
-
-        <div className="inline-flex items-center justify-center px-4 py-2">
-          <p className="w-full max-w-[500px] text-center text-sm md:text-base leading-relaxed tracking-[0] font-normal">
+          <p className="w-full max-w-[500px] px-4 text-center text-sm leading-relaxed tracking-[0] font-normal">
             <span className="text-[#333333]">
-              ¿Todavía no estás registrado?{' '}
+              ¿Todavía no estás registrado?
             </span>
+
+            <br />
+
             <button
               type="button"
-              onClick={() => navigate('/seleccion-de-perfil')}
-              className="text-[#0088ff] hover:underline"
+              onClick={() => navigate('/registro-candidato')}
+              className="text-[#3351A6] text-sm font-medium hover:underline"
             >
               Creá tu cuenta como Candidato o Empresa.
             </button>

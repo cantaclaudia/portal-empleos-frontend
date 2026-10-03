@@ -8,7 +8,6 @@ import { HomeReclutador } from './pages/home-reclutador';
 import { JobDetail } from './pages/detalle-empleo';
 import { MisPostulaciones } from './pages/mis-postulaciones';
 import { AltaEmpresa } from './pages/alta-empresa';
-import { CrearOferta } from './pages/crear-oferta';
 import { PostulacionesRecibidas } from './pages/postulaciones-recibidas';
 import { HomeAdmin } from './pages/home-admin';
 import { ROUTES } from './routes';
@@ -26,7 +25,6 @@ function App() {
         <Route path={ROUTES.JOB_DETAIL} element={<JobDetail />} />
         <Route path={ROUTES.MIS_POSTULACIONES} element={<MisPostulaciones />} />
         <Route path={ROUTES.ALTA_EMPRESA} element={<AltaEmpresa />} />
-        <Route path={ROUTES.CREAR_OFERTA} element={<CrearOferta />} />
         <Route path={ROUTES.POSTULACIONES_RECIBIDAS} element={<PostulacionesRecibidas />} />
         <Route path={ROUTES.HOME_ADMIN} element={<HomeAdmin />} />
         <Route path="/" element={<Navigate to={ROUTES.LOGIN} replace />} />

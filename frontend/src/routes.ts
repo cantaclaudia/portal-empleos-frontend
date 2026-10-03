@@ -9,6 +9,5 @@ export const ROUTES = {
   JOB_DETAIL: '/detalle-empleo',
   MIS_POSTULACIONES: '/mis-postulaciones',
   ALTA_EMPRESA: '/alta-empresa',
-  CREAR_OFERTA: '/crear-oferta',
   POSTULACIONES_RECIBIDAS: '/postulaciones-recibidas',
 };
