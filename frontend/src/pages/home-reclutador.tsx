@@ -32,7 +32,7 @@ import { ReclutadorSideMenu } from "../components/reclutador-side-menu";
  * - Cuando haya suficientes datos reales, borrá este bloque completo
  *   y todos los usos marcados con "MOCK" más abajo (Ctrl+F: MOCK).
  * ===================================================================== */
-const USE_MOCKS = false;
+const USE_MOCKS = true;
 const JOBS_PER_PAGE = 3;
 
 // MOCK: postulaciones ficticias que se suman a la real

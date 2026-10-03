@@ -3,7 +3,6 @@ import {
   Home as HomeIcon,
   Plus as PlusIcon,
   Users as UsersIcon,
-  User as UserIcon,
 } from "lucide-react";
 import { SideMenu, type SideMenuItem } from "./ui/side-menu";
 import { ROUTES } from "../routes";
@@ -14,7 +13,6 @@ const RECLUTADOR_ITEMS: SideMenuItem[] = [
   { icon: HomeIcon, label: "Inicio", path: ROUTES.HOME_RECLUTADOR },
   { icon: PlusIcon, label: "Crear nueva oferta", path: ROUTES.CREAR_OFERTA },
   { icon: UsersIcon, label: "Postulaciones recibidas", path: ROUTES.POSTULACIONES_RECIBIDAS },
-  { icon: UserIcon, label: "Mi perfil", path: ROUTES.PERFIL_RECLUTADOR },
 ];
 
 interface ReclutadorSideMenuProps {
@@ -33,11 +31,9 @@ export const ReclutadorSideMenu: React.FC<ReclutadorSideMenuProps> = ({
   const companyId = user?.company_id ?? undefined;
   const userName = user ? `${user.first_name} ${user.last_name}` : "Empleador";
 
-  // Si el login ya trae el nombre, no hace falta pedirlo
   const nameFromLogin = user?.company_name ?? null;
 
   useEffect(() => {
-    // Solo se pide la primera vez que se abre el menú
     if (
       !isOpen ||
       nameFromLogin ||
