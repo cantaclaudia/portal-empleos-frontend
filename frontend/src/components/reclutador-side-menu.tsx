@@ -11,7 +11,7 @@ import CompanyService from "../services/company.service";
 
 const RECLUTADOR_ITEMS: SideMenuItem[] = [
   { icon: HomeIcon, label: "Inicio", path: ROUTES.HOME_RECLUTADOR },
-  { icon: PlusIcon, label: "Crear nueva oferta", path: `${ROUTES.HOME_RECLUTADOR}?crear=1` }, // CAMBIO
+  { icon: PlusIcon, label: "Crear nueva oferta", path: `${ROUTES.HOME_RECLUTADOR}?crear=1` }, 
   { icon: UsersIcon, label: "Postulaciones recibidas", path: ROUTES.POSTULACIONES_RECIBIDAS },
 ];
 
