@@ -88,7 +88,7 @@ def login(data_request):
 # Indica el proceso de carga de nuevas empresas en el portal.
 @bp.route('/createNewCompany', methods=['POST'])
 @AuthController.token_required(endpoint='createNewCompany', service_required=False)
-@AuthController.employer_validation()
+@AuthController.admin_or_employer_validation()
 def create_new_company(data_request):
     logger.info(f"{g.request_id} - ingresando a createNewCompany")
 
@@ -303,6 +303,7 @@ def change_application_status(data_request):
 # los candidatos y/o las empresas
 @bp.route('/getStats', methods=['POST'])
 @AuthController.token_required(endpoint='getStats', service_required=False)
+@AuthController.admin_validation()
 def get_stats(data_request):
     logger.info(f"{g.request_id} - ingresando a /getStats")
 

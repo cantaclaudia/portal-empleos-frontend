@@ -14,7 +14,7 @@ export interface LoginResponse {
 export interface UserData {
   first_name: string;
   last_name: string;
-  role: 'employer' | 'candidate' | 'admin';
+   role: 'employer' | 'candidate' | 'admin';
   user_id: number;
   company_id?: number | null;    
   company_name?: string | null; 

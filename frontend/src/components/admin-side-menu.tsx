@@ -1,12 +1,14 @@
 import React from "react";
-import { Briefcase as BriefcaseIcon } from "lucide-react";
+import { Home as HomeIcon, Briefcase as BriefcaseIcon } from 'lucide-react';
 import { SideMenu, type SideMenuItem } from "./ui/side-menu";
 import { ROUTES } from "../routes";
 import AuthService from "../services/auth.service";
 
 const ADMIN_ITEMS: SideMenuItem[] = [
-  { icon: BriefcaseIcon, label: "Alta empresa", path: ROUTES.ALTA_EMPRESA },
+  { icon: HomeIcon, label: 'Inicio', path: ROUTES.HOME_ADMIN },
+  { icon: BriefcaseIcon, label: 'Alta empresa', path: ROUTES.ALTA_EMPRESA },
 ];
+
 
 interface AdminSideMenuProps {
   isOpen: boolean;

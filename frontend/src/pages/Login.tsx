@@ -11,12 +11,6 @@ import { AuthAside } from '../components/ui/auth-aside';
 import { LOGIN_ERRORS } from '../constants/error-codes';
 import { ROUTES } from '../routes';
 
-/* MOCK: acceso interno del cliente (alta de empresas).
- * Poné USE_ADMIN_MOCK = false para apagarlo.
- * Cuando exista el rol real, borrá este bloque y el if marcado con "MOCK". */
-const USE_ADMIN_MOCK = true;
-const MOCK_ADMIN = { email: 'admin@portal.com', password: 'admin123' };
-
 export const Login: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -98,22 +92,6 @@ export const Login: React.FC = () => {
       return;
     }
 
-    // MOCK: usuario interno, no pasa por el backend
-    if (
-      USE_ADMIN_MOCK &&
-      email === MOCK_ADMIN.email &&
-      password === MOCK_ADMIN.password
-    ) {
-      AuthService.saveUser({
-        user_id: 0,
-        first_name: 'Admin',
-        last_name: 'Interno',
-        role: 'admin',
-      });
-      navigate(ROUTES.ALTA_EMPRESA, { replace: true });
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -130,11 +108,11 @@ export const Login: React.FC = () => {
       }
 
       if (userData.role === 'candidate') {
-        navigate('/home-candidato', { replace: true });
+        navigate(ROUTES.HOME_CANDIDATO, { replace: true });
       } else if (userData.role === 'employer') {
-        navigate('/home-reclutador', { replace: true });
+        navigate(ROUTES.HOME_RECLUTADOR, { replace: true });
       } else if (userData.role === 'admin') {
-        navigate(ROUTES.ALTA_EMPRESA, { replace: true });
+        navigate(ROUTES.HOME_ADMIN, { replace: true });
       } else {
         setLoginError('Tipo de usuario no válido');
       }

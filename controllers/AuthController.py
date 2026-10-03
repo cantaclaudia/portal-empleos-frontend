@@ -194,3 +194,90 @@ def candidate_or_employer_validation():
         return decorated
 
     return services_validator
+
+def admin_validation():
+    def services_validator(f):
+        @wraps(f)
+        def decorated(data_request, *args, **kwargs):
+            if g.user_id is None or g.user_id == "":
+                logger.info(f"{g.request_id} - no se envio id_user en el header")
+                return {
+                           "code": "1401",
+                           "description": AuthConfig.user_verify_code_map["1401"]
+                       }, 400
+
+            current_user_db = Manager.get_user_data_login(
+                user_id=g.user_id,
+                is_candidate=None,
+                request_id=g.request_id
+            )
+
+            if not current_user_db["ok"]:
+                logger.info(f"{g.request_id} - error al verificar el usuario")
+                return {
+                           "code": "1500",
+                           "description": AuthConfig.user_verify_code_map["1500"]
+                       }, 400
+
+            if not current_user_db["data"]:
+                logger.info(f"{g.request_id} - usuario no habilitado para realizar la operacion seleccionada")
+                return {
+                           "code": "1404",
+                           "description": AuthConfig.user_verify_code_map["1404"]
+                       }, 400
+
+            logger.info(f"{g.request_id} - solicitud de admin: {current_user_db['data']['name']} {current_user_db['data']['last_name']}")
+
+            return f(data_request, *args, **kwargs)
+
+        return decorated
+
+    return services_validator
+
+
+def admin_or_employer_validation():
+    def services_validator(f):
+        @wraps(f)
+        def decorated(data_request, *args, **kwargs):
+            if g.user_id is None or g.user_id == "":
+                logger.info(f"{g.request_id} - no se envio id_user en el header")
+                return {
+                           "code": "1401",
+                           "description": AuthConfig.user_verify_code_map["1401"]
+                       }, 400
+
+            current_user = None
+
+            # probamos como empleador (role=1) y despues como admin (role=2)
+            for is_candidate in (False, None):
+                user_response = Manager.get_user_data_login(
+                    user_id=g.user_id,
+                    is_candidate=is_candidate,
+                    request_id=g.request_id
+                )
+
+                if not user_response["ok"]:
+                    logger.info(f"{g.request_id} - error al verificar el usuario")
+                    return {
+                               "code": "1500",
+                               "description": AuthConfig.user_verify_code_map["1500"]
+                           }, 400
+
+                if user_response["data"]:
+                    current_user = user_response["data"]
+                    break
+
+            if not current_user:
+                logger.info(f"{g.request_id} - usuario no habilitado para realizar la operacion seleccionada")
+                return {
+                           "code": "1404",
+                           "description": AuthConfig.user_verify_code_map["1404"]
+                       }, 400
+
+            logger.info(f"{g.request_id} - solicitud de usuario: {current_user['name']} {current_user['last_name']}")
+
+            return f(data_request, *args, **kwargs)
+
+        return decorated
+
+    return services_validator
