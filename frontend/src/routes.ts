@@ -2,6 +2,7 @@ export const ROUTES = {
   LOGIN: '/login',
   HOME_CANDIDATO: '/home-candidato',
   HOME_RECLUTADOR: '/home-reclutador',
+  HOME_ADMIN: '/home-admin',
   SELECCION_PERFIL: '/seleccion-de-perfil',
   REGISTRO_CANDIDATO: '/registro-candidato',
   REGISTRO_RECLUTADOR: '/registro-reclutador',
@@ -10,6 +11,4 @@ export const ROUTES = {
   ALTA_EMPRESA: '/alta-empresa',
   CREAR_OFERTA: '/crear-oferta',
   POSTULACIONES_RECIBIDAS: '/postulaciones-recibidas',
-  PERFIL_CANDIDATO: '/perfil',
-  PERFIL_RECLUTADOR: '/perfil-reclutador',
 };

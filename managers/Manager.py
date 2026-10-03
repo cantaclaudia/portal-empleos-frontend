@@ -4,22 +4,24 @@ logger = ServerConfig.rootLogger.getChild(__name__)
 
 
 @manage_db_connection
-def get_user_data_login(cnx, cursor, final_response,user_id, is_candidate, request_id=None):
+def get_user_data_login(cnx, cursor, final_response, user_id, is_candidate, request_id=None):
     final_response = {'ok': True,
                       'data': {}}
 
     try:
-        if is_candidate:
+        if is_candidate is None:
+            role = '2'
+        elif is_candidate:
             role = '0'
         else:
             role = '1'
 
         query_get_user_id = """
-                                    SELECT  name,
-                                            last_name
-                                    FROM    usuarios
-                                    WHERE   user_id = %s 
-                                    AND     role = %s  
+                                SELECT  name,
+                                        last_name
+                                FROM    usuarios
+                                WHERE   user_id = %s 
+                                AND     role = %s  
                             """
         values = (user_id, role)
         cursor.execute(query_get_user_id, values)
@@ -28,10 +30,10 @@ def get_user_data_login(cnx, cursor, final_response,user_id, is_candidate, reque
         if not results_dict:
             logger.info(f"{request_id} - no se encontraron registros")
             final_response['data'] = False
-
         else:
             logger.info(f"{request_id} - usuario encontrado")
             final_response['data'] = results_dict
+
     except:
         logger.exception(f"{request_id} - error al obtener datos del usuario {user_id}")
         final_response['ok'] = False
@@ -240,6 +242,7 @@ def get_user_data(cnx, cursor, final_response, email, password, request_id=None)
                             CASE 
                                 WHEN u.role = 0 THEN 'candidate'
                                 WHEN u.role = 1 THEN 'employer'
+                                WHEN u.role = 2 THEN 'admin'
                                 ELSE 'unknown'
                             END AS role_description,
                             exu.company_id
