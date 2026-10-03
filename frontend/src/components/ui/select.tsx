@@ -6,6 +6,7 @@ interface SelectContextValue {
   onValueChange: (value: string) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
+  triggerRef: React.RefObject<HTMLButtonElement | null>;
 }
 
 const SelectContext = createContext<SelectContextValue | undefined>(undefined);
@@ -25,8 +26,14 @@ interface SelectProps {
   disabled?: boolean;
 }
 
-export const Select: React.FC<SelectProps> = ({ value = '', onValueChange, children, disabled = false }) => {
+export const Select: React.FC<SelectProps> = ({
+  value = '',
+  onValueChange,
+  children,
+  disabled = false,
+}) => {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const handleValueChange = (newValue: string) => {
     onValueChange?.(newValue);
@@ -34,7 +41,15 @@ export const Select: React.FC<SelectProps> = ({ value = '', onValueChange, child
   };
 
   return (
-    <SelectContext.Provider value={{ value, onValueChange: handleValueChange, open, setOpen }}>
+    <SelectContext.Provider
+      value={{
+        value,
+        onValueChange: handleValueChange,
+        open,
+        setOpen,
+        triggerRef,
+      }}
+    >
       <div className="relative w-full">
         {React.Children.map(children, (child) =>
           React.isValidElement(child)
@@ -52,9 +67,12 @@ interface SelectTriggerProps {
   disabled?: boolean;
 }
 
-export const SelectTrigger: React.FC<SelectTriggerProps> = ({ className = '', children, disabled = false }) => {
-  const { open, setOpen } = useSelectContext();
-  const triggerRef = useRef<HTMLButtonElement>(null);
+export const SelectTrigger: React.FC<SelectTriggerProps> = ({
+  className = '',
+  children,
+  disabled = false,
+}) => {
+  const { open, setOpen, triggerRef } = useSelectContext();
 
   return (
     <button
@@ -62,10 +80,16 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = ({ className = '', ch
       type="button"
       onClick={() => !disabled && setOpen(!open)}
       disabled={disabled}
-      className={`w-full flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-[#f46036] focus:border-transparent transition-all ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`w-full flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-[#f46036] focus:border-transparent transition-all ${className} ${
+        disabled ? 'opacity-50 cursor-not-allowed' : ''
+      }`}
     >
       {children}
-      <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+      <ChevronDown
+        className={`w-4 h-4 transition-transform ${
+          open ? 'rotate-180' : ''
+        }`}
+      />
     </button>
   );
 };
@@ -74,7 +98,9 @@ interface SelectValueProps {
   placeholder?: string;
 }
 
-export const SelectValue: React.FC<SelectValueProps> = ({ placeholder = 'Seleccionar...' }) => {
+export const SelectValue: React.FC<SelectValueProps> = ({
+  placeholder = 'Seleccionar...',
+}) => {
   const { value } = useSelectContext();
   return <span>{value || placeholder}</span>;
 };
@@ -84,16 +110,50 @@ interface SelectContentProps {
 }
 
 export const SelectContent: React.FC<SelectContentProps> = ({ children }) => {
-  const { open, setOpen } = useSelectContext();
+  const { open, setOpen, triggerRef } = useSelectContext();
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const [position, setPosition] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+  });
+
+  useEffect(() => {
+    if (!open || !triggerRef.current) return;
+
+    const updatePosition = () => {
+      const rect = triggerRef.current!.getBoundingClientRect();
+
+      setPosition({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+      });
+    };
+
+    updatePosition();
+
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [open, triggerRef]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (contentRef.current && !contentRef.current.contains(event.target as Node)) {
-        const trigger = contentRef.current.previousElementSibling;
-        if (trigger && !trigger.contains(event.target as Node)) {
-          setOpen(false);
-        }
+      const target = event.target as Node;
+
+      if (
+        contentRef.current &&
+        !contentRef.current.contains(target) &&
+        triggerRef.current &&
+        !triggerRef.current.contains(target)
+      ) {
+        setOpen(false);
       }
     };
 
@@ -104,14 +164,20 @@ export const SelectContent: React.FC<SelectContentProps> = ({ children }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [open, setOpen]);
+  }, [open, setOpen, triggerRef]);
 
   if (!open) return null;
 
   return (
     <div
       ref={contentRef}
-      className="absolute z-50 w-full mt-1 bg-white border border-[#d9d9d9] rounded-lg shadow-lg max-h-60 overflow-auto"
+      style={{
+        position: 'fixed',
+        top: position.top,
+        left: position.left,
+        width: position.width,
+      }}
+      className="z-[9999] bg-white border border-[#d9d9d9] rounded-lg shadow-lg max-h-60 overflow-auto"
     >
       {children}
     </div>
@@ -124,7 +190,11 @@ interface SelectItemProps {
   className?: string;
 }
 
-export const SelectItem: React.FC<SelectItemProps> = ({ value, children, className = '' }) => {
+export const SelectItem: React.FC<SelectItemProps> = ({
+  value,
+  children,
+  className = '',
+}) => {
   const { onValueChange } = useSelectContext();
 
   return (
