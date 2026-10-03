@@ -78,16 +78,11 @@ interface ActionMessage {
 }
 
 /* =====================================================================
- * DATOS MOCKEADOS (SOLO PARA DEMO DEL DISEÑO) 
- * Nada de este bloque viene del backend.
- * - Poné USE_MOCKS = false para apagar todo.
- * - Los IDs son NEGATIVOS para no chocar con los IDs reales.
- * - Cuando haya suficientes postulaciones reales, borrá este bloque
- *   completo y los usos marcados con "MOCK" más abajo.
+ * DATOS MOCKEADOS (SOLO PARA DEMO DEL DISEÑO)
  * ===================================================================== */
-const USE_MOCKS = false;
 
-// MOCK: postulaciones ficticias que se suman a la real
+const USE_MOCKS = true;
+
 const MOCK_APPLICATIONS = [
   {
     application_id: -1,
@@ -126,7 +121,6 @@ const MOCK_APPLICATIONS = [
   },
 ] as unknown as Application[];
 
-// MOCK: estado inicial de cada postulación ficticia
 const MOCK_STATUS: Record<number, StatusCode> = {
   [-1]: STATUS.IN_REVIEW,
   [-2]: STATUS.ACCEPTED,
@@ -135,7 +129,6 @@ const MOCK_STATUS: Record<number, StatusCode> = {
   [-5]: STATUS.IN_REVIEW,
 };
 
-// MOCK: candidato de cada postulación ficticia (mismo formato que devuelve el back)
 const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
   [-1]: [
     {
@@ -145,8 +138,18 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       resume_url: 'www.ejemplo.com/cv-laura',
       skills: 'React, Node.js, TypeScript, PostgreSQL, Git',
       experience: [
-        { job_name: 'Desarrolladora Web Full Stack', company_name: 'TechNova Solutions', start_date: '2022-03-01', end_date: '2024-08-01' },
-        { job_name: 'Full Stack Developer Jr.', company_name: 'Digital Mind Studio', start_date: '2021-01-01', end_date: '2022-02-01' },
+        {
+          job_name: 'Desarrolladora Web Full Stack',
+          company_name: 'TechNova Solutions',
+          start_date: '2022-03-01',
+          end_date: '2024-08-01',
+        },
+        {
+          job_name: 'Full Stack Developer Jr.',
+          company_name: 'Digital Mind Studio',
+          start_date: '2021-01-01',
+          end_date: '2022-02-01',
+        },
       ],
     },
   ],
@@ -158,8 +161,18 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       resume_url: 'www.ejemplo.com/cv-martin',
       skills: 'Angular, Java, Docker, AWS, Inglés',
       experience: [
-        { job_name: 'Tech Lead', company_name: 'CloudWorks', start_date: '2020-05-01', end_date: null },
-        { job_name: 'Desarrollador Backend', company_name: 'Banco Andino', start_date: '2017-02-01', end_date: '2020-04-01' },
+        {
+          job_name: 'Tech Lead',
+          company_name: 'CloudWorks',
+          start_date: '2020-05-01',
+          end_date: null,
+        },
+        {
+          job_name: 'Desarrollador Backend',
+          company_name: 'Banco Andino',
+          start_date: '2017-02-01',
+          end_date: '2020-04-01',
+        },
       ],
     },
   ],
@@ -171,7 +184,12 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       resume_url: 'www.ejemplo.com/cv-sofia',
       skills: 'Figma, Investigación de usuarios, Prototipado, Design Systems',
       experience: [
-        { job_name: 'Diseñadora UX/UI', company_name: 'Creativa Studio', start_date: '2021-07-01', end_date: null },
+        {
+          job_name: 'Diseñadora UX/UI',
+          company_name: 'Creativa Studio',
+          start_date: '2021-07-01',
+          end_date: null,
+        },
       ],
     },
   ],
@@ -183,7 +201,12 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       resume_url: 'www.ejemplo.com/cv-diego',
       skills: 'Selenium, Cypress, Pruebas manuales, Jira',
       experience: [
-        { job_name: 'QA Tester', company_name: 'Soft Quality', start_date: '2023-01-01', end_date: '2024-06-01' },
+        {
+          job_name: 'QA Tester',
+          company_name: 'Soft Quality',
+          start_date: '2023-01-01',
+          end_date: '2024-06-01',
+        },
       ],
     },
   ],
@@ -194,20 +217,16 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       email: 'camila.sosa@ejemplo.com',
       resume_url: 'www.ejemplo.com/cv-camila',
       skills: 'Postman, Pruebas de API, Agile',
-      // Sin experiencia: sirve para ver el estado vacío del diseño
       experience: [],
     },
   ],
 } as unknown as Record<number, ApplicantInfo[]>;
 
-// MOCK: las postulaciones reales tienen ID positivo, las ficticias negativo
 const isMock = (id: number | null | undefined): boolean =>
   USE_MOCKS && typeof id === 'number' && id < 0;
+
 /* ============================ FIN DE MOCKS ============================ */
 
-/**
- * El back devuelve nombres en mayúsculas ("GERONIMO").
- */
 const toTitleCase = (value: string): string =>
   value
     .toLowerCase()
@@ -217,9 +236,6 @@ const toTitleCase = (value: string): string =>
     )
     .join(' ');
 
-/**
- * Los CV pueden venir sin protocolo ("www.cv.com"), lo que rompería el link.
- */
 const toExternalUrl = (url: string): string =>
   /^https?:\/\//i.test(url) ? url : `https://${url}`;
 
@@ -229,13 +245,12 @@ const StatusChip = ({
   status: StatusCode;
 }): JSX.Element => (
   <span
-    className={`inline-block rounded-full bg-[#eceef6] px-3 py-0.5 text-[12.5px] font-bold whitespace-nowrap ${STATUS_TEXT[status]}`}
+    className={`inline-block rounded-full bg-[#eceef6] px-3 py-0.5 text-[12px] font-bold whitespace-nowrap ${STATUS_TEXT[status]}`}
   >
     {STATUS_LABEL[status]}
   </span>
 );
 
-// MOCK: chip visible para distinguir datos de demo de los reales
 const DemoChip = (): JSX.Element => (
   <span className="inline-block rounded-full bg-[#fff3ec] border border-[#fbdccd] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-[#f46036] whitespace-nowrap">
     Demo
@@ -265,7 +280,7 @@ const ApplicantBlock = ({
 }): JSX.Element => (
   <article className="flex flex-col gap-5">
     <div>
-      <h3 className="font-bold text-[#05073c] text-[22px] md:text-2xl leading-tight">
+      <h3 className="font-bold text-[#05073c] text-[20px] md:text-[22px] leading-tight">
         {toTitleCase(
           `${applicant.first_name} ${applicant.last_name}`
         )}
@@ -297,25 +312,27 @@ const ApplicantBlock = ({
 
     {applicant.skills && applicant.skills.length > 0 && (
       <div>
-        <h4 className="font-bold text-[#05073c] text-[15px] mb-2.5">
+        <h4 className="font-bold text-[#05073c] text-sm mb-2.5">
           Habilidades
         </h4>
 
         <div className="flex flex-wrap gap-2">
-          {applicant.skills.split(',').map((skill: string, index: number) => (
-            <span
-              key={index}
-              className="rounded-full bg-[#eceef6] px-3 py-1 text-[13.5px] font-semibold text-[#05073c]"
-            >
-              {skill.trim()}
-            </span>
-          ))}
+          {String(applicant.skills)
+            .split(',')
+            .map((skill: string, index: number) => (
+              <span
+                key={index}
+                className="rounded-full bg-[#eceef6] px-3 py-1 text-[13px] font-semibold text-[#05073c]"
+              >
+                {skill.trim()}
+              </span>
+            ))}
         </div>
       </div>
     )}
 
     <div>
-      <h4 className="font-bold text-[#05073c] text-[15px] mb-2.5">
+      <h4 className="font-bold text-[#05073c] text-sm mb-2.5">
         Experiencia
       </h4>
 
@@ -334,8 +351,8 @@ const ApplicantBlock = ({
                 <div className="flex flex-col items-center">
                   <span
                     className={`w-3 h-3 rounded-full ${exp.end_date
-                      ? 'bg-[#3b4a86]'
-                      : 'bg-[#17835a]'
+                        ? 'bg-[#3b4a86]'
+                        : 'bg-[#17835a]'
                       }`}
                   />
 
@@ -345,9 +362,11 @@ const ApplicantBlock = ({
                 </div>
 
                 <div className="pb-6">
-                  <p>{exp.job_name}</p>
+                  <p className="text-sm font-semibold text-[#05073c]">
+                    {exp.job_name}
+                  </p>
 
-                  <p>
+                  <p className="text-[13px] text-[#666666] mt-0.5">
                     {exp.company_name},{' '}
                     {exp.start_date
                       ? formatMonthYear(exp.start_date)
@@ -363,7 +382,7 @@ const ApplicantBlock = ({
           })}
         </ul>
       ) : (
-        <p className="text-gray-500">
+        <p className="text-sm text-gray-500">
           El candidato no tiene experiencia laboral registrada.
         </p>
       )}
@@ -374,17 +393,26 @@ const ApplicantBlock = ({
 export const PostulacionesRecibidas: React.FC = () => {
   const user = AuthService.getUser();
   const userId = user?.user_id?.toString() ?? '';
-  const rawCompanyId = (user as unknown as { company_id?: number | string | null } | null)
-    ?.company_id;
-  const companyId = rawCompanyId != null ? String(rawCompanyId) : '';
+
+  const rawCompanyId = (
+    user as unknown as {
+      company_id?: number | string | null;
+    } | null
+  )?.company_id;
+
+  const companyId =
+    rawCompanyId != null ? String(rawCompanyId) : '';
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // REAL: postulaciones que vienen del backend
-  const [realApplications, setRealApplications] = useState<Application[]>([]);
+
+  const [realApplications, setRealApplications] =
+    useState<Application[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState('');
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] =
+    useState<number | null>(null);
 
   const selectedIdRef = useRef<number | null>(null);
   selectedIdRef.current = selectedId;
@@ -393,12 +421,12 @@ export const PostulacionesRecibidas: React.FC = () => {
     useState<DetailState>(EMPTY_DETAIL);
 
   const [changing, setChanging] = useState(false);
+
   const [message, setMessage] =
     useState<ActionMessage | null>(null);
 
   const detailRef = useRef<HTMLDivElement>(null);
 
-  // MOCK: lista final = reales (backend) + ficticias (demo)
   const applications = useMemo(
     () =>
       USE_MOCKS
@@ -479,7 +507,6 @@ export const PostulacionesRecibidas: React.FC = () => {
       (app) => app.application_id === selectedId
     ) ?? null;
 
-  // Siempre hay una postulación abierta: la primera de la lista visible.
   useEffect(() => {
     if (visible.length === 0) {
       setSelectedId(null);
@@ -501,20 +528,19 @@ export const PostulacionesRecibidas: React.FC = () => {
       return;
     }
 
-    // MOCK: para postulaciones ficticias no se llama al backend,
-    // el detalle sale de MOCK_APPLICANTS / MOCK_STATUS.
     if (isMock(selectedId)) {
       setMessage(null);
+
       setDetail({
         applicants: MOCK_APPLICANTS[selectedId] ?? [],
         status: MOCK_STATUS[selectedId] ?? null,
         loading: false,
         error: null,
       });
+
       return;
     }
 
-    // REAL: a partir de acá todo sale del backend
     let active = true;
 
     setDetail({
@@ -577,7 +603,6 @@ export const PostulacionesRecibidas: React.FC = () => {
   const handleSelect = (id: number) => {
     setSelectedId(id);
 
-    // En pantallas chicas la ficha queda debajo de la lista.
     if (window.innerWidth < 768) {
       detailRef.current?.scrollIntoView({
         behavior: 'smooth',
@@ -605,10 +630,7 @@ export const PostulacionesRecibidas: React.FC = () => {
     setMessage(null);
 
     try {
-      // MOCK: en postulaciones ficticias no se llama al backend,
-      // el cambio de estado solo se ve en pantalla (se pierde al cambiar de postulación).
       if (!isMock(target)) {
-        // REAL: cambio de estado en el backend
         await ApplicationService.changeApplicationStatus({
           application_id: String(target),
           new_status: String(newStatus),
@@ -660,9 +682,8 @@ export const PostulacionesRecibidas: React.FC = () => {
       } para ${puestos.length} ${puestos.length === 1 ? 'puesto' : 'puestos'
       }.`;
 
-  // MOCK: si el backend falla pero hay mocks, igual se muestra el diseño.
-  // Con USE_MOCKS = false vuelve a mostrarse el error real.
-  const showError = error !== null && applications.length === 0;
+  const showError =
+    error !== null && applications.length === 0;
 
   return (
     <div className="bg-[#EFEFEF] w-full min-h-screen flex flex-col">
@@ -686,12 +707,12 @@ export const PostulacionesRecibidas: React.FC = () => {
 
       <section className="w-full bg-[#1E2749] py-6 md:py-8">
         <div className="max-w-[1100px] mx-auto px-4 md:px-8">
-          <h1 className="font-bold text-white text-2xl md:text-3xl">
+          <h1 className="font-bold text-white text-[24px] md:text-[26px] leading-tight">
             Postulaciones recibidas
           </h1>
 
           {subtitle && (
-            <p className="text-white/70 text-sm md:text-base mt-1">
+            <p className="text-white/70 text-[13px] md:text-sm mt-1">
               {subtitle}
             </p>
           )}
@@ -703,7 +724,7 @@ export const PostulacionesRecibidas: React.FC = () => {
           {loading ? (
             <Card className="bg-white border-0 shadow-sm">
               <CardContent className="flex flex-col items-center justify-center py-16">
-                <p className="text-[#757575] text-xl">
+                <p className="text-[#757575] text-sm md:text-base">
                   Cargando postulaciones...
                 </p>
               </CardContent>
@@ -711,7 +732,7 @@ export const PostulacionesRecibidas: React.FC = () => {
           ) : showError ? (
             <Card className="bg-white border-0 shadow-sm">
               <CardContent className="flex flex-col items-center justify-center py-16">
-                <p className="text-[#f46036] text-xl">
+                <p className="text-[#f46036] text-sm md:text-base">
                   {error}
                 </p>
               </CardContent>
@@ -719,7 +740,7 @@ export const PostulacionesRecibidas: React.FC = () => {
           ) : applications.length === 0 ? (
             <Card className="bg-white border-0 shadow-sm">
               <CardContent className="flex flex-col items-center justify-center py-16">
-                <p className="text-[#757575] text-xl">
+                <p className="text-[#757575] text-sm md:text-base">
                   Todavía no recibiste postulaciones.
                 </p>
               </CardContent>
@@ -746,9 +767,9 @@ export const PostulacionesRecibidas: React.FC = () => {
                         key={title || 'todas'}
                         onClick={() => setFilter(title)}
                         aria-pressed={active}
-                        className={`rounded-full border px-3 py-1 text-[13px] font-bold transition-colors ${active
-                          ? 'bg-[#05073c] text-white border-[#05073c]'
-                          : 'bg-white text-[#05073c] border-gray-200 hover:bg-gray-50'
+                        className={`rounded-full border px-3 py-1 text-[12px] font-bold transition-colors ${active
+                            ? 'bg-[#05073c] text-white border-[#05073c]'
+                            : 'bg-white text-[#05073c] border-gray-200 hover:bg-gray-50'
                           }`}
                       >
                         {title || 'Todas'}
@@ -782,16 +803,18 @@ export const PostulacionesRecibidas: React.FC = () => {
                         }
                         aria-current={isSelected}
                         className={`block w-full text-left px-[18px] py-3.5 border-b border-b-gray-200 border-l-[3px] transition-colors ${isSelected
-                          ? 'border-l-[#f46036] bg-[#eceef6]'
-                          : 'border-l-transparent hover:bg-[#eceef6]'
+                            ? 'border-l-[#f46036] bg-[#eceef6]'
+                            : 'border-l-transparent hover:bg-[#eceef6]'
                           }`}
                       >
                         <span className="flex items-center justify-between gap-2">
-                          <span className="block font-bold text-[#05073c] leading-snug">
+                          <span className="block font-bold text-[#05073c] text-sm leading-snug">
                             {app.job_title}
                           </span>
-                          {/* MOCK: marca las postulaciones ficticias */}
-                          {isMock(app.application_id) && <DemoChip />}
+
+                          {isMock(app.application_id) && (
+                            <DemoChip />
+                          )}
                         </span>
                       </button>
                     );
@@ -806,7 +829,7 @@ export const PostulacionesRecibidas: React.FC = () => {
                   {selectedApp && (
                     <>
                       <div className="flex items-start justify-between gap-3 px-5 md:px-7 pt-6">
-                        <p className="text-sm text-[#666666]">
+                        <p className="text-[13px] text-[#666666]">
                           {selectedApp.application_date
                             ? `Recibida el ${formatDate(
                               selectedApp.application_date
@@ -815,10 +838,14 @@ export const PostulacionesRecibidas: React.FC = () => {
                         </p>
 
                         <div className="flex items-center gap-2">
-                          {/* MOCK: marca el detalle de una postulación ficticia */}
-                          {isMock(selectedApp.application_id) && <DemoChip />}
+                          {isMock(
+                            selectedApp.application_id
+                          ) && <DemoChip />}
+
                           {detail.status !== null && (
-                            <StatusChip status={detail.status} />
+                            <StatusChip
+                              status={detail.status}
+                            />
                           )}
                         </div>
                       </div>
@@ -831,8 +858,9 @@ export const PostulacionesRecibidas: React.FC = () => {
                             message={detail.error}
                           />
                         ) : detail.applicants.length === 0 ? (
-                          <p className="text-[#757575] text-lg">
-                            No hay candidatos para esta postulación.
+                          <p className="text-[#757575] text-sm md:text-base">
+                            No hay candidatos para esta
+                            postulación.
                           </p>
                         ) : (
                           detail.applicants.map(
@@ -851,7 +879,7 @@ export const PostulacionesRecibidas: React.FC = () => {
 
                       {!detail.loading && (
                         <div className="px-5 md:px-7 py-5 border-t border-gray-200">
-                          <h4 className="font-bold text-[#05073c] text-[15px] mb-2.5">
+                          <h4 className="font-bold text-[#05073c] text-sm mb-2.5">
                             Decisión
                           </h4>
 
@@ -879,8 +907,8 @@ export const PostulacionesRecibidas: React.FC = () => {
                                     }
                                     aria-pressed={isActive}
                                     className={`flex-1 sm:flex-none px-4 py-2.5 text-sm font-bold border-l border-gray-200 first:border-l-0 transition-colors disabled:cursor-default ${isActive
-                                      ? `${STATUS_ACTIVE_BG[code]} text-white`
-                                      : 'bg-white text-[#05073c] hover:bg-[#eceef6] disabled:opacity-60'
+                                        ? `${STATUS_ACTIVE_BG[code]} text-white`
+                                        : 'bg-white text-[#05073c] hover:bg-[#eceef6] disabled:opacity-60'
                                       }`}
                                   >
                                     {label}
@@ -891,9 +919,9 @@ export const PostulacionesRecibidas: React.FC = () => {
                           </div>
 
                           <p
-                            className={`text-[13.5px] mt-2 min-h-[1.5em] ${message?.isError
-                              ? 'text-[#b45309]'
-                              : 'text-[#666666]'
+                            className={`text-[13px] mt-2 min-h-[1.5em] ${message?.isError
+                                ? 'text-[#b45309]'
+                                : 'text-[#666666]'
                               }`}
                             aria-live="polite"
                           >

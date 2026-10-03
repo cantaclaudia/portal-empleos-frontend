@@ -10,7 +10,7 @@ type Role = "candidato" | "reclutador";
 
 const ROLES: { key: Role; label: string; path: string }[] = [
     { key: "candidato", label: "Candidato", path: "/registro-candidato" },
-    { key: "reclutador", label: "Empresa", path: "/registro-reclutador" },
+    { key: "reclutador", label: "Reclutador", path: "/registro-reclutador" },
 ];
 
 interface RegistroLayoutProps {

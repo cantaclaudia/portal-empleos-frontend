@@ -169,7 +169,7 @@ export const RegistroReclutador = (): JSX.Element => {
   return (
     <RegistroLayout
       role="reclutador"
-      title="Creá tu cuenta como empresa"
+      title="Creá tu cuenta como reclutador"
       subtitle="y publicá ofertas laborales"
     >
       {error && (
