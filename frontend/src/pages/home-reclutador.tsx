@@ -4,7 +4,6 @@ import {
   FileTextIcon,
   UsersIcon,
   BriefcaseIcon,
-  BarChartIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   Building2 as BuildingIcon,
@@ -395,7 +394,7 @@ export const HomeReclutador = (): JSX.Element => {
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5">
           <AccessTile
             icon={PlusIcon}
             label="Publicar oferta"
@@ -419,14 +418,6 @@ export const HomeReclutador = (): JSX.Element => {
             label="Postulaciones"
             value={loading ? "—" : String(applications.length)}
             onClick={() => goToApplications()}
-          />
-          <AccessTile
-            icon={BarChartIcon}
-            label="Estadísticas"
-            value="—"
-            sublabel="Próximamente"
-            disabled
-            onClick={() => { }}
           />
         </div>
 

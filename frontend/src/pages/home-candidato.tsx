@@ -1,6 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu as MenuIcon, Search as SearchIcon, X as XIcon, MapPin as MapPinIcon, Plus as PlusIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Building2 as BuildingIcon } from 'lucide-react';
+import { 
+  Menu as MenuIcon, 
+  Search as SearchIcon, 
+  X as XIcon, 
+  MapPin as MapPinIcon, 
+  Plus as PlusIcon, 
+  ChevronLeft as ChevronLeftIcon, 
+  ChevronRight as ChevronRightIcon, 
+  Building2 as BuildingIcon,
+  Briefcase as BriefcaseIcon,
+  ChevronRight as ArrowRightIcon
+} from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { InputHomeCandidato } from '../components/ui/input-home-candidato';
 import { Card, CardContent } from '../components/ui/card';
@@ -10,11 +21,48 @@ import type { AvailableJob } from '../services/available-jobs.service';
 import { ERROR_CODES } from "../constants/error-codes";
 import { Footer } from '../components/ui/footer';
 import { CandidatoSideMenu } from '../components/candidato-side-menu';
+import AuthService from '../services/auth.service';
 
 const ITEMS_PER_PAGE = 5;
 
+// Componente AccessTile con Opción A (Tarjeta limpia con borde de acento en verde #17835a)
+interface AccessTileProps {
+  icon: React.ElementType;
+  label: string;
+  sublabel: string;
+  onClick: () => void;
+}
+
+const AccessTile: React.FC<AccessTileProps> = ({
+  icon: Icon,
+  label,
+  sublabel,
+  onClick,
+}) => (
+  <button
+    onClick={onClick}
+    className="flex items-center justify-between gap-4 p-5 rounded-xl bg-white text-[#333333] border-l-4 border-l-[#17835a] border-y border-r border-[#dedede] hover:border-[#17835a] hover:shadow-md transition-all duration-200 cursor-pointer w-full text-left group"
+  >
+    <div className="flex items-center gap-4">
+      <div className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#e8f5f0] text-[#17835a]">
+        <Icon className="w-6 h-6" />
+      </div>
+      <div className="flex flex-col">
+        <span className="font-bold text-base leading-tight text-[#06083C] group-hover:text-[#17835a] transition-colors">
+          {label}
+        </span>
+        <span className="text-xs mt-1 text-[#757575]">
+          {sublabel}
+        </span>
+      </div>
+    </div>
+    <ArrowRightIcon className="w-5 h-5 flex-shrink-0 text-[#999999] group-hover:text-[#17835a] group-hover:translate-x-1 transition-all" />
+  </button>
+);
+
 export const HomeCandidato: React.FC = () => {
   const navigate = useNavigate();
+  const user = AuthService.getUser();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -22,11 +70,13 @@ export const HomeCandidato: React.FC = () => {
   const [locationInput, setLocationInput] = useState('');
   const [showAreaSuggestions, setShowAreaSuggestions] = useState(false);
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+  
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     'Empresa': false,
     'Puesto': false,
     'Ubicación': false,
   });
+
   const [selectedFilters, setSelectedFilters] = useState<{
     empresa: string[];
     puesto: string[];
@@ -36,6 +86,7 @@ export const HomeCandidato: React.FC = () => {
     puesto: [],
     ubicación: [],
   });
+
   const [jobs, setJobs] = useState<AvailableJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,52 +95,12 @@ export const HomeCandidato: React.FC = () => {
   const areaRef = useRef<HTMLDivElement>(null);
   const locationRef = useRef<HTMLDivElement>(null);
 
-  const areaSuggestions = React.useMemo(() => {
-    const uniqueAreas = [...new Set(jobs.map((job) => job.job_title))];
-    return uniqueAreas.sort();
-  }, [jobs]);
-
-  const locationSuggestions = React.useMemo(() => {
-    const uniqueLocations = [...new Set(jobs.map((job) => job.location))];
-    return uniqueLocations.sort();
-  }, [jobs]);
-
-  const companySuggestions = React.useMemo(() => {
-    const uniqueCompanies = [...new Set(jobs.map((job) => job.company_name))];
-    return uniqueCompanies.sort();
-  }, [jobs]);
-
-  const jobTitleSuggestions = React.useMemo(() => {
-    const uniqueTitles = [...new Set(jobs.map((job) => job.job_title))];
-    return uniqueTitles.sort();
-  }, [jobs]);
-
-  const filterSections = React.useMemo(() => {
-    return [
-      {
-        title: 'Empresa',
-        options: companySuggestions,
-      },
-      {
-        title: 'Puesto',
-        options: jobTitleSuggestions,
-      },
-      {
-        title: 'Ubicación',
-        options: locationSuggestions,
-      },
-    ];
-  }, [companySuggestions, jobTitleSuggestions, locationSuggestions]);
-
+  // Carga de Empleos
   useEffect(() => {
     const loadJobs = async () => {
       setLoading(true);
       try {
-        console.log("Pidiendo empleos...");
         const result = await AvailableJobsService.getAvailableJobs();
-
-        console.log("Respuesta jobs:", result);
-
         if (result.code !== ERROR_CODES.SUCCESS) {
           setError(result.description);
           setJobs([]);
@@ -103,7 +114,6 @@ export const HomeCandidato: React.FC = () => {
         setJobs([]);
       } finally {
         setLoading(false);
-        console.log("Finalizó loadJobs");
       }
     };
 
@@ -124,9 +134,18 @@ export const HomeCandidato: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const areaSuggestions = useMemo(() => [...new Set(jobs.map((job) => job.job_title))].sort(), [jobs]);
+  const locationSuggestions = useMemo(() => [...new Set(jobs.map((job) => job.location))].sort(), [jobs]);
+  const companySuggestions = useMemo(() => [...new Set(jobs.map((job) => job.company_name))].sort(), [jobs]);
+  const jobTitleSuggestions = useMemo(() => [...new Set(jobs.map((job) => job.job_title))].sort(), [jobs]);
+
+  const filterSections = useMemo(() => [
+    { title: 'Empresa', options: companySuggestions },
+    { title: 'Puesto', options: jobTitleSuggestions },
+    { title: 'Ubicación', options: locationSuggestions },
+  ], [companySuggestions, jobTitleSuggestions, locationSuggestions]);
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const toggleSection = (title: string) => {
     setExpandedSections((prev) => ({
@@ -237,23 +256,105 @@ export const HomeCandidato: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const renderFilterList = () => (
+    <div className="flex flex-col py-2 overflow-y-auto flex-1 min-h-0">
+      {filterSections.map((section, index) => (
+        <div
+          key={section.title}
+          className={`flex flex-col bg-white ${index > 0 ? 'border-t border-[#f5f5f5]' : ''}`}
+        >
+          <div className="flex items-center gap-2 px-6 pt-5 pb-3">
+            <h3 className="font-semibold text-[#555555] text-sm tracking-[0] leading-[20px]">
+              {section.title}
+            </h3>
+          </div>
+
+          <div className="flex flex-col pb-2">
+            {getVisibleOptions(section).map((option) => (
+              <button
+                key={option}
+                onClick={() => handleFilterChange(section.title, option)}
+                className={`flex items-center gap-3 px-6 py-2.5 text-left transition-all duration-200 ${
+                  isFilterActive(section.title, option)
+                    ? 'bg-[#f0f4ff]'
+                    : 'hover:bg-[#fafafa]'
+                }`}
+              >
+                <div
+                  className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
+                    isFilterActive(section.title, option)
+                      ? 'border-[#3351A6] bg-[#3351A6] shadow-sm'
+                      : 'border-[#cccccc] bg-white'
+                  }`}
+                >
+                  {isFilterActive(section.title, option) && (
+                    <svg
+                      width="10"
+                      height="8"
+                      viewBox="0 0 12 10"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M1 5L4.5 8.5L11 1"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </div>
+                <span
+                  className={`text-sm tracking-[0] leading-[20px] transition-colors duration-200 ${
+                    isFilterActive(section.title, option)
+                      ? 'text-[#3351A6] font-semibold'
+                      : 'text-[#666666] font-normal'
+                  }`}
+                >
+                  {option}
+                </span>
+              </button>
+            ))}
+
+            {section.options.length > 3 && (
+              <button
+                onClick={() => toggleSection(section.title)}
+                className="flex items-center gap-3 px-6 py-2.5 hover:bg-[#fafafa] transition-colors duration-200 group"
+              >
+                <div className="w-[18px] h-[18px] flex items-center justify-center">
+                  <PlusIcon
+                    className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-[#3351A6] ${
+                      expandedSections[section.title] ? 'rotate-45' : ''
+                    }`}
+                  />
+                </div>
+                <span className="font-medium text-[#999999] text-[13px] tracking-[0] leading-[18px] group-hover:text-[#3351A6] transition-colors duration-200">
+                  {expandedSections[section.title] ? 'Ver menos' : 'Ver más'}
+                </span>
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
+    const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
     return (
       <div className="flex items-center justify-center gap-1 md:gap-2 mt-6 md:mt-8">
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${currentPage === 1
-            ? 'text-[#757575] cursor-not-allowed'
-            : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
-            }`}
+          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${
+            currentPage === 1
+              ? 'text-[#757575] cursor-not-allowed'
+              : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
+          }`}
         >
           <ChevronLeftIcon className="w-4 h-4 md:w-5 md:h-5" />
         </button>
@@ -262,10 +363,11 @@ export const HomeCandidato: React.FC = () => {
           <button
             key={page}
             onClick={() => handlePageChange(page)}
-            className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded font-semibold text-sm md:text-base transition-colors cursor-pointer ${currentPage === page
-              ? 'bg-[#F46036] text-white'
-              : 'text-[#F46036] hover:bg-[#fff5f2]'
-              }`}
+            className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded font-semibold text-sm md:text-base transition-colors cursor-pointer ${
+              currentPage === page
+                ? 'bg-[#F46036] text-white'
+                : 'text-[#F46036] hover:bg-[#fff5f2]'
+            }`}
           >
             {page}
           </button>
@@ -274,10 +376,11 @@ export const HomeCandidato: React.FC = () => {
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${currentPage === totalPages
-            ? 'text-[#757575] cursor-not-allowed'
-            : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
-            }`}
+          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${
+            currentPage === totalPages
+              ? 'text-[#757575] cursor-not-allowed'
+              : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
+          }`}
         >
           <ChevronRightIcon className="w-4 h-4 md:w-5 md:h-5" />
         </button>
@@ -286,7 +389,7 @@ export const HomeCandidato: React.FC = () => {
   };
 
   return (
-    <div className="bg-background w-full flex flex-col">
+    <div className="bg-background w-full flex flex-col min-h-screen">
       <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-[#06083C] relative z-50">
         <Button
           variant="ghost"
@@ -296,7 +399,6 @@ export const HomeCandidato: React.FC = () => {
         >
           <MenuIcon className="w-6 h-6 text-white" />
         </Button>
-
         <HeaderLogo />
       </nav>
 
@@ -305,96 +407,117 @@ export const HomeCandidato: React.FC = () => {
         onClose={() => setIsMenuOpen(false)}
       />
 
-      <section className="flex w-full min-h-[140px] md:min-h-[160px] lg:min-h-[180px] flex-col items-center justify-center gap-4 px-4 py-5 bg-[#1E2749]">
+      <section className="flex w-full min-h-[160px] md:min-h-[180px] flex-col items-center justify-center gap-5 px-4 py-6 bg-[#1E2749]">
         <div className="flex items-center justify-center px-2">
-          <p className="font-normal text-white/80 text-lg md:text-xl text-center"> ¿Qué tipo de empleo estás buscando? </p>
+          <p className="font-normal text-white/80 text-lg md:text-xl text-center">
+            ¿Qué tipo de empleo estás buscando?
+          </p>
         </div>
 
-        <div className="flex flex-col w-full max-w-[90%] md:max-w-[600px] lg:max-w-[676px] relative">
+        {/* Buscador doble estilizado */}
+        <div className="flex flex-col w-full max-w-[90%] md:max-w-[600px] lg:max-w-[676px] relative bg-white rounded-2xl shadow-lg border border-white/20 transition-all duration-200">
+          
+          {/* Campo 1: Área / Puesto */}
           <div
             ref={areaRef}
-            className="rounded-t-lg flex items-center gap-2 px-4 md:px-6 lg:px-8 py-2 bg-white relative"
+            className="rounded-t-2xl flex items-center gap-3 px-5 py-3.5 bg-white relative transition-colors focus-within:bg-gray-50/50"
           >
-            <SearchIcon className="w-4 h-4 text-[#8c8c8c] flex-shrink-0" />
+            <SearchIcon className="w-5 h-5 text-[#555555] flex-shrink-0" />
             <InputHomeCandidato
               type="text"
-              placeholder="Seleccioná tus áreas de interés"
+              placeholder="Seleccioná tus áreas de interés o puesto..."
               value={areaInput}
               onChange={(e) => {
                 setAreaInput(e.target.value);
                 setShowAreaSuggestions(true);
               }}
               onFocus={() => setShowAreaSuggestions(true)}
-              className="border-0 shadow-none p-0 h-auto font-normal text-[#333333] text-sm tracking-[0] leading-tight focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#8c8c8c]"
+              className="border-0 shadow-none p-0 h-auto font-medium text-[#333333] text-sm md:text-base focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#999999] placeholder:font-normal w-full"
             />
             {areaInput && (
               <button
                 onClick={handleAreaClear}
-                className="flex-shrink-0 text-[#8c8c8c] hover:text-[#333333] transition-colors"
+                className="flex-shrink-0 text-[#999999] hover:text-[#333333] p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+                title="Limpiar"
               >
-                <XIcon className="w-5 h-5" />
+                <XIcon className="w-4 h-4" />
               </button>
             )}
 
+            {/* Dropdown Sugerencias Área */}
             {showAreaSuggestions && filteredAreaSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-[#dedede] rounded-b-lg shadow-lg z-10 max-h-[300px] overflow-y-auto">
+              <div className="absolute top-[calc(100%+4px)] left-0 right-0 bg-white border border-[#dedede] rounded-xl shadow-xl z-30 max-h-[280px] overflow-y-auto py-1">
                 {filteredAreaSuggestions.map((suggestion) => (
                   <button
                     key={suggestion}
                     onClick={() => handleAreaSelect(suggestion)}
-                    className="w-full px-4 md:px-8 lg:px-[60px] py-3 text-left hover:bg-gray-50 transition-colors font-normal text-[#333333] text-sm tracking-[0] leading-[24px]"
+                    className="w-full px-5 py-2.5 text-left hover:bg-[#f0f4ff] transition-colors flex items-center gap-3 group cursor-pointer"
                   >
-                    {suggestion}
+                    <SearchIcon className="w-4 h-4 text-[#757575] group-hover:text-[#3351A6] transition-colors flex-shrink-0" />
+                    <span className="font-medium text-[#333333] text-sm group-hover:text-[#3351A6] transition-colors">
+                      {suggestion}
+                    </span>
                   </button>
                 ))}
               </div>
             )}
           </div>
 
+          {/* Divisor interno */}
+          <div className="h-[1px] bg-[#e5e7eb] w-[calc(100%-2.5rem)] mx-auto" />
+
+          {/* Campo 2: Ubicación */}
           <div
             ref={locationRef}
-            className="rounded-b-lg border-t border-[#757575] flex items-center gap-2 px-4 md:px-6 lg:px-8 py-2 bg-white relative"
+            className="rounded-b-2xl flex items-center gap-3 px-5 py-3.5 bg-white relative transition-colors focus-within:bg-gray-50/50"
           >
-            <MapPinIcon className="w-4 h-4 text-[#8c8c8c] flex-shrink-0" />
+            <MapPinIcon className="w-5 h-5 text-[#555555] flex-shrink-0" />
             <InputHomeCandidato
               type="text"
-              placeholder="Ciudad o región"
+              placeholder="Ciudad, provincia o región..."
               value={locationInput}
               onChange={(e) => {
                 setLocationInput(e.target.value);
                 setShowLocationSuggestions(true);
               }}
               onFocus={() => setShowLocationSuggestions(true)}
-              className="border-0 shadow-none p-0 h-auto font-normal text-[#333333] text-sm tracking-[0] leading-tight focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#8c8c8c]"
+              className="border-0 shadow-none p-0 h-auto font-medium text-[#333333] text-sm md:text-base focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#999999] placeholder:font-normal w-full"
             />
             {locationInput && (
               <button
                 onClick={handleLocationClear}
-                className="flex-shrink-0 text-[#8c8c8c] hover:text-[#333333] transition-colors"
+                className="flex-shrink-0 text-[#999999] hover:text-[#333333] p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+                title="Limpiar"
               >
-                <XIcon className="w-5 h-5" />
+                <XIcon className="w-4 h-4" />
               </button>
             )}
 
+            {/* Dropdown Sugerencias Ubicación */}
             {showLocationSuggestions && filteredLocationSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-[#dedede] rounded-b-lg shadow-lg z-10 max-h-[300px] overflow-y-auto">
+              <div className="absolute top-[calc(100%+4px)] left-0 right-0 bg-white border border-[#dedede] rounded-xl shadow-xl z-30 max-h-[280px] overflow-y-auto py-1">
                 {filteredLocationSuggestions.map((suggestion) => (
                   <button
                     key={suggestion}
                     onClick={() => handleLocationSelect(suggestion)}
-                    className="w-full px-4 md:px-8 lg:px-[60px] py-3 text-left hover:bg-gray-50 transition-colors font-normal text-[#333333] text-sm tracking-[0] leading-[24px]"
+                    className="w-full px-5 py-2.5 text-left hover:bg-[#e8f5f0] transition-colors flex items-center gap-3 group cursor-pointer"
                   >
-                    {suggestion}
+                    <MapPinIcon className="w-4 h-4 text-[#757575] group-hover:text-[#17835a] transition-colors flex-shrink-0" />
+                    <span className="font-medium text-[#333333] text-sm group-hover:text-[#17835a] transition-colors">
+                      {suggestion}
+                    </span>
                   </button>
                 ))}
               </div>
             )}
           </div>
+
         </div>
       </section>
 
-      <section className="w-full bg-[#EFEFEF] px-4 md:px-6 lg:px-[35px] py-6 md:py-8">
+      <section className="w-full bg-[#EFEFEF] px-4 md:px-6 lg:px-[35px] py-6 md:py-8 flex-1">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-[60px] max-w-[1370px] mx-auto">
+          {/* Modal de filtros para Mobile */}
           {isFilterOpen && (
             <>
               <div
@@ -419,84 +542,7 @@ export const HomeCandidato: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="flex flex-col overflow-y-auto flex-1">
-                  {filterSections.map((section, index) => (
-                    <div
-                      key={section.title}
-                      className={`flex flex-col bg-white ${index > 0 ? 'border-t border-[#f5f5f5]' : ''
-                        }`}
-                    >
-                      <div className="flex items-center gap-2 px-6 pt-5 pb-3">
-                        <h3 className="font-semibold text-[#555555] text-sm tracking-[0] leading-[20px]">
-                          {section.title}
-                        </h3>
-                      </div>
-
-                      <div className="flex flex-col pb-2">
-                        {getVisibleOptions(section).map((option) => (
-                          <button
-                            key={option}
-                            onClick={() => handleFilterChange(section.title, option)}
-                            className={`flex items-center gap-3 px-6 py-2.5 text-left transition-all duration-200 ${isFilterActive(section.title, option)
-                              ? 'bg-[#f0f4ff]'
-                              : 'hover:bg-[#fafafa]'
-                              }`}
-                          >
-                            <div
-                              className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${isFilterActive(section.title, option)
-                                ? 'border-[#3351A6] bg-[#3351A6] shadow-sm'
-                                : 'border-[#cccccc] bg-white'
-                                }`}
-                            >
-                              {isFilterActive(section.title, option) && (
-                                <svg
-                                  width="10"
-                                  height="8"
-                                  viewBox="0 0 12 10"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M1 5L4.5 8.5L11 1"
-                                    stroke="white"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                              )}
-                            </div>
-                            <span
-                              className={`text-sm tracking-[0] leading-[20px] transition-colors duration-200 ${isFilterActive(section.title, option)
-                                ? 'text-[#3351A6] font-semibold'
-                                : 'text-[#666666] font-normal'
-                                }`}
-                            >
-                              {option}
-                            </span>
-                          </button>
-                        ))}
-
-                        {section.options.length > 3 && (
-                          <button
-                            onClick={() => toggleSection(section.title)}
-                            className="flex items-center gap-3 px-6 py-2.5 hover:bg-[#fafafa] transition-colors duration-200 group"
-                          >
-                            <div className="w-[18px] h-[18px] flex items-center justify-center">
-                              <PlusIcon
-                                className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-[#3351A6] ${expandedSections[section.title] ? 'rotate-45' : ''
-                                  }`}
-                              />
-                            </div>
-                            <span className="font-medium text-[#999999] text-[13px] tracking-[0] leading-[18px] group-hover:text-[#3351A6] transition-colors duration-200">
-                              {expandedSections[section.title] ? 'Ver menos' : 'Ver más'}
-                            </span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                {renderFilterList()}
 
                 <div className="flex items-center gap-3 px-6 py-4 border-t border-[#eeeeee] bg-white">
                   <button
@@ -510,96 +556,32 @@ export const HomeCandidato: React.FC = () => {
             </>
           )}
 
+          {/* Sidebar de filtros para Desktop */}
           <aside className="hidden lg:flex flex-col bg-white rounded-xl border border-[#dedede] shadow-sm max-h-[calc(100vh-3rem)] sticky top-6 w-[380px]">
             <div className="flex items-center px-6 py-5 bg-gradient-to-b from-[#fafafa] to-white border-b border-[#eeeeee] flex-shrink-0 rounded-t-xl">
               <h2 className="font-bold text-[#333333] text-lg tracking-[-0.02em] leading-[24px]">
                 Filtros
               </h2>
             </div>
-
-            <div className="flex flex-col py-2 overflow-y-auto flex-1 min-h-0">
-              {filterSections.map((section, index) => (
-                <div
-                  key={section.title}
-                  className={`flex flex-col bg-white ${index > 0 ? 'border-t border-[#f5f5f5]' : ''
-                    }`}
-                >
-                  <div className="flex items-center gap-2 px-6 pt-5 pb-3">
-                    <h3 className="font-semibold text-[#555555] text-sm tracking-[0] leading-[20px]">
-                      {section.title}
-                    </h3>
-                  </div>
-
-                  <div className="flex flex-col pb-2">
-                    {getVisibleOptions(section).map((option) => (
-                      <button
-                        key={option}
-                        onClick={() => handleFilterChange(section.title, option)}
-                        className={`flex items-center gap-3 px-6 py-2.5 text-left transition-all duration-200 ${isFilterActive(section.title, option)
-                          ? 'bg-[#f0f4ff]'
-                          : 'hover:bg-[#fafafa]'
-                          }`}
-                      >
-                        <div
-                          className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${isFilterActive(section.title, option)
-                            ? 'border-[#3351A6] bg-[#3351A6] shadow-sm'
-                            : 'border-[#cccccc] bg-white'
-                            }`}
-                        >
-                          {isFilterActive(section.title, option) && (
-                            <svg
-                              width="10"
-                              height="8"
-                              viewBox="0 0 12 10"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M1 5L4.5 8.5L11 1"
-                                stroke="white"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          )}
-                        </div>
-                        <span
-                          className={`text-sm tracking-[0] leading-[20px] transition-colors duration-200 ${isFilterActive(section.title, option)
-                            ? 'text-[#3351A6] font-semibold'
-                            : 'text-[#666666] font-normal'
-                            }`}
-                        >
-                          {option}
-                        </span>
-                      </button>
-                    ))}
-
-                    {section.options.length > 3 && (
-                      <button
-                        onClick={() => toggleSection(section.title)}
-                        className="flex items-center gap-3 px-6 py-2.5 hover:bg-[#fafafa] transition-colors duration-200 group"
-                      >
-                        <div className="w-[18px] h-[18px] flex items-center justify-center">
-                          <PlusIcon
-                            className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-[#3351A6] ${expandedSections[section.title] ? 'rotate-45' : ''
-                              }`}
-                          />
-                        </div>
-                        <span className="font-medium text-[#999999] text-[13px] tracking-[0] leading-[18px] group-hover:text-[#3351A6] transition-colors duration-200">
-                          {expandedSections[section.title] ? 'Ver menos' : 'Ver más'}
-                        </span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            {renderFilterList()}
           </aside>
 
+          {/* Main Content */}
           <main className="flex flex-col gap-6 flex-1 pb-6 md:pb-[45px]">
+            {/* Acceso directo a Mis Postulaciones (Limpio + Acento Verde) */}
+            {user && (
+              <AccessTile
+                icon={BriefcaseIcon}
+                label="Mis postulaciones"
+                sublabel="Consultá el estado de tus búsquedas"
+                onClick={() => navigate('/mis-postulaciones')}
+              />
+            )}
+
             <div className="flex items-center justify-between gap-4 px-2">
-              <h1 className="font-bold text-[#06083C] text-xl md:text-2xl lg:text-[28px] tracking-[0] leading-tight"> Ofertas destacadas </h1>
+              <h1 className="font-bold text-[#06083C] text-xl md:text-2xl lg:text-[28px] tracking-[0] leading-tight">
+                Ofertas destacadas
+              </h1>
               <button
                 onClick={() => setIsFilterOpen(true)}
                 className="lg:hidden flex items-center gap-2 px-4 py-2.5 bg-[#F46036] text-white rounded-lg hover:bg-[#2a4185] transition-colors shadow-sm"
@@ -619,9 +601,7 @@ export const HomeCandidato: React.FC = () => {
                     strokeLinecap="round"
                   />
                 </svg>
-                <span className="font-semibold text-sm">
-                  Filtros
-                </span>
+                <span className="font-semibold text-sm">Filtros</span>
               </button>
             </div>
 
@@ -653,9 +633,9 @@ export const HomeCandidato: React.FC = () => {
               </Card>
             ) : (
               <>
-                {paginatedJobs.map((job, index) => (
+                {paginatedJobs.map((job) => (
                   <Card
-                    key={`${job.company_id}-${startIndex + index}`}
+                    key={job.job_offer_id}
                     className="bg-white border border-[#dedede] shadow-sm hover:shadow-md transition-shadow rounded-xl"
                   >
                     <CardContent className="flex flex-col gap-3 px-5 py-4">

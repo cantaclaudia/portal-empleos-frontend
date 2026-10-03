@@ -11,11 +11,39 @@ import ApplicationService from '../services/application.service';
 import { StatusBanner } from '../components/ui/status-banner';
 import { CandidatoSideMenu } from '../components/candidato-side-menu';
 
+const CARD_CLASS = 'bg-white border border-[#dedede] shadow-sm rounded-xl';
+const MAX_OTHER_JOBS = 3;
+
+const formatSalary = (salary: string): string => {
+  const num = parseFloat(salary);
+  if (Number.isNaN(num)) return '';
+  return `$${num.toLocaleString('es-AR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+};
+
+const getCompanyInitials = (name?: string): string => {
+  if (!name) return '?';
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join('');
+};
+
 export const JobDetail: React.FC = () => {
   const user = AuthService.getUser();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [jobOfferId, setJobOfferId] = useState<number | null>(() => {
+    const stored = sessionStorage.getItem('selected_job_offer_id');
+    return stored ? Number(stored) : null;
+  });
   const [job, setJob] = useState<AvailableJob | null>(null);
+  // Todas las ofertas activas: de acá se calculan los datos de la empresa
+  const [allJobs, setAllJobs] = useState<AvailableJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isJobActive, setIsJobActive] = useState(true);
@@ -26,21 +54,33 @@ export const JobDetail: React.FC = () => {
   const [applicationError, setApplicationError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadSelectedJob = async () => {
-      try {
-        const storedJobOfferId = sessionStorage.getItem('selected_job_offer_id');
+    let active = true;
 
-        if (!storedJobOfferId) {
+    const loadSelectedJob = async () => {
+      setLoading(true);
+      setError(null);
+      setJob(null);
+      setApplicationId(null);
+      setApplicationStatus(null);
+      setApplicationError(null);
+      setCheckingApplication(true);
+      setIsJobActive(true);
+
+      try {
+        if (jobOfferId === null) {
           setError('No se encontró el empleo solicitado.');
           return;
         }
 
-        const jobOfferId = Number(storedJobOfferId);
-
-        // Buscamos la oferta completa (con descripción, requisitos, salario, etc.)
         const availableJobsResponse = await AvailableJobsService.getAvailableJobs();
+        if (!active) return;
 
-        const fullJob = availableJobsResponse.data.find(
+        const jobsList = Array.isArray(availableJobsResponse.data)
+          ? availableJobsResponse.data
+          : [];
+        setAllJobs(jobsList);
+
+        const fullJob = jobsList.find(
           (availableJob) => availableJob.job_offer_id === jobOfferId
         );
 
@@ -59,53 +99,68 @@ export const JobDetail: React.FC = () => {
           const applicationsResponse = await ApplicationService.getUserApplications({
             candidate_id: String(user.user_id),
           });
+          if (!active) return;
 
           const existingApplication = applicationsResponse.data.find(
             (application) => application.job_offer_id === jobOfferId
           );
 
           if (existingApplication) {
-            const applicationId = existingApplication.application_id;
-
-            setApplicationId(applicationId);
+            const existingId = existingApplication.application_id;
+            setApplicationId(existingId);
 
             const statusResponse = await ApplicationService.getApplicationStatus(
-              { application_id: String(applicationId) },
+              { application_id: String(existingId) },
               String(user.user_id)
             );
+            if (!active) return;
 
             setApplicationStatus(statusResponse.data.status);
           }
         }
       } catch (err) {
+        if (!active) return;
         console.error('Error al cargar la oferta o consultar la postulación:', err);
         setError('No se pudo cargar el empleo solicitado.');
       } finally {
-        setCheckingApplication(false);
-        setLoading(false);
+        if (active) {
+          setCheckingApplication(false);
+          setLoading(false);
+        }
       }
     };
 
-    loadSelectedJob();
-  }, [user?.user_id]);
+    void loadSelectedJob();
+    return () => {
+      active = false;
+    };
+  }, [jobOfferId, user?.user_id]);
 
-  const formatSalary = (salary: string): string => {
-    const num = parseFloat(salary);
+  // Datos de la empresa, calculados con las ofertas activas que ya trae el backend
+  const companyJobs = job ? allJobs.filter((j) => j.company_id === job.company_id) : [];
+  const otherJobs = job
+    ? companyJobs.filter((j) => j.job_offer_id !== job.job_offer_id).slice(0, MAX_OTHER_JOBS)
+    : [];
+  const companyCities = Array.from(
+    new Set(companyJobs.map((j) => j.location).filter(Boolean))
+  ).sort();
+  const companySalaries = companyJobs
+    .map((j) => parseFloat(j.salary))
+    .filter((n) => !Number.isNaN(n));
+  const minSalary = companySalaries.length ? Math.min(...companySalaries) : null;
+  const maxSalary = companySalaries.length ? Math.max(...companySalaries) : null;
+  const salaryRange =
+    minSalary === null || maxSalary === null
+      ? null
+      : minSalary === maxSalary
+        ? formatSalary(String(minSalary))
+        : `${formatSalary(String(minSalary))} a ${formatSalary(String(maxSalary))}`;
 
-    return `$${num.toLocaleString('es-AR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-  };
-
-  const getCompanyInitials = (name?: string): string => {
-    if (!name) return '?';
-    return name
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0]?.toUpperCase())
-      .join('');
+  const handleOpenOtherJob = (id?: number) => {
+    if (id === undefined) return;
+    sessionStorage.setItem('selected_job_offer_id', String(id));
+    setJobOfferId(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleApply = async () => {
@@ -241,14 +296,14 @@ export const JobDetail: React.FC = () => {
       <main className="flex-1 py-5 md:py-8 md:pb-8">
         <div className="max-w-[1200px] mx-auto px-4 md:px-8 lg:px-[62px]">
           {loading ? (
-            <Card className="bg-white border-0 shadow-sm rounded-xl">
+            <Card className={CARD_CLASS}>
               <CardContent className="flex flex-col items-center justify-center gap-3 py-16">
                 <ClockIcon className="w-9 h-9 text-[#cccccc]" />
                 <p className="text-[#757575] text-lg">Cargando empleo...</p>
               </CardContent>
             </Card>
           ) : error ? (
-            <Card className="bg-white border-0 shadow-sm rounded-xl">
+            <Card className={CARD_CLASS}>
               <CardContent className="flex flex-col items-center justify-center gap-3 py-16">
                 <AlertCircleIcon className="w-9 h-9 text-[#F46036]" />
                 <p className="text-[#f46036] text-lg text-center">{error}</p>
@@ -260,7 +315,7 @@ export const JobDetail: React.FC = () => {
               <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-5 lg:gap-8 items-start">
                 {/* Columna principal */}
                 <div className="flex flex-col gap-5 md:gap-6 min-w-0">
-                  <Card className="bg-white border-0 shadow-sm rounded-xl">
+                  <Card className={CARD_CLASS}>
                     <CardContent className="flex flex-col px-5 md:px-8 py-6 md:py-8">
 
                       {/* Encabezado de la oferta */}
@@ -306,23 +361,130 @@ export const JobDetail: React.FC = () => {
                       </div>
 
                       {/* Requisitos */}
-                      <div className="flex flex-col gap-3 pt-5 md:pt-6 border-t border-[#f0f0f0]">
-                        <div className="flex items-center gap-2.5">
-                          <span className="w-1 h-5 rounded-full bg-[#F46036]" />
-                          <h3 className="font-bold text-[#06083C] text-lg md:text-xl">Requisitos</h3>
+                      {job.requirements && (
+                        <div className="flex flex-col gap-3 pt-5 md:pt-6 border-t border-[#f0f0f0]">
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-1 h-5 rounded-full bg-[#F46036]" />
+                            <h3 className="font-bold text-[#06083C] text-lg md:text-xl">Requisitos</h3>
+                          </div>
+                          <p className="font-normal text-[#333333] text-sm md:text-base leading-relaxed whitespace-pre-line">
+                            {job.requirements}
+                          </p>
                         </div>
-                        <p className="font-normal text-[#333333] text-sm md:text-base leading-relaxed whitespace-pre-line">
-                          {job.requirements}
-                        </p>
-                      </div>
+                      )}
 
                     </CardContent>
                   </Card>
 
+                  {/* Sobre la empresa: datos calculados con las ofertas activas */}
+                  <Card className={CARD_CLASS}>
+                    <CardContent className="flex flex-col gap-5 px-5 md:px-8 py-6">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1 h-5 rounded-full bg-[#17835a]" />
+                        <h3 className="font-bold text-[#06083C] text-lg md:text-xl">
+                          Sobre {job.company_name}
+                        </h3>
+                      </div>
+
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-12 h-12 rounded-xl bg-[#06083C] flex items-center justify-center flex-shrink-0 shadow-sm">
+                          <span className="font-bold text-white text-base">
+                            {getCompanyInitials(job.company_name)}
+                          </span>
+                        </div>
+                        <p className="font-semibold text-[#333333] text-base min-w-0">
+                          {job.company_name}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="flex flex-col items-center gap-1 rounded-xl border border-[#dbe5fb] bg-[#eef3ff] px-4 py-4 text-[#3351A6]">
+                          <span className="text-2xl font-bold leading-none">{companyJobs.length}</span>
+                          <span className="text-xs uppercase tracking-wide opacity-80">
+                            {companyJobs.length === 1 ? 'Oferta activa' : 'Ofertas activas'}
+                          </span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1 rounded-xl border border-[#cdeedd] bg-[#eefaf3] px-4 py-4 text-[#17835a]">
+                          <span className="text-2xl font-bold leading-none">{companyCities.length}</span>
+                          <span className="text-xs uppercase tracking-wide opacity-80">
+                            {companyCities.length === 1 ? 'Ubicación' : 'Ubicaciones'}
+                          </span>
+                        </div>
+                        {salaryRange && (
+                          <div className="flex flex-col items-center justify-center gap-1 rounded-xl border border-[#fbdccd] bg-[#fff3ec] px-4 py-4 text-[#f46036] text-center">
+                            <span className="text-sm font-bold leading-tight tabular-nums">{salaryRange}</span>
+                            <span className="text-xs uppercase tracking-wide opacity-80">
+                              {minSalary === maxSalary ? 'Salario' : 'Rango salarial'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {companyCities.length > 0 && (
+                        <div className="flex flex-col gap-2 pt-4 border-t border-[#f0f0f0]">
+                          <p className="text-xs uppercase tracking-wide text-[#999999]">Contrata en</p>
+                          <div className="flex flex-wrap gap-2">
+                            {companyCities.map((city) => (
+                              <span
+                                key={city}
+                                className="inline-flex items-center gap-1.5 rounded-full bg-[#EFEFEF] px-3 py-1 text-sm font-medium text-[#555555]"
+                              >
+                                <MapPinIcon className="w-3.5 h-3.5 text-[#757575]" />
+                                {city}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Otras ofertas de la empresa */}
+                  {otherJobs.length > 0 && (
+                    <Card className={CARD_CLASS}>
+                      <CardContent className="flex flex-col px-0 py-0">
+                        <div className="flex items-center gap-2.5 px-5 md:px-8 py-5">
+                          <span className="w-1 h-5 rounded-full bg-[#3351A6]" />
+                          <h3 className="font-bold text-[#06083C] text-lg md:text-xl">
+                            Otras ofertas de {job.company_name}
+                          </h3>
+                        </div>
+
+                        {otherJobs.map((other) => {
+                          const details = [other.location, other.salary ? formatSalary(other.salary) : '']
+                            .filter(Boolean)
+                            .join(' | ');
+                          return (
+                            <div
+                              key={other.job_offer_id}
+                              className="flex items-center justify-between gap-3 px-5 md:px-8 py-4 border-t border-[#f0f0f0]"
+                            >
+                              <div className="flex flex-col gap-1 min-w-0">
+                                <p className="font-bold text-[#333333] text-sm truncate">
+                                  {other.job_title}
+                                </p>
+                                {details && (
+                                  <p className="font-semibold text-[#F46036] text-xs">{details}</p>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => handleOpenOtherJob(other.job_offer_id)}
+                                className="font-bold text-[#3351A6] text-sm whitespace-nowrap hover:opacity-80 transition-opacity cursor-pointer"
+                              >
+                                Ver más
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </CardContent>
+                    </Card>
+                  )}
+
                   <div className="lg:hidden">{renderActionBlock()}</div>
                 </div>
 
-                <div className="hidden lg:flex flex-col gap-4 bg-white border border-[#eeeeee] rounded-xl p-5 shadow-sm sticky top-6">
+                {/* Sidebar (solo desktop) */}
+                <div className="hidden lg:flex flex-col gap-4 bg-white border border-[#dedede] rounded-xl p-5 shadow-sm sticky top-6">
                   <div>
                     <p className="text-xs text-[#999999] uppercase tracking-wide mb-1.5">Ubicación</p>
                     <p className="text-sm text-[#333333] flex items-center gap-1.5">
@@ -334,6 +496,12 @@ export const JobDetail: React.FC = () => {
                     <p className="text-xs text-[#999999] uppercase tracking-wide mb-1.5">Salario</p>
                     <p className="text-lg font-semibold text-[#F46036] tabular-nums">
                       {formatSalary(job.salary)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#999999] uppercase tracking-wide mb-1.5">Ofertas de la empresa</p>
+                    <p className="text-sm text-[#333333]">
+                      {companyJobs.length} {companyJobs.length === 1 ? 'activa' : 'activas'}
                     </p>
                   </div>
                 </div>
