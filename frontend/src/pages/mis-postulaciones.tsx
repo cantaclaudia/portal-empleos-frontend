@@ -30,11 +30,11 @@ const STATUS_TILES: {
   text: string;
   border: string;
 }[] = [
-  { key: 3, label: 'Recibidas', bg: 'bg-[#F0EBFA]', text: 'text-[#7C5CBF]', border: 'border-[#DCCFF0]' },
-  { key: 2, label: 'En revisión', bg: 'bg-[#ECEEF6]', text: 'text-[#3B4A86]', border: 'border-[#D9DDEE]' },
-  { key: 1, label: 'Aceptadas', bg: 'bg-[#EAF5F0]', text: 'text-[#17835A]', border: 'border-[#CBE5D9]' },
-  { key: 0, label: 'Rechazadas', bg: 'bg-[#FFF4E8]', text: 'text-[#B45309]', border: 'border-[#F1D8B8]' },
-];
+    { key: 3, label: 'Recibidas', bg: 'bg-[#F0EBFA]', text: 'text-[#7C5CBF]', border: 'border-[#DCCFF0]' },
+    { key: 2, label: 'En revisión', bg: 'bg-[#ECEEF6]', text: 'text-[#3B4A86]', border: 'border-[#D9DDEE]' },
+    { key: 1, label: 'Aceptadas', bg: 'bg-[#EAF5F0]', text: 'text-[#17835A]', border: 'border-[#CBE5D9]' },
+    { key: 0, label: 'Rechazadas', bg: 'bg-[#FFF4E8]', text: 'text-[#B45309]', border: 'border-[#F1D8B8]' },
+  ];
 
 const FILTER_TITLE: Record<string, string> = {
   all: 'Todas las postulaciones',
@@ -184,11 +184,10 @@ export const MisPostulaciones: React.FC = () => {
         <button
           onClick={() => handlePageChange(safePage - 1)}
           disabled={safePage === 1}
-          className={`w-9 h-9 flex items-center justify-center rounded transition-colors ${
-            safePage === 1
+          className={`w-9 h-9 flex items-center justify-center rounded transition-colors ${safePage === 1
               ? 'text-[#757575] cursor-not-allowed'
               : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
-          }`}
+            }`}
         >
           <ChevronLeftIcon className="w-4 h-4" />
         </button>
@@ -197,11 +196,10 @@ export const MisPostulaciones: React.FC = () => {
           <button
             key={page}
             onClick={() => handlePageChange(page)}
-            className={`w-9 h-9 flex items-center justify-center rounded font-semibold text-sm transition-colors cursor-pointer ${
-              safePage === page
+            className={`w-9 h-9 flex items-center justify-center rounded font-semibold text-sm transition-colors cursor-pointer ${safePage === page
                 ? 'bg-[#F46036] text-white'
                 : 'text-[#F46036] hover:bg-[#fff5f2]'
-            }`}
+              }`}
           >
             {page}
           </button>
@@ -210,11 +208,10 @@ export const MisPostulaciones: React.FC = () => {
         <button
           onClick={() => handlePageChange(safePage + 1)}
           disabled={safePage === totalPages}
-          className={`w-9 h-9 flex items-center justify-center rounded transition-colors ${
-            safePage === totalPages
+          className={`w-9 h-9 flex items-center justify-center rounded transition-colors ${safePage === totalPages
               ? 'text-[#757575] cursor-not-allowed'
               : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
-          }`}
+            }`}
         >
           <ChevronRightIcon className="w-4 h-4" />
         </button>
@@ -243,12 +240,13 @@ export const MisPostulaciones: React.FC = () => {
         onClose={() => setIsMenuOpen(false)}
       />
 
-      <section className="w-full bg-[#1E2749] py-6 md:py-8">
-        <div className="max-w-[1100px] mx-auto px-4 md:px-8">
-          <h1 className="font-bold text-white text-2xl md:text-3xl text-center">
+      <section className="w-full bg-[#1E2749] py-7 md:py-8">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-8 text-center">
+          <h1 className="font-bold text-white text-xl md:text-2xl leading-tight">
             Mis postulaciones
           </h1>
-          <p className="text-white/70 text-sm md:text-base text-center mt-2">
+
+          <p className="text-white/70 text-sm md:text-base mt-2 leading-relaxed">
             Seguí el estado de cada empleo al que te postulaste
           </p>
         </div>
@@ -285,11 +283,10 @@ export const MisPostulaciones: React.FC = () => {
                 <button
                   onClick={() => handleFilterChange('all')}
                   aria-pressed={activeFilter === 'all'}
-                  className={`flex flex-col items-start gap-0.5 rounded-xl border-2 bg-white px-4 py-3 text-left transition-colors ${
-                    activeFilter === 'all'
+                  className={`flex flex-col items-start gap-0.5 rounded-xl border-2 bg-white px-4 py-3 text-left transition-colors ${activeFilter === 'all'
                       ? 'border-[#06083C]'
                       : 'border-[#dedede] hover:border-[#06083C]/40'
-                  }`}
+                    }`}
                 >
                   <span className="text-2xl font-bold leading-none text-[#06083C] tabular-nums">
                     {applications.length}
@@ -302,11 +299,10 @@ export const MisPostulaciones: React.FC = () => {
                     key={tile.key}
                     onClick={() => handleFilterChange(tile.key)}
                     aria-pressed={activeFilter === tile.key}
-                    className={`flex flex-col items-start gap-0.5 rounded-xl border-2 px-4 py-3 text-left transition-colors ${tile.bg} ${tile.text} ${
-                      activeFilter === tile.key
+                    className={`flex flex-col items-start gap-0.5 rounded-xl border-2 px-4 py-3 text-left transition-colors ${tile.bg} ${tile.text} ${activeFilter === tile.key
                         ? 'border-[#06083C]'
                         : `${tile.border} hover:border-[#06083C]/40`
-                    }`}
+                      }`}
                   >
                     <span className="text-2xl font-bold leading-none tabular-nums">
                       {tileCount(tile.key)}

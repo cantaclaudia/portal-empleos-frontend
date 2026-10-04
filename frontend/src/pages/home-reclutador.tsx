@@ -23,7 +23,7 @@ import AvailableJobsService from "../services/available-jobs.service";
 import type { Job } from "../types/job.types";
 import { ERROR_CODES } from "../constants/error-codes";
 import { ReclutadorSideMenu } from "../components/reclutador-side-menu";
-import { CrearOfertaModal } from "../components/crear-oferta-modal"; 
+import { CrearOfertaModal } from "../components/crear-oferta-modal";
 
 /* =====================================================================
  * DATOS MOCKEADOS (SOLO PARA DEMO DEL DISEÑO)
@@ -265,16 +265,16 @@ export const HomeReclutador = (): JSX.Element => {
   const [jobsError, setJobsError] = useState(false);
 
   useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  if (params.get("crear") === "1") {
-    setIsMenuOpen(false);
-    setIsCreateOpen(true);
-    // limpia el parámetro para que un refresh no reabra el modal
-    params.delete("crear");
-    const qs = params.toString();
-    navigate(qs ? `${location.pathname}?${qs}` : location.pathname, { replace: true });
-  }
-}, [location.search]);
+    const params = new URLSearchParams(location.search);
+    if (params.get("crear") === "1") {
+      setIsMenuOpen(false);
+      setIsCreateOpen(true);
+      // limpia el parámetro para que un refresh no reabra el modal
+      params.delete("crear");
+      const qs = params.toString();
+      navigate(qs ? `${location.pathname}?${qs}` : location.pathname, { replace: true });
+    }
+  }, [location.search]);
 
   // El nombre de la empresa sale solo de datos reales
   const companyName = realJobs[0]?.company_name ?? "Empresa";
@@ -406,12 +406,15 @@ export const HomeReclutador = (): JSX.Element => {
         onClose={() => setIsMenuOpen(false)}
       />
 
-      <section className="px-4 md:px-20 py-7 bg-gradient-to-r from-[#1e2749] to-[#2a3558] text-white">
-        <div className="flex flex-col items-center justify-center gap-y-1 text-center">
-          <h2 className="font-bold text-xl md:text-2xl">Tu espacio de gestión</h2>
-          <span className="text-white/60 text-sm">
+      <section className="w-full bg-[#1E2749] py-7 md:py-8">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-8 text-center">
+          <h2 className="font-bold text-white text-xl md:text-2xl leading-tight">
+            Tu espacio de gestión
+          </h2>
+
+          <p className="text-white/70 text-sm md:text-base mt-2 leading-relaxed">
             Visualizá, gestioná y creá nuevas búsquedas laborales.
-          </span>
+          </p>
         </div>
       </section>
 

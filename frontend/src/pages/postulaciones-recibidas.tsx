@@ -16,7 +16,10 @@ import { ReclutadorSideMenu } from '../components/reclutador-side-menu';
 import AuthService from '../services/auth.service';
 import ApplicationService from '../services/application.service';
 
-import type { Application, ApplicantInfo } from '../types/application.types';
+import type {
+  Application,
+  ApplicantInfo,
+} from '../types/application.types';
 
 import { formatDate, formatMonthYear } from '../utils/format-date';
 
@@ -153,6 +156,7 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       ],
     },
   ],
+
   [-2]: [
     {
       first_name: 'MARTÍN',
@@ -176,13 +180,15 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       ],
     },
   ],
+
   [-3]: [
     {
       first_name: 'SOFÍA',
       last_name: 'FERNÁNDEZ',
       email: 'sofia.fernandez@ejemplo.com',
       resume_url: 'www.ejemplo.com/cv-sofia',
-      skills: 'Figma, Investigación de usuarios, Prototipado, Design Systems',
+      skills:
+        'Figma, Investigación de usuarios, Prototipado, Design Systems',
       experience: [
         {
           job_name: 'Diseñadora UX/UI',
@@ -193,6 +199,7 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       ],
     },
   ],
+
   [-4]: [
     {
       first_name: 'DIEGO',
@@ -210,6 +217,7 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       ],
     },
   ],
+
   [-5]: [
     {
       first_name: 'CAMILA',
@@ -392,6 +400,7 @@ const ApplicantBlock = ({
 
 export const PostulacionesRecibidas: React.FC = () => {
   const user = AuthService.getUser();
+
   const userId = user?.user_id?.toString() ?? '';
 
   const rawCompanyId = (
@@ -409,12 +418,16 @@ export const PostulacionesRecibidas: React.FC = () => {
     useState<Application[]>([]);
 
   const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState<string | null>(null);
+
   const [filter, setFilter] = useState('');
+
   const [selectedId, setSelectedId] =
     useState<number | null>(null);
 
   const selectedIdRef = useRef<number | null>(null);
+
   selectedIdRef.current = selectedId;
 
   const [detail, setDetail] =
@@ -673,15 +686,6 @@ export const PostulacionesRecibidas: React.FC = () => {
     }
   };
 
-  const subtitle =
-    applications.length === 0
-      ? null
-      : `${applications.length} ${applications.length === 1
-        ? 'postulación'
-        : 'postulaciones'
-      } para ${puestos.length} ${puestos.length === 1 ? 'puesto' : 'puestos'
-      }.`;
-
   const showError =
     error !== null && applications.length === 0;
 
@@ -705,17 +709,15 @@ export const PostulacionesRecibidas: React.FC = () => {
         onClose={() => setIsMenuOpen(false)}
       />
 
-      <section className="w-full bg-[#1E2749] py-6 md:py-8">
-        <div className="max-w-[1100px] mx-auto px-4 md:px-8">
-          <h1 className="font-bold text-white text-[24px] md:text-[26px] leading-tight">
+      <section className="w-full bg-[#1E2749] py-7 md:py-8">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-8 text-center">
+          <h1 className="font-bold text-white text-xl md:text-2xl leading-tight">
             Postulaciones recibidas
           </h1>
 
-          {subtitle && (
-            <p className="text-white/70 text-[13px] md:text-sm mt-1">
-              {subtitle}
-            </p>
-          )}
+          <p className="text-white/70 text-sm md:text-base mt-2 leading-relaxed">
+            Revisá las postulaciones y gestioná el estado de cada candidato.
+          </p>
         </div>
       </section>
 
@@ -747,41 +749,61 @@ export const PostulacionesRecibidas: React.FC = () => {
             </Card>
           ) : (
             <>
-              {puestos.length > 1 && (
-                <div
-                  className="flex flex-wrap gap-2 mb-4"
-                  role="group"
-                  aria-label="Filtrar por puesto"
-                >
-                  {[
-                    ['', applications.length] as [
-                      string,
-                      number
-                    ],
-                    ...puestos,
-                  ].map(([title, count]) => {
-                    const active = filter === title;
+              <div className="mb-5">
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="text-sm text-[#666666]">
+                    <strong className="text-[#05073c] text-base">
+                      {applications.length}
+                    </strong>{' '}
+                    postulaciones
+                  </span>
 
-                    return (
-                      <button
-                        key={title || 'todas'}
-                        onClick={() => setFilter(title)}
-                        aria-pressed={active}
-                        className={`rounded-full border px-3 py-1 text-[12px] font-bold transition-colors ${active
-                            ? 'bg-[#05073c] text-white border-[#05073c]'
-                            : 'bg-white text-[#05073c] border-gray-200 hover:bg-gray-50'
-                          }`}
-                      >
-                        {title || 'Todas'}
+                  <span className="text-[#c5c5c5]">|</span>
 
-                        <span className="ml-1.5 opacity-70">
-                          {count}
-                        </span>
-                      </button>
-                    );
-                  })}
+                  <span className="text-sm text-[#666666]">
+                    <strong className="text-[#05073c] text-base">
+                      {puestos.length}
+                    </strong>{' '}
+                    puestos
+                  </span>
                 </div>
-              )}
+
+                {puestos.length > 1 && (
+                  <div
+                    className="flex flex-wrap gap-2 mt-3"
+                    role="group"
+                    aria-label="Filtrar por puesto"
+                  >
+                    {[
+                      ['', applications.length] as [
+                        string,
+                        number
+                      ],
+                      ...puestos,
+                    ].map(([title, count]) => {
+                      const active = filter === title;
+
+                      return (
+                        <button
+                          key={title || 'todas'}
+                          onClick={() => setFilter(title)}
+                          aria-pressed={active}
+                          className={`rounded-full border px-3 py-1 text-[12px] font-bold transition-colors ${active
+                              ? 'bg-[#05073c] text-white border-[#05073c]'
+                              : 'bg-white text-[#05073c] border-gray-200 hover:bg-gray-50'
+                            }`}
+                        >
+                          {title || 'Todas'}
+
+                          <span className="ml-1.5 opacity-70">
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-[340px_1fr] bg-white border border-gray-200 rounded-[14px] overflow-hidden">
                 <div className="border-b md:border-b-0 md:border-r border-gray-200 md:max-h-[680px] overflow-y-auto">

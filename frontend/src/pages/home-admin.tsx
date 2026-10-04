@@ -566,14 +566,16 @@ export const HomeAdmin = (): JSX.Element => {
         }
       />
 
-      <section className="px-4 md:px-20 py-7 bg-gradient-to-r from-[#1e2749] to-[#2a3558] text-white text-center">
-        <h2 className="font-bold text-xl md:text-2xl">
-          Panel de administración
-        </h2>
+      <section className="w-full bg-[#1E2749] py-7 md:py-8">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-8 text-center">
+          <h2 className="font-bold text-white text-xl md:text-2xl leading-tight">
+            Panel de administración
+          </h2>
 
-        <p className="text-white/80 text-sm mt-1">
-          Administrá las empresas y supervisá el estado general de la plataforma.
-        </p>
+          <p className="text-white/70 text-sm md:text-base mt-2 leading-relaxed">
+            Administrá las empresas y supervisá el estado general de la plataforma.
+          </p>
+        </div>
       </section>
 
       <section className="flex flex-col gap-5 px-4 md:px-20 py-8 w-full max-w-[1194px] mx-auto">
