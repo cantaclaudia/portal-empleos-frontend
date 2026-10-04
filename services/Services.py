@@ -196,6 +196,23 @@ def get_applicants_information(data_request):
     logger.info(f"{g.request_id} - validacion de datos exitosa")
     return Controller.get_applicants_information(job_offer_id=job_offer_id)
 
+# 8.1)
+# Obtener perfil completo del candidato logueado
+# (datos personales, habilidades y experiencia laboral)
+@bp.route('/getCandidateProfile', methods=['POST'])
+@AuthController.token_required(endpoint='getCandidateProfile', service_required=False)
+@AuthController.candidate_validation()
+def get_candidate_profile(data_request):
+    logger.info(f"{g.request_id} - ingresando a /getCandidateProfile")
+
+    try:
+        candidate_id = data_request['candidate_id']
+    except:
+        logger.exception(f"{g.request_id} - mensaje malformado")
+        return {"code": "0400", "description": "bad request"}, 400
+
+    logger.info(f"{g.request_id} - validacion de datos exitosa")
+    return Controller.get_candidate_profile(candidate_id=candidate_id)
 
 # 9)
 # Obtener los empleos disponibles

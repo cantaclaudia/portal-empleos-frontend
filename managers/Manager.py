@@ -1143,3 +1143,61 @@ def get_locations(cnx, cursor, final_response, request_id=None):
         final_response['ok'] = False
     # en data se devuelve informacion de las querys
     return final_response
+
+@manage_db_connection
+def get_candidate_profile(cnx, cursor, final_response, candidate_id, request_id=None):
+    final_response = {'ok': True,
+                      'data': {}}
+    try:
+        query = '''
+                SELECT 
+                    u.name AS first_name,
+                    u.last_name AS last_name,
+                    c.resume_url,
+                    u.email,
+                    (
+                        SELECT GROUP_CONCAT(DISTINCT s2.name)
+                        FROM Habilidades_x_Candidato hc2
+                        JOIN Habilidades s2 ON hc2.skill_id = s2.skill_id
+                        WHERE hc2.candidate_id = c.candidate_id
+                    ) AS skills,
+                    COALESCE(
+                        (
+                            SELECT JSON_ARRAYAGG(
+                                JSON_OBJECT(
+                                    'job_name', e2.title,
+                                    'start_date', ex2.start_date,
+                                    'end_date', ex2.end_date,
+                                    'company_name', em2.name
+                                )
+                            )
+                            FROM Experiencias ex2
+                            LEFT JOIN Empleos e2 ON ex2.job_id = e2.job_id
+                            LEFT JOIN Empresas em2 ON ex2.company_id = em2.company_id
+                            WHERE ex2.candidate_id = c.candidate_id
+                        ),
+                        JSON_ARRAY()
+                    ) AS experience
+                FROM Candidatos c
+                JOIN Usuarios u ON c.candidate_id = u.user_id
+                WHERE c.candidate_id = %s
+                '''
+
+        values = (candidate_id,)
+        cursor.execute(query, values)
+        results_dict = cursor.fetchone()
+
+        if not results_dict:
+            logger.info(f"{request_id} - no se encontro el candidato {candidate_id}")
+        else:
+            import json
+            if isinstance(results_dict.get('experience'), str):
+                results_dict['experience'] = json.loads(results_dict['experience'])
+            logger.info(f"{request_id} - perfil del candidato obtenido correctamente")
+            final_response['data'] = results_dict
+
+    except:
+        logger.exception(f"{request_id} - error al acceder a la bd")
+        final_response['ok'] = False
+
+    return final_response

@@ -651,3 +651,25 @@ def get_locations():
     return {'code': '0200',
             'description': 'ok',
             'data': locations_response['data']}
+
+def get_candidate_profile(candidate_id):
+    candidate_profile_response = Manager.get_candidate_profile(
+        candidate_id=candidate_id,
+        request_id=g.request_id
+    )
+
+    if not candidate_profile_response['ok']:
+        logger.info(f"{g.request_id} - error al obtener el perfil del candidato")
+        return {'code': '0500',
+                'description': 'internal error'}
+
+    if not candidate_profile_response['data']:
+        logger.info(f"{g.request_id} - no se encontro el candidato {candidate_id}")
+        return {'code': '0404',
+                'description': 'candidate not found'}
+
+    logger.info(f"{g.request_id} - perfil del candidato obtenido correctamente")
+
+    return {'code': '0200',
+            'description': 'ok',
+            'data': candidate_profile_response['data']}
