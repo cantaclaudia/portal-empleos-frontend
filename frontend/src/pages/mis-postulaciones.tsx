@@ -21,10 +21,8 @@ type FilterOption = 'all' | number;
 const ITEMS_PER_PAGE = 5;
 const CARD_CLASS = 'bg-white border border-[#dedede] shadow-sm rounded-xl';
 
-// El backend devuelve el sueldo en getUserApplications; si el tipo Application no lo tiene, se lee de forma opcional
 type ApplicationRow = Application & { salary?: string };
 
-// 3 = recibida, 2 = en revisión, 1 = aceptada, 0 = rechazada
 const STATUS_TILES: {
   key: number;
   label: string;
@@ -32,10 +30,10 @@ const STATUS_TILES: {
   text: string;
   border: string;
 }[] = [
-  { key: 3, label: 'Recibidas', bg: 'bg-[#FDF6E3]', text: 'text-[#96751F]', border: 'border-[#f0e2b8]' },
-  { key: 2, label: 'En revisión', bg: 'bg-[#E8F0FE]', text: 'text-[#3358B8]', border: 'border-[#cfdcf8]' },
-  { key: 1, label: 'Aceptadas', bg: 'bg-[#EAF3DE]', text: 'text-[#3B6D11]', border: 'border-[#d3e5bd]' },
-  { key: 0, label: 'Rechazadas', bg: 'bg-[#FDECEC]', text: 'text-[#B23B3B]', border: 'border-[#f6d0d0]' },
+  { key: 3, label: 'Recibidas', bg: 'bg-[#F0EBFA]', text: 'text-[#7C5CBF]', border: 'border-[#DCCFF0]' },
+  { key: 2, label: 'En revisión', bg: 'bg-[#ECEEF6]', text: 'text-[#3B4A86]', border: 'border-[#D9DDEE]' },
+  { key: 1, label: 'Aceptadas', bg: 'bg-[#EAF5F0]', text: 'text-[#17835A]', border: 'border-[#CBE5D9]' },
+  { key: 0, label: 'Rechazadas', bg: 'bg-[#FFF4E8]', text: 'text-[#B45309]', border: 'border-[#F1D8B8]' },
 ];
 
 const FILTER_TITLE: Record<string, string> = {

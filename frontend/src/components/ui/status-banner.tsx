@@ -1,5 +1,10 @@
 import React from 'react';
-import { CheckCircle2 as CheckCircleIcon, Clock as ClockIcon, XCircle as XCircleIcon, SendHorizonal as SendIcon } from 'lucide-react';
+import {
+  CheckCircle2 as CheckCircleIcon,
+  Clock as ClockIcon,
+  XCircle as XCircleIcon,
+  SendHorizonal as SendIcon,
+} from 'lucide-react';
 
 export const getStatusInfo = (status: number | null) => {
   switch (status) {
@@ -8,41 +13,45 @@ export const getStatusInfo = (status: number | null) => {
         icon: XCircleIcon,
         title: 'No seleccionada',
         text: 'Gracias por tu interés en esta oferta.',
-        iconBg: 'bg-[#FDECEC]',
-        iconColor: 'text-[#B23B3B]',
-        badgeBg: 'bg-[#FDECEC]',
-        badgeText: 'text-[#B23B3B]',
+        iconBg: 'bg-[#FFF4E8]',
+        iconColor: 'text-[#B45309]',
+        badgeBg: 'bg-[#FFF4E8]',
+        badgeText: 'text-[#B45309]',
       };
+
     case 1:
       return {
         icon: CheckCircleIcon,
         title: 'Postulación aceptada',
         text: 'La empresa se pondrá en contacto para continuar el proceso.',
-        iconBg: 'bg-[#EAF3DE]',
-        iconColor: 'text-[#3B6D11]',
-        badgeBg: 'bg-[#EAF3DE]',
-        badgeText: 'text-[#3B6D11]',
+        iconBg: 'bg-[#EAF5F0]',
+        iconColor: 'text-[#17835A]',
+        badgeBg: 'bg-[#EAF5F0]',
+        badgeText: 'text-[#17835A]',
       };
+
     case 2:
       return {
         icon: ClockIcon,
         title: 'En revisión',
         text: 'Te avisaremos cuando haya novedades.',
-        iconBg: 'bg-[#E8F0FE]',
-        iconColor: 'text-[#3358B8]',
-        badgeBg: 'bg-[#E8F0FE]',
-        badgeText: 'text-[#3358B8]',
+        iconBg: 'bg-[#ECEEF6]',
+        iconColor: 'text-[#3B4A86]',
+        badgeBg: 'bg-[#ECEEF6]',
+        badgeText: 'text-[#3B4A86]',
       };
+
     case 3:
-      return {
-        icon: SendIcon,
-        title: 'Postulación recibida',
-        text: 'Te avisaremos cuando haya novedades.',
-        iconBg: 'bg-[#FDF6E3]',
-        iconColor: 'text-[#96751F]',
-        badgeBg: 'bg-[#FDF6E3]',
-        badgeText: 'text-[#96751F]',
-      };
+  return {
+    icon: SendIcon,
+    title: 'Postulación recibida',
+    text: 'Te avisaremos cuando haya novedades.',
+    iconBg: 'bg-[#F0EBFA]',
+    iconColor: 'text-[#7C5CBF]',
+    badgeBg: 'bg-[#F0EBFA]',
+    badgeText: 'text-[#7C5CBF]',
+  };
+
     default:
       return {
         icon: SendIcon,
@@ -66,13 +75,17 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({ status }) => {
 
   return (
     <div className="flex items-center gap-3 rounded-xl border border-[#eeeeee] bg-white px-4 py-3.5">
-      <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${config.iconBg}`}>
+      <div
+        className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${config.iconBg}`}
+      >
         <StatusIcon className={`w-[18px] h-[18px] ${config.iconColor}`} />
       </div>
+
       <div className="min-w-0">
         <p className="font-semibold text-[#06083C] text-sm leading-tight">
           {config.title}
         </p>
+
         {config.text && (
           <p className="font-normal text-[#888888] text-xs leading-tight mt-0.5">
             {config.text}
@@ -89,8 +102,11 @@ interface StatusBadgeProps {
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   const config = getStatusInfo(status);
+
   return (
-    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${config.badgeBg} ${config.badgeText}`}>
+    <span
+      className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${config.badgeBg} ${config.badgeText}`}
+    >
       {config.title}
     </span>
   );
