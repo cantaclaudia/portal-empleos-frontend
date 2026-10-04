@@ -2,6 +2,7 @@ import React from "react";
 import {
   Home as HomeIcon,
   FileText as FileTextIcon,
+  User as UserIcon, // CAMBIO: faltaba este import
 } from "lucide-react";
 import { SideMenu, type SideMenuItem } from "./ui/side-menu";
 import { ROUTES } from "../routes";
@@ -10,6 +11,7 @@ import AuthService from "../services/auth.service";
 const CANDIDATO_ITEMS: SideMenuItem[] = [
   { icon: HomeIcon, label: "Inicio", path: ROUTES.HOME_CANDIDATO },
   { icon: FileTextIcon, label: "Mis postulaciones", path: ROUTES.MIS_POSTULACIONES },
+  { icon: UserIcon, label: "Mi perfil", path: ROUTES.PERFIL_CANDIDATO },
 ];
 
 interface CandidatoSideMenuProps {

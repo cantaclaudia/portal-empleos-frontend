@@ -10,6 +10,7 @@ import { MisPostulaciones } from './pages/mis-postulaciones';
 import { PostulacionesRecibidas } from './pages/postulaciones-recibidas';
 import { HomeAdmin } from './pages/home-admin';
 import { ROUTES } from './routes';
+import { PerfilCandidato } from './pages/perfil-candidato';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path={ROUTES.JOB_DETAIL} element={<JobDetail />} />
         <Route path={ROUTES.MIS_POSTULACIONES} element={<MisPostulaciones />} />
         <Route path={ROUTES.POSTULACIONES_RECIBIDAS} element={<PostulacionesRecibidas />} />
+        <Route path={ROUTES.PERFIL_CANDIDATO} element={<PerfilCandidato />} />
         <Route path={ROUTES.HOME_ADMIN} element={<HomeAdmin />} />
         <Route path="/" element={<Navigate to={ROUTES.LOGIN} replace />} />
       </Routes>
