@@ -1201,3 +1201,43 @@ def get_candidate_profile(cnx, cursor, final_response, candidate_id, request_id=
         final_response['ok'] = False
 
     return final_response
+
+@manage_db_connection
+def get_employer_profile(cnx, cursor, final_response, user_id, request_id=None):
+    final_response = {'ok': True,
+                      'data': False}
+    try:
+        query = '''
+                SELECT
+                    u.name AS first_name,
+                    u.last_name AS last_name,
+                    u.email,
+                    e.company_id,
+                    e.name AS company_name,
+                    e.description AS company_description,
+                    se.company_type AS company_sector,
+                    COUNT(DISTINCT ed.job_offer_id) AS total_job_offers,
+                    COUNT(DISTINCT s.application_id) AS total_applications
+                FROM Usuarios u
+                JOIN empresas_x_usuario exu ON exu.user_id = u.user_id
+                JOIN Empresas e ON e.company_id = exu.company_id
+                LEFT JOIN Sector_empresa se ON se.company_type_id = e.company_type
+                LEFT JOIN Empleos_Disponibles ed ON ed.company_id = e.company_id
+                LEFT JOIN Solicitudes s ON s.job_offer_id = ed.job_offer_id
+                WHERE u.user_id = %s
+                GROUP BY u.user_id, e.company_id, se.company_type
+                '''
+
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchone()
+
+        if result:
+            final_response['data'] = result
+        else:
+            logger.info(f"{request_id} - no se encontro perfil para el usuario {user_id}")
+
+    except:
+        logger.exception(f"{request_id} - error al acceder a la bd")
+        final_response['ok'] = False
+
+    return final_response

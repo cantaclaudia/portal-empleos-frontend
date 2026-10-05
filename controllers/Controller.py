@@ -673,3 +673,23 @@ def get_candidate_profile(candidate_id):
     return {'code': '0200',
             'description': 'ok',
             'data': candidate_profile_response['data']}
+
+def get_employer_profile(user_id):
+    profile_response = Manager.get_employer_profile(user_id=user_id,
+                                                    request_id=g.request_id)
+
+    if not profile_response['ok']:
+        logger.info(f"{g.request_id} - error al obtener el perfil del reclutador")
+        return {'code': '0500',
+                'description': 'internal error, try again later'}
+
+    if not profile_response['data']:
+        logger.info(f"{g.request_id} - no se encontro empresa asociada al usuario {user_id}")
+        return {'code': '0404',
+                'description': 'employer profile not found'}
+
+    logger.info(f"{g.request_id} - perfil del reclutador obtenido correctamente")
+
+    return {'code': '0200',
+            'description': 'ok',
+            'data': profile_response['data']}

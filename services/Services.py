@@ -425,3 +425,14 @@ def get_locations(data_request):
     logger.info(f"{g.request_id} - consultando ubicaciones")
 
     return Controller.get_locations()
+
+#19)
+# Obtener el perfil del reclutador logueado (datos personales, empresa y totales)
+@bp.route('/getEmployerProfile', methods=['POST'])
+@AuthController.token_required(endpoint='getEmployerProfile', service_required=False)
+@AuthController.employer_validation()
+def get_employer_profile(data_request):
+    logger.info(f"{g.request_id} - ingresando a /getEmployerProfile")
+
+    # el reclutador solo puede ver su propio perfil: el id sale del header, no del body
+    return Controller.get_employer_profile(user_id=g.user_id)
