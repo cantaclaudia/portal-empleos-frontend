@@ -9,7 +9,7 @@ import {
   Building2 as BuildingIcon,
   type LucideIcon,
 } from "lucide-react";
-import React, { useState, useEffect, useRef, type JSX } from "react";
+import { useState, useEffect, useRef, type JSX } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { HeaderLogo } from "../components/ui/header-logo";

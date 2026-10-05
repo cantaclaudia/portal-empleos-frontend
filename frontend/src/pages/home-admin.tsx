@@ -255,10 +255,6 @@ const RateBar = ({
 
 export const HomeAdmin = (): JSX.Element => {
   const user = AuthService.getUser();
-  const userName = user
-    ? `${user.first_name} ${user.last_name}`
-    : 'Administrador';
-
   const userId =
     user?.user_id != null
       ? String(user.user_id)

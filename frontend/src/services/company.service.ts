@@ -6,13 +6,13 @@ import type { ErrorCode } from '../constants/error-codes';
 import type { ApiResponse } from './error-handler.service';
 
 class CompanyService {
-  async getCompaniesList(userId: string): Promise<GetCompaniesResponse> {
+  async getCompaniesList(userId?: string): Promise<GetCompaniesResponse> {
     try {
       const response = await apiService.post<GetCompaniesResponse>(
         API_CONFIG.ENDPOINTS.GET_COMPANIES_LIST,
         {},
         {
-          user_id: userId,
+          user_id: userId ?? "",
         }
       );
 
