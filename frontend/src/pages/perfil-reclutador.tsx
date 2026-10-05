@@ -16,42 +16,11 @@ import type { EmployerProfile } from '../types/employer.types';
 import type { Job } from '../types/job.types';
 import { ERROR_CODES } from '../constants/error-codes';
 import { ROUTES } from '../routes';
+import { formatSalary } from '../utils/format-salary';
+import { getInitials } from '../utils/initials';
+import { getSectorLabel } from '../constants/sectors';
 
 const CARD_CLASS = 'bg-white border border-[#dedede] shadow-sm rounded-xl';
-
-// El backend devuelve el sector en inglés; se traduce. Si no está en la lista, se muestra tal cual.
-const SECTOR_LABELS: Record<string, string> = {
-  Agriculture: 'Agricultura',
-  Construction: 'Construcción',
-  Design: 'Diseño',
-  Education: 'Educación',
-  Energy: 'Energía',
-  Entertainment: 'Entretenimiento',
-  Healthcare: 'Salud',
-  Hospitality: 'Hotelería',
-  Retail: 'Comercio',
-  Technology: 'Tecnología',
-  Telecommunications: 'Telecomunicaciones',
-  Transportation: 'Transporte',
-};
-
-const getInitials = (name?: string): string => {
-  if (!name) return '?';
-  return (
-    name
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0]?.toUpperCase())
-      .join('') || '?'
-  );
-};
-
-const formatSalary = (value: number): string =>
-  `$${value.toLocaleString('es-AR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
 
 export const PerfilReclutador: React.FC = () => {
   const navigate = useNavigate();
@@ -119,9 +88,7 @@ export const PerfilReclutador: React.FC = () => {
   }, [userId]);
 
   const fullName = profile ? `${profile.first_name} ${profile.last_name}` : '';
-  const sectorLabel = profile?.company_sector
-    ? (SECTOR_LABELS[profile.company_sector] ?? profile.company_sector)
-    : null;
+  const sectorLabel = getSectorLabel(profile?.company_sector);
 
   // Resumen de la empresa, calculado con las ofertas activas
   const openPositions = Array.from(new Set(jobs.map((j) => j.job_title).filter(Boolean))).sort();
@@ -134,7 +101,7 @@ export const PerfilReclutador: React.FC = () => {
       ? null
       : minSalary === maxSalary
         ? formatSalary(minSalary)
-        : `${formatSalary(minSalary)} a ${formatSalary(maxSalary)}`;
+        : `${formatSalary(minSalary)} a ${formatSalary(minSalary)}`;
 
   return (
     <div className="bg-[#EFEFEF] w-full min-h-screen flex flex-col">

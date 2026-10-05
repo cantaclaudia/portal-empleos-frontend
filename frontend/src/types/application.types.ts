@@ -1,3 +1,5 @@
+import type { WorkExperience } from './experience.types';
+
 export interface Application {
   application_id: number;
   job_title: string;
@@ -68,21 +70,14 @@ export interface ChangeApplicationStatusResponse {
   description: string;
 }
 
-export interface ApplicantExperience {
-  company_name: string;
-  end_date: string;
-  job_name: string;
-  start_date: string;
-}
-
 export interface ApplicantInfo {
   candidate_id: number;
   email: string;
   first_name: string;
   last_name: string;
   resume_url: string;
-  skills: string[];
-  experience: ApplicantExperience[];
+  skills: string | null; // "React,Node.js,Git"
+  experience: WorkExperience[] | null;
 }
 
 export interface GetApplicantsInformationRequest {

@@ -22,6 +22,8 @@ import { ERROR_CODES } from '../constants/error-codes';
 import { Footer } from '../components/ui/footer';
 import { CandidatoSideMenu } from '../components/candidato-side-menu';
 import AuthService from '../services/auth.service';
+import { formatSalary } from '../utils/format-salary';
+import { usePagination } from '../hooks/use-pagination';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -49,11 +51,11 @@ const AccessTile: React.FC<AccessTileProps> = ({
 
       <div className="flex flex-col min-w-0">
         <span className="font-bold text-base leading-tight text-[#05073c]">
-  {label}
-</span>
-<span className="text-sm mt-1 text-[#757575]">
-  {sublabel}
-</span>
+          {label}
+        </span>
+        <span className="text-sm mt-1 text-[#757575]">
+          {sublabel}
+        </span>
       </div>
     </div>
 
@@ -93,7 +95,6 @@ export const HomeCandidato: React.FC = () => {
   const [jobs, setJobs] = useState<AvailableJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
 
   const areaRef = useRef<HTMLDivElement>(null);
   const locationRef = useRef<HTMLDivElement>(null);
@@ -199,29 +200,29 @@ export const HomeCandidato: React.FC = () => {
       };
     });
 
-    setCurrentPage(1);
+    resetPage();
   };
 
   const handleAreaSelect = (value: string) => {
     setAreaInput(value);
     setShowAreaSuggestions(false);
-    setCurrentPage(1);
+    resetPage();
   };
 
   const handleLocationSelect = (value: string) => {
     setLocationInput(value);
     setShowLocationSuggestions(false);
-    setCurrentPage(1);
+    resetPage();
   };
 
   const handleAreaClear = () => {
     setAreaInput('');
-    setCurrentPage(1);
+    resetPage();
   };
 
   const handleLocationClear = () => {
     setLocationInput('');
-    setCurrentPage(1);
+    resetPage();
   };
 
   const getVisibleOptions = (section: {
@@ -296,17 +297,13 @@ export const HomeCandidato: React.FC = () => {
     );
   });
 
-  const totalPages = Math.ceil(
-    filteredJobs.length / ITEMS_PER_PAGE
-  );
-
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-
-  const paginatedJobs = filteredJobs.slice(
-    startIndex,
-    endIndex
-  );
+  const {
+    page: currentPage,
+    totalPages,
+    pageItems: paginatedJobs,
+    setPage: setCurrentPage,
+    resetPage,
+  } = usePagination(filteredJobs, ITEMS_PER_PAGE);
 
   const hasActiveFilters = Object.values(selectedFilters).some(
     (arr) => arr.length > 0
@@ -334,16 +331,7 @@ export const HomeCandidato: React.FC = () => {
       ubicación: [],
     });
 
-    setCurrentPage(1);
-  };
-
-  const formatSalary = (salary: string): string => {
-    const num = parseFloat(salary);
-
-    return num.toLocaleString('es-AR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+    resetPage();
   };
 
   const handleViewMore = (job: AvailableJob) => {
@@ -368,9 +356,8 @@ export const HomeCandidato: React.FC = () => {
       {filterSections.map((section, index) => (
         <div
           key={section.title}
-          className={`flex flex-col bg-white ${
-            index > 0 ? 'border-t border-[#f5f5f5]' : ''
-          }`}
+          className={`flex flex-col bg-white ${index > 0 ? 'border-t border-[#f5f5f5]' : ''
+            }`}
         >
           <div className="flex items-center gap-2 px-5 pt-5 pb-2">
             <h3 className="font-bold text-[#757575] text-xs uppercase tracking-wide leading-[20px]">
@@ -385,18 +372,16 @@ export const HomeCandidato: React.FC = () => {
                 onClick={() =>
                   handleFilterChange(section.title, option)
                 }
-                className={`flex items-center gap-3 px-5 py-2.5 text-left transition-all duration-200 ${
-                  isFilterActive(section.title, option)
+                className={`flex items-center gap-3 px-5 py-2.5 text-left transition-all duration-200 ${isFilterActive(section.title, option)
                     ? 'bg-[#f0f4ff]'
                     : 'hover:bg-[#fafafa]'
-                }`}
+                  }`}
               >
                 <div
-                  className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
-                    isFilterActive(section.title, option)
+                  className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${isFilterActive(section.title, option)
                       ? 'border-[#3351A6] bg-[#3351A6] shadow-sm'
                       : 'border-[#cccccc] bg-white'
-                  }`}
+                    }`}
                 >
                   {isFilterActive(section.title, option) && (
                     <svg
@@ -418,11 +403,10 @@ export const HomeCandidato: React.FC = () => {
                 </div>
 
                 <span
-                  className={`min-w-0 text-sm tracking-[0] leading-[20px] transition-colors duration-200 ${
-                    isFilterActive(section.title, option)
+                  className={`min-w-0 text-sm tracking-[0] leading-[20px] transition-colors duration-200 ${isFilterActive(section.title, option)
                       ? 'text-[#3351A6] font-semibold'
                       : 'text-[#666666] font-normal'
-                  }`}
+                    }`}
                 >
                   {option}
                 </span>
@@ -436,11 +420,10 @@ export const HomeCandidato: React.FC = () => {
               >
                 <div className="w-[18px] h-[18px] flex items-center justify-center">
                   <PlusIcon
-                    className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-[#3351A6] ${
-                      expandedSections[section.title]
+                    className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-[#3351A6] ${expandedSections[section.title]
                         ? 'rotate-45'
                         : ''
-                    }`}
+                      }`}
                   />
                 </div>
 
@@ -470,11 +453,10 @@ export const HomeCandidato: React.FC = () => {
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${
-            currentPage === 1
+          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${currentPage === 1
               ? 'text-[#757575] cursor-not-allowed'
               : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
-          }`}
+            }`}
         >
           <ChevronLeftIcon className="w-4 h-4 md:w-5 md:h-5" />
         </button>
@@ -483,11 +465,10 @@ export const HomeCandidato: React.FC = () => {
           <button
             key={page}
             onClick={() => handlePageChange(page)}
-            className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded font-semibold text-sm md:text-base transition-colors cursor-pointer ${
-              currentPage === page
+            className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded font-semibold text-sm md:text-base transition-colors cursor-pointer ${currentPage === page
                 ? 'bg-[#F46036] text-white'
                 : 'text-[#F46036] hover:bg-[#fff5f2]'
-            }`}
+              }`}
           >
             {page}
           </button>
@@ -496,11 +477,10 @@ export const HomeCandidato: React.FC = () => {
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${
-            currentPage === totalPages
+          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${currentPage === totalPages
               ? 'text-[#757575] cursor-not-allowed'
               : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
-          }`}
+            }`}
         >
           <ChevronRightIcon className="w-4 h-4 md:w-5 md:h-5" />
         </button>
@@ -549,7 +529,7 @@ export const HomeCandidato: React.FC = () => {
               onChange={(e) => {
                 setAreaInput(e.target.value);
                 setShowAreaSuggestions(true);
-                setCurrentPage(1);
+                resetPage();
               }}
               onFocus={() => setShowAreaSuggestions(true)}
               className="border-0 shadow-none p-0 h-auto font-medium text-[#333333] text-sm md:text-base focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#999999] placeholder:font-normal w-full"
@@ -600,7 +580,7 @@ export const HomeCandidato: React.FC = () => {
               onChange={(e) => {
                 setLocationInput(e.target.value);
                 setShowLocationSuggestions(true);
-                setCurrentPage(1);
+                resetPage();
               }}
               onFocus={() => setShowLocationSuggestions(true)}
               className="border-0 shadow-none p-0 h-auto font-medium text-[#333333] text-sm md:text-base focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-[#999999] placeholder:font-normal w-full"
@@ -846,7 +826,7 @@ export const HomeCandidato: React.FC = () => {
                           </span>
 
                           <span className="inline-flex items-center rounded-full bg-[#fff3ec] border border-[#fbdccd] px-3 py-1.5 text-xs font-semibold text-[#d9512e]">
-                            ${formatSalary(job.salary)}
+                            {formatSalary(job.salary)}
                           </span>
                         </div>
 

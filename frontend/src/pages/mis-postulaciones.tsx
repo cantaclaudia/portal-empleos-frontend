@@ -15,6 +15,9 @@ import type { Application, ApplicationStatus } from '../types/application.types'
 import { StatusBadge } from '../components/ui/status-banner';
 import { CandidatoSideMenu } from '../components/candidato-side-menu';
 import { formatDate } from '../utils/format-date';
+import { APPLICATION_STATUS } from '../constants/application-status';
+import { formatSalary } from '../utils/format-salary';
+import { getInitials } from '../utils/initials';
 
 type FilterOption = 'all' | number;
 
@@ -30,40 +33,18 @@ const STATUS_TILES: {
   text: string;
   border: string;
 }[] = [
-    { key: 3, label: 'Recibidas', bg: 'bg-[#F0EBFA]', text: 'text-[#7C5CBF]', border: 'border-[#DCCFF0]' },
-    { key: 2, label: 'En revisión', bg: 'bg-[#ECEEF6]', text: 'text-[#3B4A86]', border: 'border-[#D9DDEE]' },
-    { key: 1, label: 'Aceptadas', bg: 'bg-[#EAF5F0]', text: 'text-[#17835A]', border: 'border-[#CBE5D9]' },
-    { key: 0, label: 'Rechazadas', bg: 'bg-[#FFF4E8]', text: 'text-[#B45309]', border: 'border-[#F1D8B8]' },
+    { key: APPLICATION_STATUS.RECEIVED, label: 'Recibidas', bg: 'bg-[#F0EBFA]', text: 'text-[#7C5CBF]', border: 'border-[#DCCFF0]' },
+    { key: APPLICATION_STATUS.IN_REVIEW, label: 'En revisión', bg: 'bg-[#ECEEF6]', text: 'text-[#3B4A86]', border: 'border-[#D9DDEE]' },
+    { key: APPLICATION_STATUS.ACCEPTED, label: 'Aceptadas', bg: 'bg-[#EAF5F0]', text: 'text-[#17835A]', border: 'border-[#CBE5D9]' },
+    { key: APPLICATION_STATUS.REJECTED, label: 'Rechazadas', bg: 'bg-[#FFF4E8]', text: 'text-[#B45309]', border: 'border-[#F1D8B8]' },
   ];
 
 const FILTER_TITLE: Record<string, string> = {
   all: 'Todas las postulaciones',
-  3: 'Postulaciones recibidas',
-  2: 'Postulaciones en revisión',
-  1: 'Postulaciones aceptadas',
-  0: 'Postulaciones rechazadas',
-};
-
-const getCompanyInitials = (name?: string): string => {
-  if (!name) return '?';
-  return (
-    name
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0]?.toUpperCase())
-      .join('') || '?'
-  );
-};
-
-const formatSalary = (salary?: string): string => {
-  if (!salary) return '';
-  const num = parseFloat(salary);
-  if (Number.isNaN(num)) return '';
-  return `$${num.toLocaleString('es-AR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  [APPLICATION_STATUS.RECEIVED]: 'Postulaciones recibidas',
+  [APPLICATION_STATUS.IN_REVIEW]: 'Postulaciones en revisión',
+  [APPLICATION_STATUS.ACCEPTED]: 'Postulaciones aceptadas',
+  [APPLICATION_STATUS.REJECTED]: 'Postulaciones rechazadas',
 };
 
 export const MisPostulaciones: React.FC = () => {
@@ -146,7 +127,12 @@ export const MisPostulaciones: React.FC = () => {
 
   // Contadores por estado, calculados con los estados ya cargados
   const counts = useMemo(() => {
-    const result: Record<number, number> = { 3: 0, 2: 0, 1: 0, 0: 0 };
+    const result: Record<number, number> = {
+      [APPLICATION_STATUS.RECEIVED]: 0,
+      [APPLICATION_STATUS.IN_REVIEW]: 0,
+      [APPLICATION_STATUS.ACCEPTED]: 0,
+      [APPLICATION_STATUS.REJECTED]: 0,
+    };
     applications.forEach((app) => {
       const status = statusMap[app.application_id]?.status;
       if (typeof status === 'number' && status in result) {
@@ -185,8 +171,8 @@ export const MisPostulaciones: React.FC = () => {
           onClick={() => handlePageChange(safePage - 1)}
           disabled={safePage === 1}
           className={`w-9 h-9 flex items-center justify-center rounded transition-colors ${safePage === 1
-              ? 'text-[#757575] cursor-not-allowed'
-              : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
+            ? 'text-[#757575] cursor-not-allowed'
+            : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
             }`}
         >
           <ChevronLeftIcon className="w-4 h-4" />
@@ -197,8 +183,8 @@ export const MisPostulaciones: React.FC = () => {
             key={page}
             onClick={() => handlePageChange(page)}
             className={`w-9 h-9 flex items-center justify-center rounded font-semibold text-sm transition-colors cursor-pointer ${safePage === page
-                ? 'bg-[#F46036] text-white'
-                : 'text-[#F46036] hover:bg-[#fff5f2]'
+              ? 'bg-[#F46036] text-white'
+              : 'text-[#F46036] hover:bg-[#fff5f2]'
               }`}
           >
             {page}
@@ -209,8 +195,8 @@ export const MisPostulaciones: React.FC = () => {
           onClick={() => handlePageChange(safePage + 1)}
           disabled={safePage === totalPages}
           className={`w-9 h-9 flex items-center justify-center rounded transition-colors ${safePage === totalPages
-              ? 'text-[#757575] cursor-not-allowed'
-              : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
+            ? 'text-[#757575] cursor-not-allowed'
+            : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
             }`}
         >
           <ChevronRightIcon className="w-4 h-4" />
@@ -284,8 +270,8 @@ export const MisPostulaciones: React.FC = () => {
                   onClick={() => handleFilterChange('all')}
                   aria-pressed={activeFilter === 'all'}
                   className={`flex flex-col items-start gap-0.5 rounded-xl border-2 bg-white px-4 py-3 text-left transition-colors ${activeFilter === 'all'
-                      ? 'border-[#06083C]'
-                      : 'border-[#dedede] hover:border-[#06083C]/40'
+                    ? 'border-[#06083C]'
+                    : 'border-[#dedede] hover:border-[#06083C]/40'
                     }`}
                 >
                   <span className="text-2xl font-bold leading-none text-[#06083C] tabular-nums">
@@ -300,8 +286,8 @@ export const MisPostulaciones: React.FC = () => {
                     onClick={() => handleFilterChange(tile.key)}
                     aria-pressed={activeFilter === tile.key}
                     className={`flex flex-col items-start gap-0.5 rounded-xl border-2 px-4 py-3 text-left transition-colors ${tile.bg} ${tile.text} ${activeFilter === tile.key
-                        ? 'border-[#06083C]'
-                        : `${tile.border} hover:border-[#06083C]/40`
+                      ? 'border-[#06083C]'
+                      : `${tile.border} hover:border-[#06083C]/40`
                       }`}
                   >
                     <span className="text-2xl font-bold leading-none tabular-nums">
@@ -342,7 +328,7 @@ export const MisPostulaciones: React.FC = () => {
                       >
                         <div className="flex items-center gap-3 min-w-0 flex-1">
                           <div className="w-10 h-10 rounded-xl bg-[#06083C] text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">
-                            {getCompanyInitials(app.company_name)}
+                            {getInitials(app.company_name)}
                           </div>
                           <div className="flex flex-col gap-0.5 min-w-0">
                             <p className="font-bold text-[#333333] text-sm leading-tight">

@@ -1,4 +1,4 @@
-import { ErrorCode } from "../constants/error-codes";
+import type { ErrorCode } from "../constants/error-codes";
 
 export interface LoginRequest {
   email: string;
@@ -14,10 +14,10 @@ export interface LoginResponse {
 export interface UserData {
   first_name: string;
   last_name: string;
-   role: 'employer' | 'candidate' | 'admin';
+  role: 'employer' | 'candidate' | 'admin';
   user_id: number;
-  company_id?: number | null;    
-  company_name?: string | null; 
+  company_id?: number | null;
+  company_name?: string | null;
   email?: string;
   resume_url?: string;
   skill_list?: Array<string | number>;
@@ -40,4 +40,3 @@ export interface ApiResponse<T> {
   description: string;
   data: T;
 }
-

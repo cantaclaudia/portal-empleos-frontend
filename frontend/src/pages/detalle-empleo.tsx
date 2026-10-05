@@ -17,28 +17,12 @@ import type { AvailableJob } from '../services/available-jobs.service';
 import ApplicationService from '../services/application.service';
 import { StatusBanner } from '../components/ui/status-banner';
 import { CandidatoSideMenu } from '../components/candidato-side-menu';
+import { formatSalary } from '../utils/format-salary';
+import { getInitials } from '../utils/initials';
 
 const CARD_CLASS = 'bg-white border border-[#dedede] shadow-sm rounded-xl';
 const MAX_OTHER_JOBS = 3;
 
-const formatSalary = (salary: string): string => {
-  const num = parseFloat(salary);
-  if (Number.isNaN(num)) return '';
-  return `$${num.toLocaleString('es-AR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-};
-
-const getCompanyInitials = (name?: string): string => {
-  if (!name) return '?';
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase())
-    .join('');
-};
 
 // Requisitos: si vienen en varias líneas se muestran como lista; si es una sola, como párrafo
 const splitRequirements = (text?: string | null): string[] =>
@@ -187,8 +171,8 @@ export const JobDetail: React.FC = () => {
     minSalary === null || maxSalary === null
       ? null
       : minSalary === maxSalary
-        ? formatSalary(String(minSalary))
-        : `${formatSalary(String(minSalary))} a ${formatSalary(String(maxSalary))}`;
+        ? formatSalary(minSalary)
+        : `${formatSalary(minSalary)} a ${formatSalary(String(maxSalary))}`;
 
   const requirementLines = splitRequirements(job?.requirements);
 
@@ -331,7 +315,7 @@ export const JobDetail: React.FC = () => {
 
       <main className="flex-1 py-5 md:py-8">
         <div className="max-w-[960px] mx-auto px-4 md:px-8">
-    
+
 
           {loading ? (
             <Card className={CARD_CLASS}>
@@ -356,7 +340,7 @@ export const JobDetail: React.FC = () => {
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-[#06083C] flex items-center justify-center flex-shrink-0 shadow-sm">
                       <span className="font-bold text-white text-base md:text-lg">
-                        {getCompanyInitials(job.company_name)}
+                        {getInitials(job.company_name)}
                       </span>
                     </div>
                     <div className="flex flex-col gap-0.5 min-w-0">

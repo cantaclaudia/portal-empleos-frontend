@@ -22,47 +22,40 @@ import type {
 } from '../types/application.types';
 
 import { formatDate, formatMonthYear } from '../utils/format-date';
+import { parseSkills } from '../utils/parse-skills';
 
-const STATUS = {
-  REJECTED: 0,
-  ACCEPTED: 1,
-  IN_REVIEW: 2,
-} as const;
+import {
+  APPLICATION_STATUS,
+  APPLICATION_STATUS_LABEL,
+  isApplicationStatus,
+  type ApplicationStatusCode,
+} from '../constants/application-status';
 
-type StatusCode = (typeof STATUS)[keyof typeof STATUS];
-
-const isStatusCode = (value: unknown): value is StatusCode =>
-  value === STATUS.REJECTED ||
-  value === STATUS.ACCEPTED ||
-  value === STATUS.IN_REVIEW;
-
-const STATUS_LABEL: Record<StatusCode, string> = {
-  [STATUS.REJECTED]: 'Rechazada',
-  [STATUS.ACCEPTED]: 'Aceptada',
-  [STATUS.IN_REVIEW]: 'En revisión',
+const STATUS_TEXT: Record<ApplicationStatusCode, string> = {
+  [APPLICATION_STATUS.REJECTED]: 'text-[#b45309]',
+  [APPLICATION_STATUS.ACCEPTED]: 'text-[#17835a]',
+  [APPLICATION_STATUS.IN_REVIEW]: 'text-[#3b4a86]',
+  [APPLICATION_STATUS.RECEIVED]: 'text-[#7c5cbf]',
 };
 
-const STATUS_TEXT: Record<StatusCode, string> = {
-  [STATUS.REJECTED]: 'text-[#b45309]',
-  [STATUS.ACCEPTED]: 'text-[#17835a]',
-  [STATUS.IN_REVIEW]: 'text-[#3b4a86]',
+const STATUS_ACTIVE_BG: Record<ApplicationStatusCode, string> = {
+  [APPLICATION_STATUS.REJECTED]: 'bg-[#b45309]',
+  [APPLICATION_STATUS.ACCEPTED]: 'bg-[#17835a]',
+  [APPLICATION_STATUS.IN_REVIEW]: 'bg-[#3b4a86]',
+  [APPLICATION_STATUS.RECEIVED]: 'bg-[#7c5cbf]',
 };
 
-const STATUS_ACTIVE_BG: Record<StatusCode, string> = {
-  [STATUS.REJECTED]: 'bg-[#b45309]',
-  [STATUS.ACCEPTED]: 'bg-[#17835a]',
-  [STATUS.IN_REVIEW]: 'bg-[#3b4a86]',
-};
-
-const DECISIONS: { code: StatusCode; label: string }[] = [
-  { code: STATUS.REJECTED, label: 'Rechazar' },
-  { code: STATUS.IN_REVIEW, label: 'En revisión' },
-  { code: STATUS.ACCEPTED, label: 'Aceptar' },
+// El reclutador solo decide entre estos tres. RECEIVED es el estado inicial,
+// no una decisión, por eso no aparece como botón.
+const DECISIONS: { code: ApplicationStatusCode; label: string }[] = [
+  { code: APPLICATION_STATUS.REJECTED, label: 'Rechazar' },
+  { code: APPLICATION_STATUS.IN_REVIEW, label: 'En revisión' },
+  { code: APPLICATION_STATUS.ACCEPTED, label: 'Aceptar' },
 ];
 
 interface DetailState {
   applicants: ApplicantInfo[];
-  status: StatusCode | null;
+  status: ApplicationStatusCode | null;
   loading: boolean;
   error: string | null;
 }
@@ -77,14 +70,14 @@ const EMPTY_DETAIL: DetailState = {
 interface ActionMessage {
   text: string;
   isError?: boolean;
-  undoTo?: StatusCode;
+  undoTo?: ApplicationStatusCode;
 }
 
 /* =====================================================================
  * DATOS MOCKEADOS (SOLO PARA DEMO DEL DISEÑO)
  * ===================================================================== */
 
-const USE_MOCKS = true;
+const USE_MOCKS = false;
 
 const MOCK_APPLICATIONS = [
   {
@@ -124,17 +117,18 @@ const MOCK_APPLICATIONS = [
   },
 ] as unknown as Application[];
 
-const MOCK_STATUS: Record<number, StatusCode> = {
-  [-1]: STATUS.IN_REVIEW,
-  [-2]: STATUS.ACCEPTED,
-  [-3]: STATUS.IN_REVIEW,
-  [-4]: STATUS.REJECTED,
-  [-5]: STATUS.IN_REVIEW,
+const MOCK_STATUS: Record<number, ApplicationStatusCode> = {
+  [-1]: APPLICATION_STATUS.IN_REVIEW,
+  [-2]: APPLICATION_STATUS.ACCEPTED,
+  [-3]: APPLICATION_STATUS.RECEIVED,
+  [-4]: APPLICATION_STATUS.REJECTED,
+  [-5]: APPLICATION_STATUS.IN_REVIEW,
 };
 
 const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
   [-1]: [
     {
+      candidate_id: -1,
       first_name: 'LAURA',
       last_name: 'GARCÍA',
       email: 'laura.garcia@ejemplo.com',
@@ -156,9 +150,9 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       ],
     },
   ],
-
   [-2]: [
     {
+      candidate_id: -2,
       first_name: 'MARTÍN',
       last_name: 'ROMERO',
       email: 'martin.romero@ejemplo.com',
@@ -180,15 +174,14 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       ],
     },
   ],
-
   [-3]: [
     {
+      candidate_id: -3,
       first_name: 'SOFÍA',
       last_name: 'FERNÁNDEZ',
       email: 'sofia.fernandez@ejemplo.com',
       resume_url: 'www.ejemplo.com/cv-sofia',
-      skills:
-        'Figma, Investigación de usuarios, Prototipado, Design Systems',
+      skills: 'Figma, Investigación de usuarios, Prototipado, Design Systems',
       experience: [
         {
           job_name: 'Diseñadora UX/UI',
@@ -199,9 +192,9 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       ],
     },
   ],
-
   [-4]: [
     {
+      candidate_id: -4,
       first_name: 'DIEGO',
       last_name: 'PÉREZ',
       email: 'diego.perez@ejemplo.com',
@@ -217,9 +210,9 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       ],
     },
   ],
-
   [-5]: [
     {
+      candidate_id: -5,
       first_name: 'CAMILA',
       last_name: 'SOSA',
       email: 'camila.sosa@ejemplo.com',
@@ -228,7 +221,7 @@ const MOCK_APPLICANTS: Record<number, ApplicantInfo[]> = {
       experience: [],
     },
   ],
-} as unknown as Record<number, ApplicantInfo[]>;
+};
 
 const isMock = (id: number | null | undefined): boolean =>
   USE_MOCKS && typeof id === 'number' && id < 0;
@@ -239,9 +232,7 @@ const toTitleCase = (value: string): string =>
   value
     .toLowerCase()
     .split(' ')
-    .map((word) =>
-      word ? word[0].toUpperCase() + word.slice(1) : word
-    )
+    .map((word) => (word ? word[0].toUpperCase() + word.slice(1) : word))
     .join(' ');
 
 const toExternalUrl = (url: string): string =>
@@ -250,12 +241,12 @@ const toExternalUrl = (url: string): string =>
 const StatusChip = ({
   status,
 }: {
-  status: StatusCode;
+  status: ApplicationStatusCode;
 }): JSX.Element => (
   <span
     className={`inline-block rounded-full bg-[#eceef6] px-3 py-0.5 text-[12px] font-bold whitespace-nowrap ${STATUS_TEXT[status]}`}
   >
-    {STATUS_LABEL[status]}
+    {APPLICATION_STATUS_LABEL[status]}
   </span>
 );
 
@@ -285,158 +276,127 @@ const ApplicantBlock = ({
 }: {
   applicant: ApplicantInfo;
   jobTitle: string;
-}): JSX.Element => (
-  <article className="flex flex-col gap-5">
-    <div>
-      <h3 className="font-bold text-[#05073c] text-[20px] md:text-[22px] leading-tight">
-        {toTitleCase(
-          `${applicant.first_name} ${applicant.last_name}`
-        )}
-      </h3>
+}): JSX.Element => {
+  // skills es string | null y experience puede ser null
+  const skills = parseSkills(applicant.skills);
+  const experience = applicant.experience ?? [];
 
-      <p className="text-[#666666] text-sm mt-0.5">
-        Se postuló a {jobTitle}
-      </p>
-
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-3.5 text-sm text-[#05073c]">
-        <span className="inline-flex items-center gap-1.5">
-          <MailIcon className="w-4 h-4 text-[#666666]" />
-          {applicant.email}
-        </span>
-
-        {applicant.resume_url && (
-          <a
-            href={toExternalUrl(applicant.resume_url)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 font-semibold text-[#f46036] hover:underline"
-          >
-            <FileTextIcon className="w-4 h-4" />
-            Ver currículum
-          </a>
-        )}
-      </div>
-    </div>
-
-    {applicant.skills && applicant.skills.length > 0 && (
+  return (
+    <article className="flex flex-col gap-5">
       <div>
-        <h4 className="font-bold text-[#05073c] text-sm mb-2.5">
-          Habilidades
-        </h4>
+        <h3 className="font-bold text-[#05073c] text-[20px] md:text-[22px] leading-tight">
+          {toTitleCase(`${applicant.first_name} ${applicant.last_name}`)}
+        </h3>
 
-        <div className="flex flex-wrap gap-2">
-          {String(applicant.skills)
-            .split(',')
-            .map((skill: string, index: number) => (
-              <span
-                key={index}
-                className="rounded-full bg-[#eceef6] px-3 py-1 text-[13px] font-semibold text-[#05073c]"
-              >
-                {skill.trim()}
-              </span>
-            ))}
+        <p className="text-[#666666] text-sm mt-0.5">Se postuló a {jobTitle}</p>
+
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-3.5 text-sm text-[#05073c]">
+          <span className="inline-flex items-center gap-1.5">
+            <MailIcon className="w-4 h-4 text-[#666666]" />
+            {applicant.email}
+          </span>
+
+          {applicant.resume_url && (
+            <a
+              href={toExternalUrl(applicant.resume_url)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 font-semibold text-[#f46036] hover:underline"
+            >
+              <FileTextIcon className="w-4 h-4" />
+              Ver currículum
+            </a>
+          )}
         </div>
       </div>
-    )}
 
-    <div>
-      <h4 className="font-bold text-[#05073c] text-sm mb-2.5">
-        Experiencia
-      </h4>
+      {skills.length > 0 && (
+        <div>
+          <h4 className="font-bold text-[#05073c] text-sm mb-2.5">
+            Habilidades
+          </h4>
 
-      {applicant.experience &&
-        applicant.experience.length > 0 ? (
-        <ul>
-          {applicant.experience.map((exp, index) => {
-            const isLast =
-              index === applicant.experience.length - 1;
-
-            return (
-              <li
-                key={index}
-                className="relative flex gap-4"
+          <div className="flex flex-wrap gap-2">
+            {skills.map((skill) => (
+              <span
+                key={skill}
+                className="rounded-full bg-[#eceef6] px-3 py-1 text-[13px] font-semibold text-[#05073c]"
               >
-                <div className="flex flex-col items-center">
-                  <span
-                    className={`w-3 h-3 rounded-full ${exp.end_date
-                        ? 'bg-[#3b4a86]'
-                        : 'bg-[#17835a]'
-                      }`}
-                  />
-
-                  {!isLast && (
-                    <div className="w-px flex-1 bg-gray-300" />
-                  )}
-                </div>
-
-                <div className="pb-6">
-                  <p className="text-sm font-semibold text-[#05073c]">
-                    {exp.job_name}
-                  </p>
-
-                  <p className="text-[13px] text-[#666666] mt-0.5">
-                    {exp.company_name},{' '}
-                    {exp.start_date
-                      ? formatMonthYear(exp.start_date)
-                      : ''}
-                    {' a '}
-                    {exp.end_date
-                      ? formatMonthYear(exp.end_date)
-                      : 'Actualidad'}
-                  </p>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      ) : (
-        <p className="text-sm text-gray-500">
-          El candidato no tiene experiencia laboral registrada.
-        </p>
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
       )}
-    </div>
-  </article>
-);
+
+      <div>
+        <h4 className="font-bold text-[#05073c] text-sm mb-2.5">Experiencia</h4>
+
+        {experience.length > 0 ? (
+          <ul>
+            {experience.map((exp, index) => {
+              const isLast = index === experience.length - 1;
+
+              return (
+                <li
+                  key={`${exp.job_name}-${exp.company_name}-${exp.start_date}-${index}`}
+                  className="relative flex gap-4"
+                >
+                  <div className="flex flex-col items-center">
+                    <span
+                      className={`w-3 h-3 rounded-full ${
+                        exp.end_date ? 'bg-[#3b4a86]' : 'bg-[#17835a]'
+                      }`}
+                    />
+
+                    {!isLast && <div className="w-px flex-1 bg-gray-300" />}
+                  </div>
+
+                  <div className="pb-6">
+                    <p className="text-sm font-semibold text-[#05073c]">
+                      {exp.job_name ?? 'Puesto sin especificar'}
+                    </p>
+
+                    <p className="text-[13px] text-[#666666] mt-0.5">
+                      {exp.company_name ? `${exp.company_name}, ` : ''}
+                      {exp.start_date ? formatMonthYear(exp.start_date) : ''}
+                      {' a '}
+                      {exp.end_date ? formatMonthYear(exp.end_date) : 'Actualidad'}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="text-sm text-gray-500">
+            El candidato no tiene experiencia laboral registrada.
+          </p>
+        )}
+      </div>
+    </article>
+  );
+};
 
 export const PostulacionesRecibidas: React.FC = () => {
   const user = AuthService.getUser();
 
   const userId = user?.user_id?.toString() ?? '';
-
-  const rawCompanyId = (
-    user as unknown as {
-      company_id?: number | string | null;
-    } | null
-  )?.company_id;
-
-  const companyId =
-    rawCompanyId != null ? String(rawCompanyId) : '';
+  const companyId = user?.company_id != null ? String(user.company_id) : '';
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const [realApplications, setRealApplications] =
-    useState<Application[]>([]);
-
+  const [realApplications, setRealApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState<string | null>(null);
-
   const [filter, setFilter] = useState('');
-
-  const [selectedId, setSelectedId] =
-    useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const selectedIdRef = useRef<number | null>(null);
-
   selectedIdRef.current = selectedId;
 
-  const [detail, setDetail] =
-    useState<DetailState>(EMPTY_DETAIL);
-
+  const [detail, setDetail] = useState<DetailState>(EMPTY_DETAIL);
   const [changing, setChanging] = useState(false);
-
-  const [message, setMessage] =
-    useState<ActionMessage | null>(null);
+  const [message, setMessage] = useState<ActionMessage | null>(null);
 
   const detailRef = useRef<HTMLDivElement>(null);
 
@@ -453,11 +413,10 @@ export const PostulacionesRecibidas: React.FC = () => {
 
     const loadApplications = async () => {
       try {
-        const response =
-          await ApplicationService.getApplicationsWithCompanyId(
-            { company_id: companyId },
-            userId
-          );
+        const response = await ApplicationService.getApplicationsWithCompanyId(
+          { company_id: companyId },
+          userId
+        );
 
         if (active) {
           setRealApplications(response.data || []);
@@ -487,9 +446,7 @@ export const PostulacionesRecibidas: React.FC = () => {
   const sorted = useMemo(
     () =>
       [...applications].sort((a, b) =>
-        (b.application_date ?? '').localeCompare(
-          a.application_date ?? ''
-        )
+        (b.application_date ?? '').localeCompare(a.application_date ?? '')
       ),
     [applications]
   );
@@ -498,27 +455,19 @@ export const PostulacionesRecibidas: React.FC = () => {
     const counts = new Map<string, number>();
 
     sorted.forEach((app) =>
-      counts.set(
-        app.job_title,
-        (counts.get(app.job_title) ?? 0) + 1
-      )
+      counts.set(app.job_title, (counts.get(app.job_title) ?? 0) + 1)
     );
 
     return Array.from(counts.entries());
   }, [sorted]);
 
   const visible = useMemo(
-    () =>
-      filter
-        ? sorted.filter((app) => app.job_title === filter)
-        : sorted,
+    () => (filter ? sorted.filter((app) => app.job_title === filter) : sorted),
     [sorted, filter]
   );
 
   const selectedApp =
-    sorted.find(
-      (app) => app.application_id === selectedId
-    ) ?? null;
+    sorted.find((app) => app.application_id === selectedId) ?? null;
 
   useEffect(() => {
     if (visible.length === 0) {
@@ -526,11 +475,7 @@ export const PostulacionesRecibidas: React.FC = () => {
       return;
     }
 
-    if (
-      !visible.some(
-        (app) => app.application_id === selectedId
-      )
-    ) {
+    if (!visible.some((app) => app.application_id === selectedId)) {
       setSelectedId(visible[0].application_id);
     }
   }, [visible, selectedId]);
@@ -556,72 +501,61 @@ export const PostulacionesRecibidas: React.FC = () => {
 
     let active = true;
 
-    setDetail({
-      ...EMPTY_DETAIL,
-      loading: true,
-    });
-
+    setDetail({ ...EMPTY_DETAIL, loading: true });
     setMessage(null);
 
     const loadDetail = async () => {
-      let applicantsData: ApplicantInfo[] = [];
-      let status: StatusCode | null = null;
-      let errorMessage: string | null = null;
+      const [applicantsResult, statusResult] = await Promise.allSettled([
+        ApplicationService.getApplicantsInformation(
+          { job_offer_id: String(selectedApp.job_offer_id) },
+          userId
+        ),
+        ApplicationService.getApplicationStatus(
+          { application_id: String(selectedId) },
+          userId
+        ),
+      ]);
 
-      try {
-        const [applicantsResult, statusResult] = await Promise.allSettled([
-          ApplicationService.getApplicantsInformation(
-            {
-              job_offer_id: String(selectedApp.job_offer_id),
-            },
-            userId
-          ),
+      if (!active) return;
 
-          ApplicationService.getApplicationStatus(
-            {
-              application_id: String(selectedId),
-            },
-            userId
-          ),
-        ]);
+      let status: ApplicationStatusCode | null = null;
 
-        if (!active) return;
+      if (statusResult.status === 'fulfilled') {
+        const raw = statusResult.value.data?.status;
 
-        // Evaluación del estado de la postulación
-        if (statusResult.status === 'fulfilled') {
-          const raw = statusResult.value.data?.status;
-          if (isStatusCode(raw)) {
-            status = raw;
-          }
-        }
-
-        // Evaluación de la información del postulante
-        if (applicantsResult.status === 'fulfilled') {
-          applicantsData = applicantsResult.value.data || [];
-        } else {
-          // Si la promesa fue rechazada (rejected), capturamos la razón
-          const reason = applicantsResult.reason;
-          errorMessage =
-            reason instanceof Error
-              ? reason.message
-              : 'Error al cargar la información del candidato.';
-        }
-      } catch (err) {
-        if (!active) return;
-        errorMessage =
-          err instanceof Error
-            ? err.message
-            : 'Error inesperado al cargar el detalle.';
-      } finally {
-        if (active) {
-          setDetail({
-            applicants: applicantsData,
-            status,
-            loading: false, // Garantizamos que el skeleton SIEMPRE se apague
-            error: errorMessage,
-          });
+        if (isApplicationStatus(raw)) {
+          status = raw;
         }
       }
+
+      // Si falla la carga se muestra el error en vez de dejar el skeleton para siempre
+      if (applicantsResult.status === 'rejected') {
+        const reason = applicantsResult.reason;
+
+        setDetail({
+          applicants: [],
+          status,
+          loading: false,
+          error:
+            reason instanceof Error
+              ? reason.message
+              : 'No se pudo cargar el candidato.',
+        });
+        return;
+      }
+
+      // El endpoint devuelve todos los candidatos de la oferta:
+      // se muestra solo el de la postulación seleccionada
+      const all = applicantsResult.value.data || [];
+
+      setDetail({
+        applicants: all.filter(
+          (applicant) => applicant.candidate_id === selectedApp.candidate_id
+        ),
+        status,
+        loading: false,
+        error: null,
+      });
     };
 
     void loadDetail();
@@ -643,14 +577,10 @@ export const PostulacionesRecibidas: React.FC = () => {
   };
 
   const applyStatus = async (
-    newStatus: StatusCode,
+    newStatus: ApplicationStatusCode,
     offerUndo: boolean
   ) => {
-    if (
-      selectedId === null ||
-      changing ||
-      detail.status === newStatus
-    ) {
+    if (selectedId === null || changing || detail.status === newStatus) {
       return;
     }
 
@@ -670,24 +600,21 @@ export const PostulacionesRecibidas: React.FC = () => {
 
       if (selectedIdRef.current !== target) return;
 
-      setDetail((current) => ({
-        ...current,
-        status: newStatus,
-      }));
+      setDetail((current) => ({ ...current, status: newStatus }));
 
       setMessage(
         offerUndo && previous !== null
           ? {
-            text: `Marcada como ${STATUS_LABEL[
-              newStatus
-            ].toLowerCase()}.`,
-            undoTo: previous,
-          }
+              text: `Marcada como ${APPLICATION_STATUS_LABEL[
+                newStatus
+              ].toLowerCase()}.`,
+              undoTo: previous,
+            }
           : {
-            text: `Estado restaurado a ${STATUS_LABEL[
-              newStatus
-            ].toLowerCase()}.`,
-          }
+              text: `Estado restaurado a ${APPLICATION_STATUS_LABEL[
+                newStatus
+              ].toLowerCase()}.`,
+            }
       );
     } catch (err) {
       if (selectedIdRef.current !== target) return;
@@ -704,8 +631,7 @@ export const PostulacionesRecibidas: React.FC = () => {
     }
   };
 
-  const showError =
-    error !== null && applications.length === 0;
+  const showError = error !== null && applications.length === 0;
 
   return (
     <div className="bg-[#EFEFEF] w-full min-h-screen flex flex-col">
@@ -752,9 +678,7 @@ export const PostulacionesRecibidas: React.FC = () => {
           ) : showError ? (
             <Card className="bg-white border-0 shadow-sm">
               <CardContent className="flex flex-col items-center justify-center py-16">
-                <p className="text-[#f46036] text-sm md:text-base">
-                  {error}
-                </p>
+                <p className="text-[#f46036] text-sm md:text-base">{error}</p>
               </CardContent>
             </Card>
           ) : applications.length === 0 ? (
@@ -792,33 +716,28 @@ export const PostulacionesRecibidas: React.FC = () => {
                     role="group"
                     aria-label="Filtrar por puesto"
                   >
-                    {[
-                      ['', applications.length] as [
-                        string,
-                        number
-                      ],
-                      ...puestos,
-                    ].map(([title, count]) => {
-                      const active = filter === title;
+                    {[['', applications.length] as [string, number], ...puestos].map(
+                      ([title, count]) => {
+                        const active = filter === title;
 
-                      return (
-                        <button
-                          key={title || 'todas'}
-                          onClick={() => setFilter(title)}
-                          aria-pressed={active}
-                          className={`rounded-full border px-3 py-1 text-[12px] font-bold transition-colors ${active
-                              ? 'bg-[#05073c] text-white border-[#05073c]'
-                              : 'bg-white text-[#05073c] border-gray-200 hover:bg-gray-50'
+                        return (
+                          <button
+                            key={title || 'todas'}
+                            onClick={() => setFilter(title)}
+                            aria-pressed={active}
+                            className={`rounded-full border px-3 py-1 text-[12px] font-bold transition-colors ${
+                              active
+                                ? 'bg-[#05073c] text-white border-[#05073c]'
+                                : 'bg-white text-[#05073c] border-gray-200 hover:bg-gray-50'
                             }`}
-                        >
-                          {title || 'Todas'}
+                          >
+                            {title || 'Todas'}
 
-                          <span className="ml-1.5 opacity-70">
-                            {count}
-                          </span>
-                        </button>
-                      );
-                    })}
+                            <span className="ml-1.5 opacity-70">{count}</span>
+                          </button>
+                        );
+                      }
+                    )}
                   </div>
                 )}
               </div>
@@ -832,29 +751,25 @@ export const PostulacionesRecibidas: React.FC = () => {
                   </div>
 
                   {visible.map((app) => {
-                    const isSelected =
-                      app.application_id === selectedId;
+                    const isSelected = app.application_id === selectedId;
 
                     return (
                       <button
                         key={app.application_id}
-                        onClick={() =>
-                          handleSelect(app.application_id)
-                        }
+                        onClick={() => handleSelect(app.application_id)}
                         aria-current={isSelected}
-                        className={`block w-full text-left px-[18px] py-3.5 border-b border-b-gray-200 border-l-[3px] transition-colors ${isSelected
+                        className={`block w-full text-left px-[18px] py-3.5 border-b border-b-gray-200 border-l-[3px] transition-colors ${
+                          isSelected
                             ? 'border-l-[#f46036] bg-[#eceef6]'
                             : 'border-l-transparent hover:bg-[#eceef6]'
-                          }`}
+                        }`}
                       >
                         <span className="flex items-center justify-between gap-2">
                           <span className="block font-bold text-[#05073c] text-sm leading-snug">
                             {app.job_title}
                           </span>
 
-                          {isMock(app.application_id) && (
-                            <DemoChip />
-                          )}
+                          {isMock(app.application_id) && <DemoChip />}
                         </span>
                       </button>
                     );
@@ -871,21 +786,15 @@ export const PostulacionesRecibidas: React.FC = () => {
                       <div className="flex items-start justify-between gap-3 px-5 md:px-7 pt-6">
                         <p className="text-[13px] text-[#666666]">
                           {selectedApp.application_date
-                            ? `Recibida el ${formatDate(
-                              selectedApp.application_date
-                            )}`
+                            ? `Recibida el ${formatDate(selectedApp.application_date)}`
                             : ''}
                         </p>
 
                         <div className="flex items-center gap-2">
-                          {isMock(
-                            selectedApp.application_id
-                          ) && <DemoChip />}
+                          {isMock(selectedApp.application_id) && <DemoChip />}
 
                           {detail.status !== null && (
-                            <StatusChip
-                              status={detail.status}
-                            />
+                            <StatusChip status={detail.status} />
                           )}
                         </div>
                       </div>
@@ -894,26 +803,19 @@ export const PostulacionesRecibidas: React.FC = () => {
                         {detail.loading ? (
                           <DetailSkeleton />
                         ) : detail.error ? (
-                          <ErrorMessage
-                            message={detail.error}
-                          />
+                          <ErrorMessage message={detail.error} />
                         ) : detail.applicants.length === 0 ? (
                           <p className="text-[#757575] text-sm md:text-base">
-                            No hay candidatos para esta
-                            postulación.
+                            No hay candidatos para esta postulación.
                           </p>
                         ) : (
-                          detail.applicants.map(
-                            (applicant, index) => (
-                              <ApplicantBlock
-                                key={index}
-                                applicant={applicant}
-                                jobTitle={
-                                  selectedApp.job_title
-                                }
-                              />
-                            )
-                          )
+                          detail.applicants.map((applicant) => (
+                            <ApplicantBlock
+                              key={applicant.candidate_id}
+                              applicant={applicant}
+                              jobTitle={selectedApp.job_title}
+                            />
+                          ))
                         )}
                       </div>
 
@@ -928,41 +830,33 @@ export const PostulacionesRecibidas: React.FC = () => {
                             role="group"
                             aria-label="Estado de la postulación"
                           >
-                            {DECISIONS.map(
-                              ({ code, label }) => {
-                                const isActive =
-                                  detail.status === code;
+                            {DECISIONS.map(({ code, label }) => {
+                              const isActive = detail.status === code;
 
-                                return (
-                                  <button
-                                    key={code}
-                                    onClick={() =>
-                                      void applyStatus(
-                                        code,
-                                        true
-                                      )
-                                    }
-                                    disabled={
-                                      changing || isActive
-                                    }
-                                    aria-pressed={isActive}
-                                    className={`flex-1 sm:flex-none px-4 py-2.5 text-sm font-bold border-l border-gray-200 first:border-l-0 transition-colors disabled:cursor-default ${isActive
-                                        ? `${STATUS_ACTIVE_BG[code]} text-white`
-                                        : 'bg-white text-[#05073c] hover:bg-[#eceef6] disabled:opacity-60'
-                                      }`}
-                                  >
-                                    {label}
-                                  </button>
-                                );
-                              }
-                            )}
+                              return (
+                                <button
+                                  key={code}
+                                  onClick={() => void applyStatus(code, true)}
+                                  disabled={changing || isActive}
+                                  aria-pressed={isActive}
+                                  className={`flex-1 sm:flex-none px-4 py-2.5 text-sm font-bold border-l border-gray-200 first:border-l-0 transition-colors disabled:cursor-default ${
+                                    isActive
+                                      ? `${STATUS_ACTIVE_BG[code]} text-white`
+                                      : 'bg-white text-[#05073c] hover:bg-[#eceef6] disabled:opacity-60'
+                                  }`}
+                                >
+                                  {label}
+                                </button>
+                              );
+                            })}
                           </div>
 
                           <p
-                            className={`text-[13px] mt-2 min-h-[1.5em] ${message?.isError
+                            className={`text-[13px] mt-2 min-h-[1.5em] ${
+                              message?.isError
                                 ? 'text-[#b45309]'
                                 : 'text-[#666666]'
-                              }`}
+                            }`}
                             aria-live="polite"
                           >
                             {message?.text}
@@ -970,11 +864,10 @@ export const PostulacionesRecibidas: React.FC = () => {
                             {message?.undoTo !== undefined && (
                               <>
                                 {' '}
-
                                 <button
                                   onClick={() =>
                                     void applyStatus(
-                                      message.undoTo as StatusCode,
+                                      message.undoTo as ApplicationStatusCode,
                                       false
                                     )
                                   }

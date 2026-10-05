@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { ErrorMessage } from "../components/ui/error-message";
-import JSEncrypt from "jsencrypt";
 import { ERROR_CODES, COMMON_ERROR_MESSAGES } from "../constants/error-codes";
 import EmployerService from "../services/employer.service";
 import CompanyService from "../services/company.service";
@@ -21,6 +20,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "../components/ui/select";
+import { sanitizePassword, encryptPassword } from "../utils/password";
 
 export const RegistroReclutador = (): JSX.Element => {
   const navigate = useNavigate();
@@ -78,31 +78,13 @@ export const RegistroReclutador = (): JSX.Element => {
   }, []);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-      .replace(/[!"#$%/()=?¡¨*[\];:_¿´+{},.\-><°|¬\\~`^Ññ\r\n]/g, "")
-      .slice(0, 30);
-    setPassword(value);
+    setPassword(sanitizePassword(e.target.value));
   };
 
-  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-      .replace(/[!"#$%/()=?¡¨*[\];:_¿´+{},.\-><°|¬\\~`^Ññ\r\n]/g, "")
-      .slice(0, 30);
-    setConfirmPassword(value);
-  };
-
-  const encryptPassword = (passwordToEncrypt: string) => {
-    const publicKey = import.meta.env.VITE_RSA_PUBLIC_KEY;
-
-    if (!publicKey) return passwordToEncrypt;
-
-    try {
-      const jsEncrypt = new JSEncrypt();
-      jsEncrypt.setPublicKey(publicKey);
-      return jsEncrypt.encrypt(passwordToEncrypt) || passwordToEncrypt;
-    } catch {
-      return passwordToEncrypt;
-    }
+  const handleConfirmPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setConfirmPassword(sanitizePassword(e.target.value));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -280,7 +262,7 @@ export const RegistroReclutador = (): JSX.Element => {
             </Field>
           </div>
           <p className="text-[#757575] text-xs -mt-2">
-            Máximo 30 caracteres. No admite símbolos especiales ni la letra ñ.
+            Máximo 30 caracteres. No admite símbolos especiales.
           </p>
         </FormSection>
 
@@ -303,9 +285,8 @@ export const RegistroReclutador = (): JSX.Element => {
                 disabled={loadingCompanies || loading}
               >
                 <SelectTrigger
-                  className={`h-auto min-h-[42px] bg-white rounded-lg border px-4 py-2 font-normal text-base text-[#b3b3b3] ${
-                    companyError ? "border-[#cc2222]" : "border-[#d9d9d9]"
-                  }`}
+                  className={`h-auto min-h-[42px] bg-white rounded-lg border px-4 py-2 font-normal text-base text-[#b3b3b3] ${companyError ? "border-[#cc2222]" : "border-[#d9d9d9]"
+                    }`}
                 >
                   {companyId
                     ? companyOptions.find(option => option.value === companyId)?.label

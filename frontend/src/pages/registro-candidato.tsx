@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { ErrorMessage } from "../components/ui/error-message";
-import JSEncrypt from "jsencrypt";
 import CandidateService from "../services/candidate.service";
 import { apiService } from "../services/api.service";
 import { API_CONFIG } from "../config/api.config";
 import type { ErrorCode } from "../constants/error-codes";
 import errorHandler from "../services/error-handler.service";
 import validator from 'validator';
+import { sanitizePassword, encryptPassword } from "../utils/password";
+
 import {
   RegistroLayout,
   FormSection,
@@ -128,36 +129,13 @@ export const RegistroCandidato = (): JSX.Element => {
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-      .replace(/[!"#$%/()=?¡¨*[\];:_¿´+{},.\-><°|¬\\~`^Ññ\r\n]/g, "")
-      .slice(0, 30);
-    setPassword(value);
+    setPassword(sanitizePassword(e.target.value));
   };
 
-  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-      .replace(/[!"#$%/()=?¡¨*[\];:_¿´+{},.\-><°|¬\\~`^Ññ\r\n]/g, "")
-      .slice(0, 30);
-    setConfirmPassword(value);
-  };
-
-  const encryptPassword = (password: string) => {
-    const publicKey = import.meta.env.VITE_RSA_PUBLIC_KEY;
-
-    if (!publicKey) {
-      console.warn('No RSA public key found, password will be sent as plain text');
-      return password;
-    }
-
-    try {
-      const jsEncrypt = new JSEncrypt();
-      jsEncrypt.setPublicKey(publicKey);
-      const encrypted = jsEncrypt.encrypt(password);
-      return encrypted || password;
-    } catch (error) {
-      console.error('Error encrypting password:', error);
-      return password;
-    }
+  const handleConfirmPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setConfirmPassword(sanitizePassword(e.target.value));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -365,9 +343,8 @@ export const RegistroCandidato = (): JSX.Element => {
             ) : (
               <Select onValueChange={handleSkillSelect} disabled={loadingSkills || loading} value="">
                 <SelectTrigger
-                  className={`h-auto min-h-[42px] bg-white rounded-lg border px-4 py-2 font-normal text-base text-[#b3b3b3] ${
-                    skillsError ? "border-[#cc2222]" : "border-[#d9d9d9]"
-                  }`}
+                  className={`h-auto min-h-[42px] bg-white rounded-lg border px-4 py-2 font-normal text-base text-[#b3b3b3] ${skillsError ? "border-[#cc2222]" : "border-[#d9d9d9]"
+                    }`}
                 >
                   <SelectValue placeholder={loadingSkills ? "Cargando habilidades..." : "Seleccioná habilidades"} />
                 </SelectTrigger>

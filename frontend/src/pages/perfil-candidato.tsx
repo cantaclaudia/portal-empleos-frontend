@@ -14,51 +14,22 @@ import AuthService from "../services/auth.service";
 import CandidateProfileService from "../services/candidate-profile.service";
 import type {
   CandidateProfile,
-  CandidateExperience,
 } from "../types/candidate-profile.types";
+import type { WorkExperience } from "../types/experience.types";
+import { parseSkills } from "../utils/parse-skills";
+import { getInitials } from "../utils/initials";
+import { formatMonthYear } from "../utils/format-date";
 
 const CARD_CLASS = "bg-white border border-[#dedede] shadow-sm rounded-xl";
 
-const MONTHS = [
-  "ene", "feb", "mar", "abr", "may", "jun",
-  "jul", "ago", "sep", "oct", "nov", "dic",
-];
+const formatRange = (exp: WorkExperience): string | null => {
+  if (!exp.start_date && !exp.end_date) return null;
 
-const getInitials = (name?: string): string => {
-  if (!name) return "?";
-  return (
-    name
-      .split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0]?.toUpperCase())
-      .join("") || "?"
-  );
-};
+  const start = exp.start_date ? formatMonthYear(exp.start_date) : '?';
+  // end_date null = trabajo actual
+  const end = exp.end_date ? formatMonthYear(exp.end_date) : 'actual';
 
-// 'YYYY-MM-DD' -> 'mar 2022'
-const formatMonthYear = (value: string | null): string | null => {
-  if (!value) return null;
-
-  const [year, month] = value.split("-");
-  const monthIndex = Number(month) - 1;
-
-  if (!year || Number.isNaN(monthIndex) || monthIndex < 0 || monthIndex > 11) {
-    return null;
-  }
-
-  return `${MONTHS[monthIndex]} ${year}`;
-};
-
-const formatRange = (exp: CandidateExperience): string | null => {
-  const start = formatMonthYear(exp.start_date);
-
-  // end_date en null significa trabajo actual
-  const end = exp.end_date ? formatMonthYear(exp.end_date) : "actual";
-
-  if (!start && !exp.end_date) return null;
-
-  return `${start ?? "?"} – ${end ?? "?"}`;
+  return `${start} – ${end}`;
 };
 
 const SectionCard = ({
@@ -133,10 +104,7 @@ export const PerfilCandidato = (): JSX.Element => {
     };
   }, [userId]);
 
-  const skills = (profile?.skills ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+  const skills = parseSkills(profile?.skills);
 
   const experience = [
     ...(Array.isArray(profile?.experience) ? profile!.experience! : []),
@@ -205,7 +173,7 @@ export const PerfilCandidato = (): JSX.Element => {
                 {/* Persona */}
                 <div className={`${CARD_CLASS} px-5 py-6 text-center`}>
                   <div className="w-16 h-16 rounded-full bg-[#F46036] text-white font-bold text-xl flex items-center justify-center mx-auto">
-                    {getInitials(fullName)}
+                    {getInitials(profile.first_name, profile.last_name)}
                   </div>
                   <h2 className="mt-3 font-bold text-[#06083C] text-base leading-tight">
                     {fullName}
@@ -318,9 +286,8 @@ export const PerfilCandidato = (): JSX.Element => {
                           >
                             <div className="flex flex-col items-center">
                               <span
-                                className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${
-                                  index === 0 ? "bg-[#f46036]" : "bg-[#cfd3e6]"
-                                }`}
+                                className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${index === 0 ? "bg-[#f46036]" : "bg-[#cfd3e6]"
+                                  }`}
                               />
                               {!isLast && (
                                 <span className="w-px flex-1 bg-[#e5e5e5] mt-1" />

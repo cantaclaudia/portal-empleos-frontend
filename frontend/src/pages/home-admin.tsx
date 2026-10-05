@@ -20,25 +20,9 @@ import { apiService } from '../services/api.service';
 import { API_CONFIG } from '../config/api.config';
 import { ERROR_CODES } from '../constants/error-codes';
 import type { Company } from '../types/employer.types';
+import { getSectorLabel } from '../constants/sectors';
 
 const CARD_CLASS = 'bg-white border border-[#dedede] shadow-sm rounded-xl';
-
-// Nombres de sector que devuelve el backend (en inglés) -> texto en español.
-// Si aparece un sector que no está acá, se muestra tal cual lo devuelve el backend.
-const SECTOR_LABELS: Record<string, string> = {
-  Agriculture: 'Agricultura',
-  Construction: 'Construcción',
-  Design: 'Diseño',
-  Education: 'Educación',
-  Energy: 'Energía',
-  Entertainment: 'Entretenimiento',
-  Healthcare: 'Salud',
-  Hospitality: 'Hotelería',
-  Retail: 'Comercio',
-  Technology: 'Tecnología',
-  Telecommunications: 'Telecomunicaciones',
-  Transportation: 'Transporte',
-};
 
 // El color se asigna según la posición del sector (de más a menos ofertas)
 const SECTOR_PALETTE = [
@@ -414,8 +398,7 @@ export const HomeAdmin = (): JSX.Element => {
     return Object.entries(stats.offersBySector)
       .map(([sector, total]) => ({
         key: sector,
-        label:
-          SECTOR_LABELS[sector] ?? sector,
+        label: getSectorLabel(sector) ?? sector,
         total: Number(total) || 0,
         success:
           Number(

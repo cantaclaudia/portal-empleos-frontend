@@ -6,6 +6,12 @@ import type { ErrorCode } from '../constants/error-codes';
 
 const USER_STORAGE_KEY = 'portal_empleos_user';
 
+const isUserData = (value: unknown): value is UserData => {
+  if (typeof value !== 'object' || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return typeof v.user_id === 'number' && typeof v.role === 'string';
+};
+
 class AuthService {
   async login(email: string, password: string): Promise<UserData> {
     if (email.length > 50) {
@@ -29,9 +35,8 @@ class AuthService {
       }
 
       return response.data;
-
     } catch (error) {
-      throw errorHandler.wrapConnectionError(error); 
+      throw errorHandler.wrapConnectionError(error);
     }
   }
 
@@ -40,8 +45,19 @@ class AuthService {
   }
 
   getUser(): UserData | null {
-    const userData = localStorage.getItem(USER_STORAGE_KEY);
-    return userData ? JSON.parse(userData) : null;
+    const raw = localStorage.getItem(USER_STORAGE_KEY);
+    if (!raw) return null;
+
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (isUserData(parsed)) return parsed;
+    } catch {
+      // JSON corrupto: se descarta abajo
+    }
+
+    // Dato corrupto o con otro formato: se limpia para que la app pueda arrancar
+    localStorage.removeItem(USER_STORAGE_KEY);
+    return null;
   }
 
   logout(): void {

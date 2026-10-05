@@ -5,10 +5,11 @@ import {
   XCircle as XCircleIcon,
   SendHorizonal as SendIcon,
 } from 'lucide-react';
+import { APPLICATION_STATUS } from '../../constants/application-status';
 
 export const getStatusInfo = (status: number | null) => {
   switch (status) {
-    case 0:
+    case APPLICATION_STATUS.REJECTED:
       return {
         icon: XCircleIcon,
         title: 'No seleccionada',
@@ -19,7 +20,7 @@ export const getStatusInfo = (status: number | null) => {
         badgeText: 'text-[#B45309]',
       };
 
-    case 1:
+    case APPLICATION_STATUS.ACCEPTED:
       return {
         icon: CheckCircleIcon,
         title: 'Postulación aceptada',
@@ -30,7 +31,7 @@ export const getStatusInfo = (status: number | null) => {
         badgeText: 'text-[#17835A]',
       };
 
-    case 2:
+    case APPLICATION_STATUS.IN_REVIEW:
       return {
         icon: ClockIcon,
         title: 'En revisión',
@@ -41,16 +42,16 @@ export const getStatusInfo = (status: number | null) => {
         badgeText: 'text-[#3B4A86]',
       };
 
-    case 3:
-  return {
-    icon: SendIcon,
-    title: 'Postulación recibida',
-    text: 'Te avisaremos cuando haya novedades.',
-    iconBg: 'bg-[#F0EBFA]',
-    iconColor: 'text-[#7C5CBF]',
-    badgeBg: 'bg-[#F0EBFA]',
-    badgeText: 'text-[#7C5CBF]',
-  };
+    case APPLICATION_STATUS.RECEIVED:
+      return {
+        icon: SendIcon,
+        title: 'Postulación recibida',
+        text: 'Te avisaremos cuando haya novedades.',
+        iconBg: 'bg-[#F0EBFA]',
+        iconColor: 'text-[#7C5CBF]',
+        badgeBg: 'bg-[#F0EBFA]',
+        badgeText: 'text-[#7C5CBF]',
+      };
 
     default:
       return {

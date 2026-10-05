@@ -1,9 +1,4 @@
-export interface CandidateExperience {
-  job_name: string | null;     // LEFT JOIN: puede venir null
-  company_name: string | null; // LEFT JOIN: puede venir null
-  start_date: string | null;   // 'YYYY-MM-DD'
-  end_date: string | null;
-}
+import type { WorkExperience } from './experience.types';
 
 export interface CandidateProfile {
   first_name: string;
@@ -11,7 +6,7 @@ export interface CandidateProfile {
   email: string;
   resume_url: string | null;
   skills: string | null; // "Asertividad,Figma,Liderazgo"
-  experience: CandidateExperience[] | null;
+  experience: WorkExperience[] | null;
 }
 
 export interface GetCandidateProfileResponse {
