@@ -11,4 +11,5 @@ export const ROUTES = {
   ALTA_EMPRESA: '/alta-empresa',
   POSTULACIONES_RECIBIDAS: '/postulaciones-recibidas',
   PERFIL_CANDIDATO: '/perfil-candidato',
+  PERFIL_RECLUTADOR: '/perfil-reclutador',
 };

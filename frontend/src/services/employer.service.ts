@@ -1,7 +1,11 @@
 import { apiService } from './api.service';
 import { API_CONFIG } from '../config/api.config';
 import errorHandler from './error-handler.service';
-import type { RegisterEmployerRequest, RegisterEmployerResponse } from '../types/employer.types';
+import type {
+  RegisterEmployerRequest,
+  RegisterEmployerResponse,
+  GetEmployerProfileResponse,
+} from '../types/employer.types';
 import type { ErrorCode } from '../constants/error-codes';
 import type { ApiResponse } from './error-handler.service';
 
@@ -31,6 +35,26 @@ class EmployerService {
       }
 
       throw errorHandler.handleApiError(response as ApiResponse, 'REGISTER_EMPLOYER');
+    } catch (error) {
+      throw errorHandler.wrapConnectionError(error);
+    }
+  }
+
+  async getEmployerProfile(userId: string): Promise<GetEmployerProfileResponse> {
+    try {
+      const response = await apiService.post<GetEmployerProfileResponse>(
+        API_CONFIG.ENDPOINTS.GET_EMPLOYER_PROFILE,
+        {},
+        {
+          user_id: userId,
+        }
+      );
+
+      if (errorHandler.isSuccess(response.code as ErrorCode)) {
+        return response;
+      }
+
+      throw errorHandler.handleApiError(response as ApiResponse, 'GET_EMPLOYER_PROFILE');
     } catch (error) {
       throw errorHandler.wrapConnectionError(error);
     }

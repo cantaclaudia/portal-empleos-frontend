@@ -11,6 +11,7 @@ import { PostulacionesRecibidas } from './pages/postulaciones-recibidas';
 import { HomeAdmin } from './pages/home-admin';
 import { ROUTES } from './routes';
 import { PerfilCandidato } from './pages/perfil-candidato';
+import { PerfilReclutador } from './pages/perfil-reclutador';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path={ROUTES.POSTULACIONES_RECIBIDAS} element={<PostulacionesRecibidas />} />
         <Route path={ROUTES.PERFIL_CANDIDATO} element={<PerfilCandidato />} />
         <Route path={ROUTES.HOME_ADMIN} element={<HomeAdmin />} />
+        <Route path={ROUTES.PERFIL_RECLUTADOR} element={<PerfilReclutador />} />
         <Route path="/" element={<Navigate to={ROUTES.LOGIN} replace />} />
       </Routes>
     </Router>

@@ -256,6 +256,18 @@ export const ENDPOINT_ERROR_MESSAGES = {
 
   },
 
+  GET_EMPLOYER_PROFILE: {
+
+    [ERROR_CODES.SUCCESS]: 'Perfil obtenido correctamente',
+
+    [ERROR_CODES.BAD_REQUEST]: COMMON_ERROR_MESSAGES[ERROR_CODES.BAD_REQUEST],
+
+    [ERROR_CODES.NOT_FOUND]: 'Perfil no encontrado',
+
+    [ERROR_CODES.INTERNAL_ERROR]: COMMON_ERROR_MESSAGES[ERROR_CODES.INTERNAL_ERROR],
+
+  },
+
 } as const;
 
 export type EndpointErrorMap = keyof typeof ENDPOINT_ERROR_MESSAGES;

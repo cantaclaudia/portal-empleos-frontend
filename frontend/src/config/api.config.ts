@@ -23,5 +23,6 @@ export const API_CONFIG = {
     UPLOAD_WORK_EXPERIENCE: '/portalEmpleos/v1/uploadWorkExperience',
     GET_STATS: '/portalEmpleos/v1/getStats',
     GET_CANDIDATE_PROFILE: '/portalEmpleos/v1/getCandidateProfile', 
+    GET_EMPLOYER_PROFILE: '/portalEmpleos/v1/getEmployerProfile',
   },
 };
