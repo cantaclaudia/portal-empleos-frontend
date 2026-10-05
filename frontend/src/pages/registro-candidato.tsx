@@ -81,8 +81,6 @@ export const RegistroCandidato = (): JSX.Element => {
           {}
         );
 
-        console.log('Skills API Response:', response);
-
         if (!errorHandler.isSuccess(response.code)) {
           errorHandler.handleApiError(response, 'GET_SKILLS');
         }
@@ -92,7 +90,6 @@ export const RegistroCandidato = (): JSX.Element => {
             value: skill.skill_id.toString(),
             label: skill.name,
           }));
-          console.log('Formatted skills:', formattedSkills);
           setSkillOptions(formattedSkills);
         }
       } catch (err) {
