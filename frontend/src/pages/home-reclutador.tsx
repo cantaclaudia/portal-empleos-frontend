@@ -27,8 +27,7 @@ import { CrearOfertaModal } from "../components/crear-oferta-modal";
 
 /* =====================================================================
  * DATOS MOCKEADOS (SOLO PARA DEMO DEL DISEÑO)
- * Nada de este bloque viene del backend.
- * - Poné USE_MOCKS = false para apagar todo.
+ * - Poner USE_MOCKS = false para apagar todo.
  * - Los IDs son NEGATIVOS para no chocar con los IDs reales.
  * - Cuando haya suficientes datos reales, borrá este bloque completo
  *   y todos los usos marcados con "MOCK" más abajo (Ctrl+F: MOCK).
