@@ -16,8 +16,8 @@ class CandidateService {
     if (data.email.length > 60) {
       throw new Error('El correo electrónico no puede exceder 60 caracteres');
     }
-    if (data.password.length > 30) {
-      throw new Error('La contraseña no puede exceder 30 caracteres');
+    if (!data.password) {
+      throw new Error('La contraseña es requerida');
     }
     if (data.resume_url.length > 100) {
       throw new Error('La URL del currículum no puede exceder 100 caracteres');

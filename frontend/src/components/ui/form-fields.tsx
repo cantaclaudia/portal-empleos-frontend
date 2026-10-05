@@ -14,6 +14,8 @@ export const FormField: React.FC<FormFieldProps> = ({
   className = '',
   showPasswordToggle = false,
   type,
+  id,
+  name,
   ...inputProps
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,14 +23,21 @@ export const FormField: React.FC<FormFieldProps> = ({
   const inputType =
     showPasswordToggle && showPassword ? 'text' : type;
 
+  const fieldId = id || name || `field-${label.toLowerCase().replace(/\s+/g, '-')}`;
+
   return (
     <div className="flex w-full max-w-[500px] flex-col items-start gap-2 px-4 py-2">
-      <label className="[font-family:'Nunito',Helvetica] text-[13px] leading-normal tracking-[0] font-semibold text-[#333333]">
+      <label
+        htmlFor={fieldId}
+        className="[font-family:'Nunito',Helvetica] text-[13px] leading-normal tracking-[0] font-semibold text-[#333333]"
+      >
         {label}
       </label>
 
       <div className="relative w-full">
         <input
+          id={fieldId}
+          name={name || fieldId}
           type={inputType}
           className={`h-11 md:h-[52px] w-full rounded-lg border border-[#cccccc] bg-white px-4 py-3 [font-family:'Nunito',Helvetica] text-sm leading-normal tracking-[0] font-normal text-[#333333] placeholder:text-[#999999] focus:outline-none focus:ring-2 focus:ring-[#f46036] focus:border-transparent transition-all ${
             showPasswordToggle ? 'pr-12' : ''

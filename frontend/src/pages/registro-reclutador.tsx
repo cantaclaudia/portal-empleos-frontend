@@ -13,7 +13,7 @@ import {
   Field,
   PasswordInput,
   inputClass,
-} from "../components/registro-layout"; // NUEVO
+} from "../components/registro-layout";
 
 import {
   Select,
@@ -91,17 +91,17 @@ export const RegistroReclutador = (): JSX.Element => {
     setConfirmPassword(value);
   };
 
-  const encryptPassword = (password: string) => {
+  const encryptPassword = (passwordToEncrypt: string) => {
     const publicKey = import.meta.env.VITE_RSA_PUBLIC_KEY;
 
-    if (!publicKey) return password;
+    if (!publicKey) return passwordToEncrypt;
 
     try {
       const jsEncrypt = new JSEncrypt();
       jsEncrypt.setPublicKey(publicKey);
-      return jsEncrypt.encrypt(password) || password;
+      return jsEncrypt.encrypt(passwordToEncrypt) || passwordToEncrypt;
     } catch {
-      return password;
+      return passwordToEncrypt;
     }
   };
 
@@ -110,37 +110,49 @@ export const RegistroReclutador = (): JSX.Element => {
     setError(null);
 
     let hasError = false;
-    setNameError(false);
-    setLastNameError(false);
-    setEmailError(false);
-    setPasswordFormatError(false);
-    setPasswordMismatchError(false);
-    setCompanyError(false);
 
     if (name.trim() === "" || name.length > 20) {
       setNameError(true);
       hasError = true;
+    } else {
+      setNameError(false);
     }
+
     if (lastName.trim() === "" || lastName.length > 20) {
       setLastNameError(true);
       hasError = true;
+    } else {
+      setLastNameError(false);
     }
+
     if (email.trim() === "" || email.length > 60) {
       setEmailError(true);
       hasError = true;
+    } else {
+      setEmailError(false);
     }
+
     if (password.trim() === "" || password.length > 30) {
       setPasswordFormatError(true);
       hasError = true;
+    } else {
+      setPasswordFormatError(false);
     }
+
     if (password !== confirmPassword) {
       setPasswordMismatchError(true);
       hasError = true;
+    } else {
+      setPasswordMismatchError(false);
     }
+
     if (companyId.trim() === "") {
       setCompanyError(true);
       hasError = true;
+    } else {
+      setCompanyError(false);
     }
+
     if (hasError) return;
 
     setLoading(true);

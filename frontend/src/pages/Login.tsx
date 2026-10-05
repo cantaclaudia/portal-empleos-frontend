@@ -32,14 +32,12 @@ export const Login: React.FC = () => {
   }, []);
 
   const validateEmail = (value: string): boolean => {
-    setEmailError('');
-
-    if (!value) {
+    if (!value.trim()) {
       setEmailError(LOGIN_ERRORS.EMAIL_REQUIRED);
       return false;
     }
 
-    if (value.length > 50) {
+    if (value.length > 60) {
       setEmailError(LOGIN_ERRORS.EMAIL_TOO_LONG);
       return false;
     }
@@ -49,12 +47,11 @@ export const Login: React.FC = () => {
       return false;
     }
 
+    setEmailError('');
     return true;
   };
 
   const validatePassword = (value: string): boolean => {
-    setPasswordError('');
-
     if (!value) {
       setPasswordError(LOGIN_ERRORS.PASSWORD_REQUIRED);
       return false;
@@ -65,19 +62,22 @@ export const Login: React.FC = () => {
       return false;
     }
 
+    setPasswordError('');
     return true;
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
-    validateEmail(value);
+    if (emailError) setEmailError('');
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    const value = e.target.value.slice(0, 30);
+
     setPassword(value);
-    validatePassword(value);
+
+    if (passwordError) setPasswordError('');
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -97,12 +97,13 @@ export const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const userData = await AuthService.login(email, password);
+      // Envío en texto plano tal como requiere el backend
+      const userData = await AuthService.login(email.trim(), password);
 
       AuthService.saveUser(userData);
 
       if (rememberMe) {
-        localStorage.setItem('rememberedEmail', email);
+        localStorage.setItem('rememberedEmail', email.trim());
         localStorage.setItem('rememberMe', 'true');
       } else {
         localStorage.removeItem('rememberedEmail');
@@ -147,17 +148,19 @@ export const Login: React.FC = () => {
 
             <FormField
               label="Correo electrónico"
+              name="email"
               type="email"
               placeholder="Ingresa tu correo electrónico"
               required
               value={email}
               onChange={handleEmailChange}
               error={emailError}
-              maxLength={50}
+              maxLength={60}
             />
 
             <FormField
               label="Contraseña"
+              name="password"
               type="password"
               placeholder="Ingresa tu contraseña"
               required
@@ -186,7 +189,7 @@ export const Login: React.FC = () => {
             <div className="w-full max-w-[500px] px-4">
               <Button
                 type="submit"
-                disabled={loading || !!emailError || !!passwordError}
+                disabled={loading}
                 className="h-11 md:h-[52px] w-full items-center justify-center rounded-lg bg-[#f46036] px-6 py-3 hover:bg-[#d9512e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="text-sm md:text-base leading-normal tracking-[0] font-medium text-white">

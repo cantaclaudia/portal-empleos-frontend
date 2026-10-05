@@ -564,13 +564,15 @@ export const PostulacionesRecibidas: React.FC = () => {
     setMessage(null);
 
     const loadDetail = async () => {
-      const [applicantsResult, statusResult] =
-        await Promise.allSettled([
+      let applicantsData: ApplicantInfo[] = [];
+      let status: StatusCode | null = null;
+      let errorMessage: string | null = null;
+
+      try {
+        const [applicantsResult, statusResult] = await Promise.allSettled([
           ApplicationService.getApplicantsInformation(
             {
-              job_offer_id: String(
-                selectedApp.job_offer_id
-              ),
+              job_offer_id: String(selectedApp.job_offer_id),
             },
             userId
           ),
@@ -583,26 +585,42 @@ export const PostulacionesRecibidas: React.FC = () => {
           ),
         ]);
 
-      if (!active) return;
+        if (!active) return;
 
-      let status: StatusCode | null = null;
-
-      if (statusResult.status === 'fulfilled') {
-        const raw = statusResult.value.data?.status;
-
-        if (isStatusCode(raw)) {
-          status = raw;
+        // Evaluación del estado de la postulación
+        if (statusResult.status === 'fulfilled') {
+          const raw = statusResult.value.data?.status;
+          if (isStatusCode(raw)) {
+            status = raw;
+          }
         }
-      }
 
-      if (applicantsResult.status === 'fulfilled') {
-        setDetail({
-          applicants:
-            applicantsResult.value.data || [],
-          status,
-          loading: false,
-          error: null,
-        });
+        // Evaluación de la información del postulante
+        if (applicantsResult.status === 'fulfilled') {
+          applicantsData = applicantsResult.value.data || [];
+        } else {
+          // Si la promesa fue rechazada (rejected), capturamos la razón
+          const reason = applicantsResult.reason;
+          errorMessage =
+            reason instanceof Error
+              ? reason.message
+              : 'Error al cargar la información del candidato.';
+        }
+      } catch (err) {
+        if (!active) return;
+        errorMessage =
+          err instanceof Error
+            ? err.message
+            : 'Error inesperado al cargar el detalle.';
+      } finally {
+        if (active) {
+          setDetail({
+            applicants: applicantsData,
+            status,
+            loading: false, // Garantizamos que el skeleton SIEMPRE se apague
+            error: errorMessage,
+          });
+        }
       }
     };
 
