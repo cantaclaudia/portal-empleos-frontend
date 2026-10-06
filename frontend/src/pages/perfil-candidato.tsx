@@ -40,7 +40,7 @@ const SectionCard = ({
   children: React.ReactNode;
 }): JSX.Element => (
   <section className={`${CARD_CLASS} px-5 md:px-6 py-5`}>
-    <h3 className="font-bold text-[#06083C] text-base mb-4">{title}</h3>
+    <h3 className="font-bold text-navy text-base mb-4">{title}</h3>
     {children}
   </section>
 );
@@ -128,8 +128,8 @@ export const PerfilCandidato = (): JSX.Element => {
   const fullName = profile ? `${profile.first_name} ${profile.last_name}` : "";
 
   return (
-    <div className="bg-[#EFEFEF] w-full min-h-screen flex flex-col">
-      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-[#06083C] relative z-50">
+    <div className="bg-page w-full min-h-screen flex flex-col">
+      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-navy relative z-50">
         <Button
           variant="ghost"
           size="icon"
@@ -146,7 +146,7 @@ export const PerfilCandidato = (): JSX.Element => {
         onClose={() => setIsMenuOpen(false)}
       />
 
-      <section className="w-full bg-[#1E2749] py-6 md:py-8">
+      <section className="w-full bg-navy-light py-6 md:py-8">
         <div className="max-w-[1000px] mx-auto px-4 md:px-8">
           <h1 className="font-bold text-white text-2xl md:text-3xl text-center">
             Mi perfil
@@ -162,7 +162,7 @@ export const PerfilCandidato = (): JSX.Element => {
             </div>
           ) : error || !profile ? (
             <div className={`${CARD_CLASS} px-8 py-12 text-center`}>
-              <p className="text-[#f46036] text-sm">
+              <p className="text-brand text-sm">
                 {error ?? "No encontramos tu perfil."}
               </p>
             </div>
@@ -172,13 +172,13 @@ export const PerfilCandidato = (): JSX.Element => {
               <div className="flex flex-col gap-5 lg:sticky lg:top-6">
                 {/* Persona */}
                 <div className={`${CARD_CLASS} px-5 py-6 text-center`}>
-                  <div className="w-16 h-16 rounded-full bg-[#F46036] text-white font-bold text-xl flex items-center justify-center mx-auto">
+                  <div className="w-16 h-16 rounded-full bg-brand text-white font-bold text-xl flex items-center justify-center mx-auto">
                     {getInitials(profile.first_name, profile.last_name)}
                   </div>
-                  <h2 className="mt-3 font-bold text-[#06083C] text-base leading-tight">
+                  <h2 className="mt-3 font-bold text-navy text-base leading-tight">
                     {fullName}
                   </h2>
-                  <span className="inline-block mt-2 rounded-full bg-[#eceef6] px-3 py-0.5 text-xs font-semibold text-[#3b4a86]">
+                  <span className="inline-block mt-2 rounded-full bg-surface px-3 py-0.5 text-xs font-semibold text-[#3b4a86]">
                     Candidato
                   </span>
 
@@ -194,7 +194,7 @@ export const PerfilCandidato = (): JSX.Element => {
                       href={profile.resume_url ?? undefined}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#f46036] hover:bg-[#d9512e] px-4 py-2.5 font-medium text-white text-sm transition-colors"
+                      className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand hover:bg-brand-dark px-4 py-2.5 font-medium text-white text-sm transition-colors"
                     >
                       <ExternalLinkIcon className="w-4 h-4" />
                       Ver currículum
@@ -205,23 +205,23 @@ export const PerfilCandidato = (): JSX.Element => {
                 {/* Progreso */}
                 <div className={`${CARD_CLASS} px-5 py-5`}>
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bold text-[#06083C] text-base">
+                    <h3 className="font-bold text-navy text-base">
                       Perfil completo
                     </h3>
-                    <span className="font-bold text-[#d9512e] text-sm tabular-nums">
+                    <span className="font-bold text-brand-dark text-sm tabular-nums">
                       {completion}%
                     </span>
                   </div>
 
                   <div
-                    className="h-1.5 rounded-full bg-[#eceef6] overflow-hidden"
+                    className="h-1.5 rounded-full bg-surface overflow-hidden"
                     role="progressbar"
                     aria-valuenow={completion}
                     aria-valuemin={0}
                     aria-valuemax={100}
                   >
                     <div
-                      className="h-full rounded-full bg-[#f46036]"
+                      className="h-full rounded-full bg-brand"
                       style={{ width: `${completion}%` }}
                     />
                   </div>
@@ -233,13 +233,13 @@ export const PerfilCandidato = (): JSX.Element => {
                         className="flex items-center gap-2.5 py-2.5 border-t border-[#f0f0f0] text-sm"
                       >
                         {item.done ? (
-                          <CheckCircleIcon className="w-4 h-4 text-[#3351A6] flex-shrink-0" />
+                          <CheckCircleIcon className="w-4 h-4 text-accent flex-shrink-0" />
                         ) : (
                           <CircleIcon className="w-4 h-4 text-[#999999] flex-shrink-0" />
                         )}
                         <span
                           className={
-                            item.done ? "text-[#06083C]" : "text-[#757575]"
+                            item.done ? "text-navy" : "text-[#757575]"
                           }
                         >
                           {item.label}
@@ -259,7 +259,7 @@ export const PerfilCandidato = (): JSX.Element => {
                       {skills.map((skill) => (
                         <span
                           key={skill}
-                          className="rounded-full border border-[#dbe5fb] bg-[#eef3ff] px-3 py-1 text-[13px] font-medium text-[#3351A6]"
+                          className="rounded-full border border-[#dbe5fb] bg-[#eef3ff] px-3 py-1 text-[13px] font-medium text-accent"
                         >
                           {skill}
                         </span>
@@ -286,7 +286,7 @@ export const PerfilCandidato = (): JSX.Element => {
                           >
                             <div className="flex flex-col items-center">
                               <span
-                                className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${index === 0 ? "bg-[#f46036]" : "bg-[#cfd3e6]"
+                                className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${index === 0 ? "bg-brand" : "bg-[#cfd3e6]"
                                   }`}
                               />
                               {!isLast && (
@@ -295,7 +295,7 @@ export const PerfilCandidato = (): JSX.Element => {
                             </div>
 
                             <div className={`min-w-0 ${isLast ? "" : "pb-5"}`}>
-                              <p className="font-bold text-[#06083C] text-sm leading-tight">
+                              <p className="font-bold text-navy text-sm leading-tight">
                                 {exp.job_name ?? "Puesto sin especificar"}
                               </p>
                               {exp.company_name && (

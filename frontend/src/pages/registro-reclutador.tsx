@@ -315,7 +315,7 @@ export const RegistroReclutador = (): JSX.Element => {
         <Button
           type="submit"
           disabled={loading}
-          className="h-11 w-full bg-[#f46036] hover:bg-[#d9512e] rounded-lg font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="h-11 w-full rounded-lg font-medium text-base"
         >
           {loading ? 'Registrando...' : 'Registrarse'}
         </Button>

@@ -41,15 +41,15 @@ const AccessTile: React.FC<AccessTileProps> = ({
 }) => (
   <button
     onClick={onClick}
-    className="flex items-center justify-between gap-4 px-5 py-4 rounded-[14px] bg-white border border-gray-100 hover:border-[#3351A6]/40 hover:shadow-sm transition-all duration-200 cursor-pointer w-full text-left group"
+    className="flex items-center justify-between gap-4 px-5 py-4 rounded-[14px] bg-white border border-gray-100 hover:border-accent/40 hover:shadow-sm transition-all duration-200 cursor-pointer w-full text-left group"
   >
     <div className="flex items-center gap-4 min-w-0">
-      <div className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0 bg-[#eceef6] text-[#3b4a86]">
+      <div className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0 bg-surface text-[#3b4a86]">
         <Icon className="w-5 h-5" />
       </div>
 
       <div className="flex flex-col min-w-0">
-        <span className="font-bold text-base leading-tight text-[#05073c]">
+        <span className="font-bold text-base leading-tight text-navy">
           {label}
         </span>
 
@@ -59,7 +59,7 @@ const AccessTile: React.FC<AccessTileProps> = ({
       </div>
     </div>
 
-    <ArrowRightIcon className="w-5 h-5 flex-shrink-0 text-[#999999] group-hover:text-[#3351A6] group-hover:translate-x-1 transition-all" />
+    <ArrowRightIcon className="w-5 h-5 flex-shrink-0 text-[#999999] group-hover:text-accent group-hover:translate-x-1 transition-all" />
   </button>
 );
 
@@ -385,7 +385,7 @@ export const HomeCandidato: React.FC = () => {
                 <div
                   className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
                     isFilterActive(section.title, option)
-                      ? 'border-[#3351A6] bg-[#3351A6] shadow-sm'
+                      ? 'border-accent bg-accent shadow-sm'
                       : 'border-[#cccccc] bg-white'
                   }`}
                 >
@@ -411,7 +411,7 @@ export const HomeCandidato: React.FC = () => {
                 <span
                   className={`min-w-0 text-sm tracking-[0] leading-[20px] transition-colors duration-200 ${
                     isFilterActive(section.title, option)
-                      ? 'text-[#3351A6] font-semibold'
+                      ? 'text-accent font-semibold'
                       : 'text-[#666666] font-normal'
                   }`}
                 >
@@ -427,7 +427,7 @@ export const HomeCandidato: React.FC = () => {
               >
                 <div className="w-[18px] h-[18px] flex items-center justify-center">
                   <PlusIcon
-                    className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-[#3351A6] ${
+                    className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-accent ${
                       expandedSections[section.title]
                         ? 'rotate-45'
                         : ''
@@ -435,7 +435,7 @@ export const HomeCandidato: React.FC = () => {
                   />
                 </div>
 
-                <span className="font-medium text-[#999999] text-xs tracking-[0] leading-[18px] group-hover:text-[#3351A6] transition-colors duration-200">
+                <span className="font-medium text-[#999999] text-xs tracking-[0] leading-[18px] group-hover:text-accent transition-colors duration-200">
                   {expandedSections[section.title]
                     ? 'Ver menos'
                     : 'Ver más'}
@@ -450,7 +450,7 @@ export const HomeCandidato: React.FC = () => {
 
   return (
     <div className="bg-background w-full flex flex-col min-h-screen">
-      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-[#06083C] relative z-50">
+      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-navy relative z-50">
         <Button
           variant="ghost"
           size="icon"
@@ -468,7 +468,7 @@ export const HomeCandidato: React.FC = () => {
         onClose={() => setIsMenuOpen(false)}
       />
 
-      <section className="flex w-full min-h-[160px] md:min-h-[180px] flex-col items-center justify-center gap-5 px-4 py-6 bg-[#1E2749]">
+      <section className="flex w-full min-h-[160px] md:min-h-[180px] flex-col items-center justify-center gap-5 px-4 py-6 bg-navy-light">
         <div className="flex items-center justify-center px-2">
           <p className="font-normal text-white/80 text-base md:text-lg text-center">
             ¿Qué tipo de empleo estás buscando?
@@ -514,9 +514,9 @@ export const HomeCandidato: React.FC = () => {
                       onClick={() => handleAreaSelect(suggestion)}
                       className="w-full px-5 py-2.5 text-left hover:bg-[#f0f4ff] transition-colors flex items-center gap-3 group cursor-pointer"
                     >
-                      <SearchIcon className="w-4 h-4 text-[#757575] group-hover:text-[#3351A6] transition-colors flex-shrink-0" />
+                      <SearchIcon className="w-4 h-4 text-[#757575] group-hover:text-accent transition-colors flex-shrink-0" />
 
-                      <span className="font-medium text-[#333333] text-sm group-hover:text-[#3351A6] transition-colors">
+                      <span className="font-medium text-[#333333] text-sm group-hover:text-accent transition-colors">
                         {suggestion}
                       </span>
                     </button>
@@ -567,9 +567,9 @@ export const HomeCandidato: React.FC = () => {
                       }
                       className="w-full px-5 py-2.5 text-left hover:bg-[#f0f4ff] transition-colors flex items-center gap-3 group cursor-pointer"
                     >
-                      <MapPinIcon className="w-4 h-4 text-[#757575] group-hover:text-[#3351A6] transition-colors flex-shrink-0" />
+                      <MapPinIcon className="w-4 h-4 text-[#757575] group-hover:text-accent transition-colors flex-shrink-0" />
 
-                      <span className="font-medium text-[#333333] text-sm group-hover:text-[#3351A6] transition-colors">
+                      <span className="font-medium text-[#333333] text-sm group-hover:text-accent transition-colors">
                         {suggestion}
                       </span>
                     </button>
@@ -580,7 +580,7 @@ export const HomeCandidato: React.FC = () => {
         </div>
       </section>
 
-      <section className="w-full bg-[#EFEFEF] px-4 md:px-6 lg:px-[35px] py-6 md:py-8 flex-1">
+      <section className="w-full bg-page px-4 md:px-6 lg:px-[35px] py-6 md:py-8 flex-1">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 max-w-[1370px] mx-auto">
           {isFilterOpen && (
             <>
@@ -612,7 +612,7 @@ export const HomeCandidato: React.FC = () => {
                 <div className="flex items-center gap-3 px-6 py-4 border-t border-[#eeeeee] bg-white">
                   <button
                     onClick={() => setIsFilterOpen(false)}
-                    className="flex-1 px-6 py-3 bg-[#F46036] text-white rounded-lg hover:bg-[#d9512e] transition-colors font-semibold text-sm"
+                    className="flex-1 px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors font-semibold text-sm"
                   >
                     Aplicar filtros
                   </button>
@@ -624,11 +624,11 @@ export const HomeCandidato: React.FC = () => {
           <aside className="hidden lg:flex flex-col bg-white rounded-[14px] border border-gray-100 shadow-sm max-h-[calc(100vh-3rem)] sticky top-6 w-[280px] flex-shrink-0">
             <div className="flex items-center px-5 py-4 border-b border-gray-100 flex-shrink-0 rounded-t-[14px]">
               <div className="flex w-full items-center justify-between gap-3">
-                <h2 className="font-bold text-[#05073c] text-base tracking-[-0.01em] leading-[24px]">
+                <h2 className="font-bold text-navy text-base tracking-[-0.01em] leading-[24px]">
                   Filtros
 
                   {activeFiltersCount > 0 && (
-                    <span className="ml-2 rounded-full bg-[#eef3ff] px-2 py-0.5 text-xs font-semibold text-[#3351A6]">
+                    <span className="ml-2 rounded-full bg-[#eef3ff] px-2 py-0.5 text-xs font-semibold text-accent">
                       {activeFiltersCount}
                     </span>
                   )}
@@ -637,7 +637,7 @@ export const HomeCandidato: React.FC = () => {
                 {hasActiveFilters && (
                   <button
                     onClick={clearFilters}
-                    className="text-sm font-semibold text-[#F46036] hover:underline"
+                    className="text-sm font-semibold text-brand hover:underline"
                   >
                     Limpiar
                   </button>
@@ -659,7 +659,7 @@ export const HomeCandidato: React.FC = () => {
             )}
 
             <div className="flex items-center justify-between gap-4 px-1 pt-2">
-              <h1 className="flex flex-wrap items-baseline gap-x-3 font-bold text-[#05073c] text-xl md:text-2xl tracking-[-0.01em] leading-tight">
+              <h1 className="flex flex-wrap items-baseline gap-x-3 font-bold text-navy text-xl md:text-2xl tracking-[-0.01em] leading-tight">
                 Ofertas destacadas
 
                 {!loading && !error && (
@@ -674,7 +674,7 @@ export const HomeCandidato: React.FC = () => {
 
               <button
                 onClick={() => setIsFilterOpen(true)}
-                className="lg:hidden flex items-center gap-2 px-4 py-2.5 bg-[#F46036] text-white rounded-lg hover:bg-[#d9512e] transition-colors shadow-sm"
+                className="lg:hidden flex items-center gap-2 px-4 py-2.5 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors shadow-sm"
               >
                 <svg
                   width="18"
@@ -710,7 +710,7 @@ export const HomeCandidato: React.FC = () => {
                       handleFilterChange(category, value)
                     }
                     aria-label={`Quitar filtro ${category}: ${value}`}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#eef3ff] text-[#3351A6] text-xs font-semibold px-3 py-1.5 hover:bg-[#e2eaff] transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#eef3ff] text-accent text-xs font-semibold px-3 py-1.5 hover:bg-[#e2eaff] transition-colors cursor-pointer"
                   >
                     {value}
                     <XIcon className="w-3 h-3" />
@@ -719,7 +719,7 @@ export const HomeCandidato: React.FC = () => {
 
                 <button
                   onClick={clearFilters}
-                  className="text-xs font-semibold text-[#F46036] hover:underline ml-1 cursor-pointer"
+                  className="text-xs font-semibold text-brand hover:underline ml-1 cursor-pointer"
                 >
                   Limpiar todo
                 </button>
@@ -737,7 +737,7 @@ export const HomeCandidato: React.FC = () => {
             ) : error ? (
               <Card className="bg-white border border-gray-100 shadow-sm rounded-[14px]">
                 <CardContent className="flex items-center justify-center px-8 py-12">
-                  <p className="text-[#f46036] text-sm text-center">
+                  <p className="text-brand text-sm text-center">
                     {error}
                   </p>
                 </CardContent>
@@ -761,7 +761,7 @@ export const HomeCandidato: React.FC = () => {
                   >
                     <CardContent className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 px-6 py-6">
                       <div className="flex-1 min-w-0 flex flex-col gap-2">
-                        <h3 className="font-bold text-[#05073c] text-base md:text-lg tracking-[0] leading-tight">
+                        <h3 className="font-bold text-navy text-base md:text-lg tracking-[0] leading-tight">
                           {job.job_title}
                         </h3>
 
@@ -780,19 +780,19 @@ export const HomeCandidato: React.FC = () => {
 
                       <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 flex-shrink-0">
                         <div className="flex flex-wrap items-center md:justify-end gap-2">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[#fff3ec] border border-[#fbdccd] px-3 py-1.5 text-xs font-semibold text-[#d9512e]">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-light border border-[#fbdccd] px-3 py-1.5 text-xs font-semibold text-brand-dark">
                             <MapPinIcon className="w-3.5 h-3.5" />
                             {job.location}
                           </span>
 
-                          <span className="inline-flex items-center rounded-full bg-[#fff3ec] border border-[#fbdccd] px-3 py-1.5 text-xs font-semibold text-[#d9512e]">
+                          <span className="inline-flex items-center rounded-full bg-brand-light border border-[#fbdccd] px-3 py-1.5 text-xs font-semibold text-brand-dark">
                             {formatSalary(job.salary)}
                           </span>
                         </div>
 
                         <button
                           onClick={() => handleViewMore(job)}
-                          className="text-[#05073c] font-semibold text-sm border border-gray-200 rounded-[7px] px-5 py-1.5 hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap"
+                          className="text-navy font-semibold text-sm border border-gray-200 rounded-[7px] px-5 py-1.5 hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap"
                         >
                           Ver más
                         </button>

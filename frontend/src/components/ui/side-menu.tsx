@@ -46,7 +46,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
         onClick={onClose}
       />
 
-      <div className="fixed left-0 top-0 h-full w-[320px] bg-[#06083C] z-50 shadow-2xl flex flex-col">
+      <div className="fixed left-0 top-0 h-full w-[320px] bg-navy z-50 shadow-2xl flex flex-col">
         <div className="flex items-center justify-end p-5">
           <button
             onClick={onClose}
@@ -57,7 +57,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
         </div>
 
         <div className="flex items-center gap-4 px-6 pb-6 border-b border-white/20">
-          <div className="w-12 h-12 rounded-full bg-[#f46036] flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-brand flex items-center justify-center flex-shrink-0">
             <UserIcon className="w-6 h-6 text-white" />
           </div>
           <div className="flex flex-col">

@@ -104,8 +104,8 @@ export const PerfilReclutador: React.FC = () => {
         : `${formatSalary(minSalary)} a ${formatSalary(maxSalary)}`
 
   return (
-    <div className="bg-[#EFEFEF] w-full min-h-screen flex flex-col">
-      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-[#06083C] relative z-50">
+    <div className="bg-page w-full min-h-screen flex flex-col">
+      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-navy relative z-50">
         <Button
           variant="ghost"
           size="icon"
@@ -119,7 +119,7 @@ export const PerfilReclutador: React.FC = () => {
 
       <ReclutadorSideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-      <section className="w-full bg-[#1E2749] py-6 md:py-8">
+      <section className="w-full bg-navy-light py-6 md:py-8">
         <div className="max-w-[1000px] mx-auto px-4 md:px-8">
           <h1 className="font-bold text-white text-2xl md:text-3xl text-center">Mi perfil</h1>
         </div>
@@ -133,7 +133,7 @@ export const PerfilReclutador: React.FC = () => {
             </Card>
           ) : error || !profile ? (
             <Card className="px-8 py-12 text-center">
-              <p className="text-[#f46036] text-sm">
+              <p className="text-brand text-sm">
                 No pudimos cargar tu perfil. Volvé a intentar más tarde.
               </p>
             </Card>
@@ -141,13 +141,13 @@ export const PerfilReclutador: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-5 items-start">
               {/* Persona */}
               <Card className="px-5 py-6 text-center lg:sticky lg:top-6">
-                <div className="w-16 h-16 rounded-full bg-[#F46036] text-white font-bold text-xl flex items-center justify-center mx-auto">
+                <div className="w-16 h-16 rounded-full bg-brand text-white font-bold text-xl flex items-center justify-center mx-auto">
                   {getInitials(fullName)}
                 </div>
-                <h2 className="mt-3 font-bold text-[#06083C] text-base leading-tight">
+                <h2 className="mt-3 font-bold text-navy text-base leading-tight">
                   {fullName}
                 </h2>
-                <span className="inline-block mt-2 rounded-full bg-[#eceef6] px-3 py-0.5 text-xs font-semibold text-[#3b4a86]">
+                <span className="inline-block mt-2 rounded-full bg-surface px-3 py-0.5 text-xs font-semibold text-[#3b4a86]">
                   Reclutador
                 </span>
 
@@ -161,17 +161,17 @@ export const PerfilReclutador: React.FC = () => {
               <div className="flex flex-col gap-5 min-w-0">
                 <Card className="overflow-hidden">
                   <div className="flex items-center gap-4 px-5 md:px-6 py-5">
-                    <div className="w-14 h-14 rounded-xl bg-[#06083C] flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <div className="w-14 h-14 rounded-xl bg-navy flex items-center justify-center flex-shrink-0 shadow-sm">
                       <span className="font-bold text-white text-lg">
                         {getInitials(profile.company_name)}
                       </span>
                     </div>
                     <div className="flex flex-col gap-1 min-w-0">
-                      <h2 className="font-bold text-[#06083C] text-xl leading-tight">
+                      <h2 className="font-bold text-navy text-xl leading-tight">
                         {profile.company_name}
                       </h2>
                       {sectorLabel && (
-                        <span className="self-start rounded-full bg-[#eef3ff] border border-[#dbe5fb] px-3 py-0.5 text-xs font-semibold text-[#3351A6]">
+                        <span className="self-start rounded-full bg-[#eef3ff] border border-[#dbe5fb] px-3 py-0.5 text-xs font-semibold text-accent">
                           {sectorLabel}
                         </span>
                       )}
@@ -194,7 +194,7 @@ export const PerfilReclutador: React.FC = () => {
                       <p className="text-[11px] uppercase tracking-wide text-[#999999]">
                         Ofertas publicadas
                       </p>
-                      <p className="mt-1 text-base font-semibold text-[#06083C] tabular-nums">
+                      <p className="mt-1 text-base font-semibold text-navy tabular-nums">
                         {profile.total_job_offers}
                       </p>
                     </div>
@@ -202,7 +202,7 @@ export const PerfilReclutador: React.FC = () => {
                       <p className="text-[11px] uppercase tracking-wide text-[#999999]">
                         Postulaciones recibidas
                       </p>
-                      <p className="mt-1 text-base font-semibold text-[#06083C] tabular-nums">
+                      <p className="mt-1 text-base font-semibold text-navy tabular-nums">
                         {profile.total_applications}
                       </p>
                     </div>
@@ -224,7 +224,7 @@ export const PerfilReclutador: React.FC = () => {
                   </p>
                   <Button
                     onClick={() => navigate(`${ROUTES.HOME_RECLUTADOR}?crear=1`)}
-                    className="h-9 rounded-lg bg-[#f46036] px-4 text-sm font-medium text-white hover:bg-[#d9512e] transition-colors whitespace-nowrap"
+                    className="h-9 rounded-lg bg-brand px-4 text-sm font-medium text-white hover:bg-brand-dark transition-colors whitespace-nowrap"
                   >
                     <PlusIcon className="w-4 h-4 mr-1.5" />
                     Publicar oferta
@@ -233,7 +233,7 @@ export const PerfilReclutador: React.FC = () => {
               ) : (
                 <Card className="px-5 md:px-6 py-5 flex flex-col gap-5">
                   <div>
-                    <h3 className="font-bold text-[#06083C] text-base">Así te ven los candidatos</h3>
+                    <h3 className="font-bold text-navy text-base">Así te ven los candidatos</h3>
                     <p className="text-xs text-[#757575] mt-0.5">
                       Resumen de tus ofertas activas.
                     </p>
@@ -247,7 +247,7 @@ export const PerfilReclutador: React.FC = () => {
                       {openPositions.map((title) => (
                         <span
                           key={title}
-                          className="rounded-full border border-[#dbe5fb] bg-[#eef3ff] px-3 py-1 text-[13px] font-medium text-[#3351A6]"
+                          className="rounded-full border border-[#dbe5fb] bg-[#eef3ff] px-3 py-1 text-[13px] font-medium text-accent"
                         >
                           {title}
                         </span>
@@ -264,7 +264,7 @@ export const PerfilReclutador: React.FC = () => {
                         {cities.map((city) => (
                           <span
                             key={city}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-[#EFEFEF] px-3 py-1 text-[13px] font-medium text-[#555555]"
+                            className="inline-flex items-center gap-1.5 rounded-full bg-page px-3 py-1 text-[13px] font-medium text-[#555555]"
                           >
                             <MapPinIcon className="w-3.5 h-3.5 text-[#757575]" />
                             {city}
@@ -279,7 +279,7 @@ export const PerfilReclutador: React.FC = () => {
                       <p className="text-[11px] uppercase tracking-wide text-[#999999]">
                         {minSalary === maxSalary ? 'Salario ofrecido' : 'Rango salarial'}
                       </p>
-                      <p className="text-base font-semibold text-[#F46036] tabular-nums">
+                      <p className="text-base font-semibold text-brand tabular-nums">
                         {salaryRange}
                       </p>
                     </div>

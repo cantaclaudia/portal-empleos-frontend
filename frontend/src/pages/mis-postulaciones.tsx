@@ -46,7 +46,7 @@ const STATUS_TILES: {
   {
     key: APPLICATION_STATUS.IN_REVIEW,
     label: 'En revisión',
-    bg: 'bg-[#ECEEF6]',
+    bg: 'bg-surface',
     text: 'text-[#3B4A86]',
     border: 'border-[#D9DDEE]',
   },
@@ -253,8 +253,8 @@ export const MisPostulaciones: React.FC = () => {
     statusesLoaded ? String(counts[key]) : '—';
 
   return (
-    <div className="bg-[#EFEFEF] w-full min-h-screen flex flex-col">
-      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-[#06083C] relative z-50">
+    <div className="bg-page w-full min-h-screen flex flex-col">
+      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-navy relative z-50">
         <Button
           variant="ghost"
           size="icon"
@@ -272,7 +272,7 @@ export const MisPostulaciones: React.FC = () => {
         onClose={() => setIsMenuOpen(false)}
       />
 
-      <section className="w-full bg-[#1E2749] py-7 md:py-8">
+      <section className="w-full bg-navy-light py-7 md:py-8">
         <div className="max-w-[1100px] mx-auto px-4 md:px-8 text-center">
           <h1 className="font-bold text-white text-xl md:text-2xl leading-tight">
             Mis postulaciones
@@ -297,7 +297,7 @@ export const MisPostulaciones: React.FC = () => {
           ) : error ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <p className="text-[#f46036] text-sm text-center">
+                <p className="text-brand text-sm text-center">
                   {error}
                 </p>
               </CardContent>
@@ -327,11 +327,11 @@ export const MisPostulaciones: React.FC = () => {
                   }
                   className={`flex flex-col items-start gap-0.5 rounded-xl border-2 bg-white px-4 py-3 text-left transition-colors ${
                     activeFilter === 'all'
-                      ? 'border-[#06083C]'
-                      : 'border-[#dedede] hover:border-[#06083C]/40'
+                      ? 'border-navy'
+                      : 'border-[#dedede] hover:border-navy/40'
                   }`}
                 >
-                  <span className="text-2xl font-bold leading-none text-[#06083C] tabular-nums">
+                  <span className="text-2xl font-bold leading-none text-navy tabular-nums">
                     {applications.length}
                   </span>
 
@@ -351,8 +351,8 @@ export const MisPostulaciones: React.FC = () => {
                     }
                     className={`flex flex-col items-start gap-0.5 rounded-xl border-2 px-4 py-3 text-left transition-colors ${tile.bg} ${tile.text} ${
                       activeFilter === tile.key
-                        ? 'border-[#06083C]'
-                        : `${tile.border} hover:border-[#06083C]/40`
+                        ? 'border-navy'
+                        : `${tile.border} hover:border-navy/40`
                     }`}
                   >
                     <span className="text-2xl font-bold leading-none tabular-nums">
@@ -369,7 +369,7 @@ export const MisPostulaciones: React.FC = () => {
               {/* Lista en una sola card */}
               <Card className="overflow-hidden">
                 <div className="flex items-center justify-between gap-3 px-5 py-4">
-                  <h2 className="font-bold text-[#06083C] text-base">
+                  <h2 className="font-bold text-navy text-base">
                     {FILTER_TITLE[
                       String(activeFilter)
                     ]}
@@ -409,7 +409,7 @@ export const MisPostulaciones: React.FC = () => {
                         className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 px-5 py-4 border-t border-[#f0f0f0] hover:bg-[#FAFAFA] transition-colors"
                       >
                         <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <div className="w-10 h-10 rounded-xl bg-[#06083C] text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                          <div className="w-10 h-10 rounded-xl bg-navy text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">
                             {getInitials(
                               app.company_name
                             )}
@@ -427,7 +427,7 @@ export const MisPostulaciones: React.FC = () => {
                                 <>
                                   {details && ' · '}
 
-                                  <span className="font-semibold text-[#F46036] tabular-nums">
+                                  <span className="font-semibold text-brand tabular-nums">
                                     {salary}
                                   </span>
                                 </>
@@ -452,7 +452,7 @@ export const MisPostulaciones: React.FC = () => {
                             onClick={() =>
                               handleViewMore(app)
                             }
-                            className="inline-flex items-center gap-1 font-semibold text-[#3351A6] text-sm whitespace-nowrap hover:opacity-80 transition-opacity"
+                            className="inline-flex items-center gap-1 font-semibold text-accent text-sm whitespace-nowrap hover:opacity-80 transition-opacity"
                           >
                             Ver más
 

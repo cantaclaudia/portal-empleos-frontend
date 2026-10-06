@@ -16,7 +16,7 @@ const navButton = (disabled: boolean) =>
   `w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${
     disabled
       ? 'text-[#757575] cursor-not-allowed'
-      : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
+      : 'text-brand hover:bg-[#fff5f2] cursor-pointer'
   }`;
 
 export const Pagination: React.FC<PaginationProps> = ({
@@ -54,8 +54,8 @@ export const Pagination: React.FC<PaginationProps> = ({
           aria-current={p === page ? 'page' : undefined}
           className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded font-semibold text-sm md:text-base transition-colors cursor-pointer ${
             p === page
-              ? 'bg-[#F46036] text-white'
-              : 'text-[#F46036] hover:bg-[#fff5f2]'
+              ? 'bg-brand text-white'
+              : 'text-brand hover:bg-[#fff5f2]'
           }`}
         >
           {p}

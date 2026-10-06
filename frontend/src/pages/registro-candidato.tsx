@@ -375,7 +375,7 @@ export const RegistroCandidato = (): JSX.Element => {
                   return (
                     <div
                       key={skillValue}
-                      className="bg-[#3351A6] text-white px-3 py-1.5 rounded-md flex items-center gap-2 font-normal text-sm"
+                      className="bg-accent text-white px-3 py-1.5 rounded-md flex items-center gap-2 font-normal text-sm"
                     >
                       <span>{skill?.label}</span>
                       <button
@@ -397,7 +397,7 @@ export const RegistroCandidato = (): JSX.Element => {
         <Button
           type="submit"
           disabled={loading}
-          className="h-11 w-full bg-[#f46036] hover:bg-[#d9512e] rounded-lg font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="h-11 w-full rounded-lg font-medium text-base"
         >
           {loading ? 'Registrando...' : 'Registrarse'}
         </Button>

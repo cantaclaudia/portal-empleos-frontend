@@ -80,7 +80,7 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = ({
       type="button"
       onClick={() => !disabled && setOpen(!open)}
       disabled={disabled}
-      className={`w-full flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-[#f46036] focus:border-transparent transition-all ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''
+      className={`w-full flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''
         }`}
     >
       {children}
@@ -198,7 +198,7 @@ export const SelectItem: React.FC<SelectItemProps> = ({
   return (
     <div
       onClick={() => onValueChange(value)}
-      className={`px-3 py-2 cursor-pointer hover:bg-[#f2f2f2] [font-family:'Nunito',Helvetica] font-normal text-base text-[#333333] transition-colors ${className}`}
+      className={`px-3 py-2 cursor-pointer hover:bg-[#f2f2f2] font-normal text-base text-[#333333] transition-colors ${className}`}
     >
       {children}
     </div>

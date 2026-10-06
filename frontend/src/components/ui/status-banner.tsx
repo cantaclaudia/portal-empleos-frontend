@@ -36,9 +36,9 @@ export const getStatusInfo = (status: number | null) => {
         icon: ClockIcon,
         title: 'En revisión',
         text: 'Te avisaremos cuando haya novedades.',
-        iconBg: 'bg-[#ECEEF6]',
+        iconBg: 'bg-surface',
         iconColor: 'text-[#3B4A86]',
-        badgeBg: 'bg-[#ECEEF6]',
+        badgeBg: 'bg-surface',
         badgeText: 'text-[#3B4A86]',
       };
 
@@ -83,7 +83,7 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({ status }) => {
       </div>
 
       <div className="min-w-0">
-        <p className="font-semibold text-[#06083C] text-sm leading-tight">
+        <p className="font-semibold text-navy text-sm leading-tight">
           {config.title}
         </p>
 

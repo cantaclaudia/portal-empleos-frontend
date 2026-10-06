@@ -37,7 +37,7 @@ interface CrearOfertaFormProps {
 }
 
 const fieldClass =
-  'bg-white rounded-lg border border-[#d9d9d9] px-3 py-2 font-normal text-base text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#f46036] focus:border-transparent transition-all';
+  'bg-white rounded-lg border border-[#d9d9d9] px-3 py-2 font-normal text-base text-[#333333] focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all';
 
 const StepIndicator = ({ step }: { step: Step }): React.ReactElement => {
   const items: { n: Step; label: string }[] = [
@@ -58,20 +58,20 @@ const StepIndicator = ({ step }: { step: Step }): React.ReactElement => {
             >
               <span
                 className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                  active || done ? 'bg-[#f46036] text-white' : 'bg-[#eceef6] text-[#757575]'
+                  active || done ? 'bg-brand text-white' : 'bg-surface text-[#757575]'
                 }`}
               >
                 {done ? '✓' : item.n}
               </span>
               <span
-                className={`text-sm ${active ? 'font-bold text-[#05073c]' : 'text-[#757575]'}`}
+                className={`text-sm ${active ? 'font-bold text-navy' : 'text-[#757575]'}`}
               >
                 {item.label}
               </span>
             </li>
             {idx < items.length - 1 && (
               <span
-                className={`flex-1 h-0.5 rounded ${done ? 'bg-[#f46036]' : 'bg-[#eceef6]'}`}
+                className={`flex-1 h-0.5 rounded ${done ? 'bg-brand' : 'bg-surface'}`}
                 aria-hidden="true"
               />
             )}
@@ -355,7 +355,7 @@ export const CrearOfertaForm = ({
                     </SelectItem>
                   ))}
                   <SelectItem value={NEW_JOB_VALUE}>
-                    <span className="flex items-center gap-1.5 font-medium text-[#f46036]">
+                    <span className="flex items-center gap-1.5 font-medium text-brand">
                       <PlusIcon className="w-4 h-4" />
                       Agregar nuevo tipo de trabajo
                     </span>
@@ -372,7 +372,7 @@ export const CrearOfertaForm = ({
                   type="button"
                   variant="ghost"
                   onClick={onCancel}
-                  className="h-11 rounded-lg border border-[#d9d9d9] px-5 text-[#05073c] hover:bg-gray-50"
+                  className="h-11 rounded-lg border border-[#d9d9d9] px-5 text-navy hover:bg-gray-50"
                 >
                   Cancelar
                 </Button>
@@ -382,7 +382,7 @@ export const CrearOfertaForm = ({
               <Button
                 type="button"
                 onClick={handleNext}
-                className="h-11 rounded-lg bg-[#f46036] hover:bg-[#d9512e] px-6 font-medium text-white text-base transition-colors"
+                className="h-11 rounded-lg bg-brand hover:bg-brand-dark px-6 font-medium text-white text-base transition-colors"
               >
                 Siguiente
               </Button>
@@ -393,7 +393,7 @@ export const CrearOfertaForm = ({
         {step === 1 && creatingType && (
           <>
             <div className="flex flex-col gap-1 rounded-lg bg-[#fff5f2] border border-[#fbdccd] px-4 py-3">
-              <p className="font-bold text-[#05073c] text-sm">Nuevo tipo de trabajo</p>
+              <p className="font-bold text-navy text-sm">Nuevo tipo de trabajo</p>
               <p className="text-[#666666] text-xs">
                 Quedará disponible para publicar esta y futuras ofertas.
               </p>
@@ -454,7 +454,7 @@ export const CrearOfertaForm = ({
                   resetNewType();
                   setCreatingType(false);
                 }}
-                className="h-11 rounded-lg border border-[#d9d9d9] px-5 text-[#05073c] hover:bg-gray-50"
+                className="h-11 rounded-lg border border-[#d9d9d9] px-5 text-navy hover:bg-gray-50"
               >
                 Volver
               </Button>
@@ -462,7 +462,7 @@ export const CrearOfertaForm = ({
                 type="button"
                 onClick={handleCreateType}
                 disabled={typeLoading}
-                className="h-11 rounded-lg bg-[#f46036] hover:bg-[#d9512e] px-6 font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="h-11 rounded-lg bg-brand hover:bg-brand-dark px-6 font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {typeLoading ? 'Guardando...' : 'Guardar tipo'}
               </Button>
@@ -472,10 +472,10 @@ export const CrearOfertaForm = ({
 
         {step === 2 && (
           <>
-            <div className="flex items-center justify-between gap-3 rounded-lg bg-[#eceef6] px-4 py-3">
+            <div className="flex items-center justify-between gap-3 rounded-lg bg-surface px-4 py-3">
               <div className="min-w-0">
                 <p className="text-[#666666] text-xs">Puesto</p>
-                <p className="font-bold text-[#05073c] text-sm truncate">
+                <p className="font-bold text-navy text-sm truncate">
                   {selectedJobType?.name ?? '—'}
                 </p>
               </div>
@@ -483,7 +483,7 @@ export const CrearOfertaForm = ({
                 type="button"
                 onClick={() => setStep(1)}
                 disabled={loading}
-                className="font-bold text-[#3351A6] text-xs hover:opacity-80 transition-opacity whitespace-nowrap"
+                className="font-bold text-accent text-xs hover:opacity-80 transition-opacity whitespace-nowrap"
               >
                 Cambiar
               </button>
@@ -559,14 +559,14 @@ export const CrearOfertaForm = ({
                 variant="ghost"
                 onClick={() => setStep(1)}
                 disabled={loading}
-                className="h-11 rounded-lg border border-[#d9d9d9] px-5 text-[#05073c] hover:bg-gray-50"
+                className="h-11 rounded-lg border border-[#d9d9d9] px-5 text-navy hover:bg-gray-50"
               >
                 Atrás
               </Button>
               <Button
                 type="submit"
                 disabled={loading}
-                className="h-11 rounded-lg bg-[#f46036] hover:bg-[#d9512e] px-8 font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="h-11 rounded-lg bg-brand hover:bg-brand-dark px-8 font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Publicando...' : 'Publicar'}
               </Button>

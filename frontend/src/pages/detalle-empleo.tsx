@@ -44,7 +44,7 @@ const Section = ({ number, numberColor, title, children, first }: SectionProps) 
   >
     <span className={`pt-1 text-xs font-medium tabular-nums ${numberColor}`}>{number}</span>
     <div className="flex flex-col gap-2 min-w-0 flex-1">
-      <h3 className="font-bold text-[#06083C] text-base md:text-lg leading-tight">{title}</h3>
+      <h3 className="font-bold text-navy text-base md:text-lg leading-tight">{title}</h3>
       {children}
     </div>
   </div>
@@ -249,8 +249,8 @@ export const JobDetail: React.FC = () => {
 
     if (!isJobActive) {
       return (
-        <div className="flex items-center gap-3 rounded-xl border border-[#F46036]/30 bg-[#F46036]/10 px-4 py-3.5">
-          <XCircleIcon className="w-5 h-5 text-[#F46036] flex-shrink-0" />
+        <div className="flex items-center gap-3 rounded-xl border border-brand/30 bg-brand/10 px-4 py-3.5">
+          <XCircleIcon className="w-5 h-5 text-brand flex-shrink-0" />
           <p className="text-[#c94a25] text-sm font-medium">
             Esta oferta ya no está disponible.
           </p>
@@ -273,7 +273,7 @@ export const JobDetail: React.FC = () => {
     return (
       <div className="flex flex-col gap-2">
         {applicationError && (
-          <div className="flex items-center gap-2 text-[#f46036] text-xs">
+          <div className="flex items-center gap-2 text-brand text-xs">
             <AlertCircleIcon className="w-4 h-4 flex-shrink-0" />
             {applicationError}
           </div>
@@ -282,7 +282,7 @@ export const JobDetail: React.FC = () => {
         <Button
           onClick={handleApply}
           disabled={isApplying}
-          className="h-12 w-full rounded-lg bg-[#f46036] px-6 py-3 shadow-sm hover:shadow-md hover:bg-[#d9512e] transition-all disabled:opacity-60"
+          className="h-12 w-full rounded-lg bg-brand px-6 py-3 shadow-sm hover:shadow-md hover:bg-brand-dark transition-all disabled:opacity-60"
         >
           <span className="text-base font-medium text-white">
             {isApplying ? 'Postulando...' : 'Postularse'}
@@ -293,8 +293,8 @@ export const JobDetail: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#EFEFEF] w-full min-h-screen flex flex-col">
-      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-[#06083C] relative z-50">
+    <div className="bg-page w-full min-h-screen flex flex-col">
+      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-navy relative z-50">
         <Button
           variant="ghost"
           size="icon"
@@ -326,8 +326,8 @@ export const JobDetail: React.FC = () => {
           ) : error ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center gap-3 py-16">
-                <AlertCircleIcon className="w-9 h-9 text-[#F46036]" />
-                <p className="text-[#f46036] text-sm text-center">{error}</p>
+                <AlertCircleIcon className="w-9 h-9 text-brand" />
+                <p className="text-brand text-sm text-center">{error}</p>
               </CardContent>
             </Card>
           ) : job ? (
@@ -337,13 +337,13 @@ export const JobDetail: React.FC = () => {
                 {/* Cabecera: identidad de la oferta + acción */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-5 md:px-8 py-5 md:py-6">
                   <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-[#06083C] flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-navy flex items-center justify-center flex-shrink-0 shadow-sm">
                       <span className="font-bold text-white text-base md:text-lg">
                         {getInitials(job.company_name)}
                       </span>
                     </div>
                     <div className="flex flex-col gap-0.5 min-w-0">
-                      <h1 className="font-bold text-[#06083C] text-xl md:text-2xl leading-tight">
+                      <h1 className="font-bold text-navy text-xl md:text-2xl leading-tight">
                         {job.job_title}
                       </h1>
                       <p className="font-medium text-[#757575] text-sm md:text-base">
@@ -366,7 +366,7 @@ export const JobDetail: React.FC = () => {
                   </div>
                   <div className="px-5 md:px-8 py-3.5 border-t sm:border-t-0 sm:border-l border-[#f0f0f0]">
                     <p className="text-[11px] uppercase tracking-wide text-[#999999]">Salario</p>
-                    <p className="mt-1 text-sm font-semibold text-[#F46036] tabular-nums">
+                    <p className="mt-1 text-sm font-semibold text-brand tabular-nums">
                       {formatSalary(job.salary)}
                     </p>
                   </div>
@@ -380,7 +380,7 @@ export const JobDetail: React.FC = () => {
 
                 {/* 01 Descripción */}
                 <div className="border-t border-[#f0f0f0]">
-                  <Section number="01" numberColor="text-[#3351A6]" title="Descripción" first>
+                  <Section number="01" numberColor="text-accent" title="Descripción" first>
                     <p className="text-sm md:text-[15px] leading-relaxed text-[#333333] whitespace-pre-line">
                       {job.job_description}
                     </p>
@@ -389,7 +389,7 @@ export const JobDetail: React.FC = () => {
 
                 {/* 02 Requisitos */}
                 {requirementLines.length > 0 && (
-                  <Section number="02" numberColor="text-[#F46036]" title="Requisitos">
+                  <Section number="02" numberColor="text-brand" title="Requisitos">
                     {requirementLines.length > 1 ? (
                       <ul className="flex flex-col gap-2">
                         {requirementLines.map((line, index) => (
@@ -417,7 +417,7 @@ export const JobDetail: React.FC = () => {
                   title={`Sobre ${job.company_name}`}
                 >
                   <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full border border-[#dbe5fb] bg-[#eef3ff] px-3 py-1 text-[13px] font-medium text-[#3351A6]">
+                    <span className="rounded-full border border-[#dbe5fb] bg-[#eef3ff] px-3 py-1 text-[13px] font-medium text-accent">
                       {companyJobs.length} {companyJobs.length === 1 ? 'oferta activa' : 'ofertas activas'}
                     </span>
                     {companyCities.length > 0 && (
@@ -427,7 +427,7 @@ export const JobDetail: React.FC = () => {
                       </span>
                     )}
                     {salaryRange && (
-                      <span className="rounded-full border border-[#fbdccd] bg-[#fff3ec] px-3 py-1 text-[13px] font-medium text-[#c94a25] tabular-nums">
+                      <span className="rounded-full border border-[#fbdccd] bg-brand-light px-3 py-1 text-[13px] font-medium text-[#c94a25] tabular-nums">
                         {minSalary === maxSalary ? 'Salario' : 'Salarios'}: {salaryRange}
                       </span>
                     )}
@@ -438,7 +438,7 @@ export const JobDetail: React.FC = () => {
               {/* Otras ofertas de la empresa */}
               {otherJobs.length > 0 && (
                 <div className="flex flex-col gap-3">
-                  <h2 className="px-1 font-bold text-[#06083C] text-base md:text-lg">
+                  <h2 className="px-1 font-bold text-navy text-base md:text-lg">
                     Otras ofertas de {job.company_name}
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -457,13 +457,13 @@ export const JobDetail: React.FC = () => {
                           </p>
                         )}
                         {other.salary && formatSalary(other.salary) && (
-                          <p className="text-xs font-semibold text-[#F46036] tabular-nums">
+                          <p className="text-xs font-semibold text-brand tabular-nums">
                             {formatSalary(other.salary)}
                           </p>
                         )}
                         <button
                           onClick={() => handleOpenOtherJob(other.job_offer_id)}
-                          className="mt-2 self-start text-sm font-bold text-[#3351A6] hover:opacity-80 transition-opacity cursor-pointer"
+                          className="mt-2 self-start text-sm font-bold text-accent hover:opacity-80 transition-opacity cursor-pointer"
                         >
                           Ver más
                         </button>

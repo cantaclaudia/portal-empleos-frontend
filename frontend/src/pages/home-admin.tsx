@@ -79,16 +79,16 @@ const StatTile = ({
 }: StatTileProps): JSX.Element => (
   <Card className="p-5 flex items-center gap-4">
 
-    <div className="w-11 h-11 rounded-xl bg-[#eceef6] text-[#3b4a86] flex items-center justify-center flex-shrink-0">
+    <div className="w-11 h-11 rounded-xl bg-surface text-[#3b4a86] flex items-center justify-center flex-shrink-0">
       {icon}
     </div>
 
     <div className="min-w-0">
-      <p className="font-bold text-[#05073c] text-2xl leading-none tabular-nums">
+      <p className="font-bold text-navy text-2xl leading-none tabular-nums">
         {value}
       </p>
 
-      <p className="font-semibold text-[#05073c] text-sm mt-1">
+      <p className="font-semibold text-navy text-sm mt-1">
         {label}
       </p>
 
@@ -189,7 +189,7 @@ const DonutChart = ({
               {seg.label}
             </span>
 
-            <span className="font-semibold text-[#05073c] tabular-nums">
+            <span className="font-semibold text-navy tabular-nums">
               {seg.value}
             </span>
           </li>
@@ -220,12 +220,12 @@ const RateBar = ({
         {label}
       </span>
 
-      <span className="text-[#05073c] font-semibold tabular-nums whitespace-nowrap">
+      <span className="text-navy font-semibold tabular-nums whitespace-nowrap">
         {success} de {total} · {pct}%
       </span>
     </div>
 
-    <div className="h-2.5 rounded-full bg-[#eceef6] overflow-hidden">
+    <div className="h-2.5 rounded-full bg-surface overflow-hidden">
       <div
         className="h-full rounded-full"
         style={{
@@ -522,8 +522,8 @@ export const HomeAdmin = (): JSX.Element => {
   };
 
   return (
-    <div className="bg-[#EFEFEF] w-full flex flex-col overflow-x-hidden min-h-screen">
-      <nav className="flex w-full items-center gap-3 px-4 md:px-16 py-6 bg-[#05073c] shadow-lg">
+    <div className="bg-page w-full flex flex-col overflow-x-hidden min-h-screen">
+      <nav className="flex w-full items-center gap-3 px-4 md:px-16 py-6 bg-navy shadow-lg">
         <Button
           variant="ghost"
           size="icon"
@@ -545,7 +545,7 @@ export const HomeAdmin = (): JSX.Element => {
         }
       />
 
-      <section className="w-full bg-[#1E2749] py-7 md:py-8">
+      <section className="w-full bg-navy-light py-7 md:py-8">
         <div className="max-w-[1100px] mx-auto px-4 md:px-8 text-center">
           <h2 className="font-bold text-white text-xl md:text-2xl leading-tight">
             Panel de administración
@@ -559,7 +559,7 @@ export const HomeAdmin = (): JSX.Element => {
 
       <section className="flex flex-col gap-5 px-4 md:px-20 py-8 w-full max-w-[1194px] mx-auto">
         {statsError && (
-          <div className="bg-[#fff4ed] border border-[#f46036]/30 text-[#a83f1c] text-sm rounded-[8px] px-5 py-3">
+          <div className="bg-[#fff4ed] border border-brand/30 text-[#a83f1c] text-sm rounded-[8px] px-5 py-3">
             No pudimos cargar las estadísticas.
             Verificá que el usuario tenga permisos
             de administrador.
@@ -616,7 +616,7 @@ export const HomeAdmin = (): JSX.Element => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
           <Card className="p-6">
-            <h3 className="font-bold text-[#05073c] text-base mb-1">
+            <h3 className="font-bold text-navy text-base mb-1">
               Ofertas publicadas por sector
             </h3>
 
@@ -640,7 +640,7 @@ export const HomeAdmin = (): JSX.Element => {
           </Card>
 
           <Card className="p-6">
-            <h3 className="font-bold text-[#05073c] text-base mb-1">
+            <h3 className="font-bold text-navy text-base mb-1">
               Tasa de éxito por sector
             </h3>
 
@@ -680,13 +680,13 @@ export const HomeAdmin = (): JSX.Element => {
 
         <Card className="overflow-hidden">
           <div className="flex items-center gap-2 px-5 py-4 border-b border-[#f0f0f0]">
-            <h3 className="font-bold text-[#05073c] text-base">
+            <h3 className="font-bold text-navy text-base">
               Empresas
             </h3>
 
             {!companiesLoading &&
               !companiesError && (
-                <span className="rounded-full bg-[#eceef6] px-2 py-0.5 text-xs font-semibold text-[#3b4a86]">
+                <span className="rounded-full bg-surface px-2 py-0.5 text-xs font-semibold text-[#3b4a86]">
                   {companies.length}
                 </span>
               )}
@@ -716,7 +716,7 @@ export const HomeAdmin = (): JSX.Element => {
                     Cargando empresas...
                   </p>
                 ) : companiesError ? (
-                  <p className="py-6 text-center text-sm text-[#f46036]">
+                  <p className="py-6 text-center text-sm text-brand">
                     No pudimos cargar las empresas.
                     Volvé a intentar más tarde.
                   </p>
@@ -734,11 +734,11 @@ export const HomeAdmin = (): JSX.Element => {
                         key={company.company_id}
                         className="flex items-center gap-3 py-3 border-t border-[#f0f0f0] first:border-t-0"
                       >
-                        <div className="w-9 h-9 rounded-[9px] bg-[#eceef6] text-[#3b4a86] flex items-center justify-center flex-shrink-0">
+                        <div className="w-9 h-9 rounded-[9px] bg-surface text-[#3b4a86] flex items-center justify-center flex-shrink-0">
                           <BuildingIcon className="w-[18px] h-[18px]" />
                         </div>
 
-                        <p className="font-semibold text-[#05073c] text-sm truncate">
+                        <p className="font-semibold text-navy text-sm truncate">
                           {company.name}
                         </p>
                       </div>
@@ -753,7 +753,7 @@ export const HomeAdmin = (): JSX.Element => {
               onSubmit={handleSubmit}
               className="flex flex-col gap-4 p-5 bg-[#fafafa] border-t lg:border-t-0 lg:border-l border-[#f0f0f0]"
             >
-              <h4 className="font-bold text-[#05073c] text-sm">
+              <h4 className="font-bold text-navy text-sm">
                 Dar de alta una empresa
               </h4>
 
@@ -849,7 +849,7 @@ export const HomeAdmin = (): JSX.Element => {
                     )
                   }
                   disabled={submitting}
-                  className="min-h-[80px] bg-white rounded-lg border border-[#d9d9d9] px-3 py-2 text-sm text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#f46036] focus:border-transparent transition-all"
+                  className="min-h-[80px] bg-white rounded-lg border border-[#d9d9d9] px-3 py-2 text-sm text-[#333333] focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
                 />
 
                 {fieldErrors.description && (
@@ -862,7 +862,7 @@ export const HomeAdmin = (): JSX.Element => {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="h-11 rounded-lg bg-[#f46036] hover:bg-[#d9512e] px-6 font-medium text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="h-11 rounded-lg bg-brand hover:bg-brand-dark px-6 font-medium text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {submitting
                   ? 'Creando...'

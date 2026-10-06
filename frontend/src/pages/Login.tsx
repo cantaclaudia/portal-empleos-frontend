@@ -177,7 +177,7 @@ export const Login: React.FC = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-[#d9d9d9] accent-[#f46036] focus:ring-[#f46036]"
+                  className="w-4 h-4 rounded border-[#d9d9d9] accent-brand focus:ring-brand"
                 />
 
                 <span className="text-sm text-[#333333]">
@@ -190,7 +190,7 @@ export const Login: React.FC = () => {
               <Button
                 type="submit"
                 disabled={loading}
-                className="h-11 md:h-[52px] w-full items-center justify-center rounded-lg bg-[#f46036] px-6 py-3 hover:bg-[#d9512e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-11 md:h-[52px] w-full items-center justify-center rounded-lg px-6 py-3"
               >
                 <span className="text-sm md:text-base leading-normal tracking-[0] font-medium text-white">
                   {loading ? 'Ingresando...' : 'Ingresar'}
@@ -213,7 +213,7 @@ export const Login: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/registro-candidato')}
-              className="text-[#3351A6] text-sm font-medium hover:underline"
+              className="text-accent text-sm font-medium hover:underline"
             >
               Creá tu cuenta como Candidato o Empresa.
             </button>

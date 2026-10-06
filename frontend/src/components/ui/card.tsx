@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '../../lib/utils';
 
 type CardVariant = 'default' | 'soft';
 
@@ -17,7 +18,7 @@ export const Card: React.FC<CardProps> = ({
   children,
   ...props
 }) => (
-  <div className={`${VARIANT_CLASSES[variant]} ${className}`} {...props}>
+  <div className={cn(VARIANT_CLASSES[variant], className)} {...props}>
     {children}
   </div>
 );

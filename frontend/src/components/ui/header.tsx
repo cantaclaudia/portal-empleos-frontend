@@ -9,7 +9,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   return (
-    <header className="w-full flex items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-[#06083C] sticky top-0 z-40">
+    <header className="w-full flex items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-navy sticky top-0 z-40">
       {onMenuClick && (
         <Button
           variant="ghost"

@@ -244,14 +244,14 @@ const StatusChip = ({
   status: ApplicationStatusCode;
 }): JSX.Element => (
   <span
-    className={`inline-block rounded-full bg-[#eceef6] px-3 py-0.5 text-[12px] font-bold whitespace-nowrap ${STATUS_TEXT[status]}`}
+    className={`inline-block rounded-full bg-surface px-3 py-0.5 text-[12px] font-bold whitespace-nowrap ${STATUS_TEXT[status]}`}
   >
     {APPLICATION_STATUS_LABEL[status]}
   </span>
 );
 
 const DemoChip = (): JSX.Element => (
-  <span className="inline-block rounded-full bg-[#fff3ec] border border-[#fbdccd] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-[#f46036] whitespace-nowrap">
+  <span className="inline-block rounded-full bg-brand-light border border-[#fbdccd] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-brand whitespace-nowrap">
     Demo
   </span>
 );
@@ -262,11 +262,11 @@ const DetailSkeleton = (): JSX.Element => (
     aria-busy="true"
     aria-label="Cargando candidato"
   >
-    <div className="h-7 w-1/2 rounded bg-[#eceef6]" />
-    <div className="h-3.5 w-2/5 rounded bg-[#eceef6]" />
-    <div className="h-3.5 w-3/4 rounded bg-[#eceef6]" />
-    <div className="h-3.5 w-3/5 rounded bg-[#eceef6]" />
-    <div className="h-3.5 w-4/5 rounded bg-[#eceef6]" />
+    <div className="h-7 w-1/2 rounded bg-surface" />
+    <div className="h-3.5 w-2/5 rounded bg-surface" />
+    <div className="h-3.5 w-3/4 rounded bg-surface" />
+    <div className="h-3.5 w-3/5 rounded bg-surface" />
+    <div className="h-3.5 w-4/5 rounded bg-surface" />
   </div>
 );
 
@@ -284,13 +284,13 @@ const ApplicantBlock = ({
   return (
     <article className="flex flex-col gap-5">
       <div>
-        <h3 className="font-bold text-[#05073c] text-[20px] md:text-[22px] leading-tight">
+        <h3 className="font-bold text-navy text-[20px] md:text-[22px] leading-tight">
           {toTitleCase(`${applicant.first_name} ${applicant.last_name}`)}
         </h3>
 
         <p className="text-[#666666] text-sm mt-0.5">Se postuló a {jobTitle}</p>
 
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-3.5 text-sm text-[#05073c]">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-3.5 text-sm text-navy">
           <span className="inline-flex items-center gap-1.5">
             <MailIcon className="w-4 h-4 text-[#666666]" />
             {applicant.email}
@@ -301,7 +301,7 @@ const ApplicantBlock = ({
               href={toExternalUrl(applicant.resume_url)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 font-semibold text-[#f46036] hover:underline"
+              className="inline-flex items-center gap-1.5 font-semibold text-brand hover:underline"
             >
               <FileTextIcon className="w-4 h-4" />
               Ver currículum
@@ -312,7 +312,7 @@ const ApplicantBlock = ({
 
       {skills.length > 0 && (
         <div>
-          <h4 className="font-bold text-[#05073c] text-sm mb-2.5">
+          <h4 className="font-bold text-navy text-sm mb-2.5">
             Habilidades
           </h4>
 
@@ -320,7 +320,7 @@ const ApplicantBlock = ({
             {skills.map((skill) => (
               <span
                 key={skill}
-                className="rounded-full bg-[#eceef6] px-3 py-1 text-[13px] font-semibold text-[#05073c]"
+                className="rounded-full bg-surface px-3 py-1 text-[13px] font-semibold text-navy"
               >
                 {skill}
               </span>
@@ -330,7 +330,7 @@ const ApplicantBlock = ({
       )}
 
       <div>
-        <h4 className="font-bold text-[#05073c] text-sm mb-2.5">Experiencia</h4>
+        <h4 className="font-bold text-navy text-sm mb-2.5">Experiencia</h4>
 
         {experience.length > 0 ? (
           <ul>
@@ -353,7 +353,7 @@ const ApplicantBlock = ({
                   </div>
 
                   <div className="pb-6">
-                    <p className="text-sm font-semibold text-[#05073c]">
+                    <p className="text-sm font-semibold text-navy">
                       {exp.job_name ?? 'Puesto sin especificar'}
                     </p>
 
@@ -634,8 +634,8 @@ export const PostulacionesRecibidas: React.FC = () => {
   const showError = error !== null && applications.length === 0;
 
   return (
-    <div className="bg-[#EFEFEF] w-full min-h-screen flex flex-col">
-      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-[#06083C] relative z-50">
+    <div className="bg-page w-full min-h-screen flex flex-col">
+      <nav className="flex w-full items-center gap-3 px-4 md:px-8 lg:px-[62px] py-4 md:py-5 bg-navy relative z-50">
         <Button
           variant="ghost"
           size="icon"
@@ -653,7 +653,7 @@ export const PostulacionesRecibidas: React.FC = () => {
         onClose={() => setIsMenuOpen(false)}
       />
 
-      <section className="w-full bg-[#1E2749] py-7 md:py-8">
+      <section className="w-full bg-navy-light py-7 md:py-8">
         <div className="max-w-[1100px] mx-auto px-4 md:px-8 text-center">
           <h1 className="font-bold text-white text-xl md:text-2xl leading-tight">
             Postulaciones recibidas
@@ -678,7 +678,7 @@ export const PostulacionesRecibidas: React.FC = () => {
           ) : showError ? (
             <Card className="bg-white border-0 shadow-sm">
               <CardContent className="flex flex-col items-center justify-center py-16">
-                <p className="text-[#f46036] text-sm md:text-base">{error}</p>
+                <p className="text-brand text-sm md:text-base">{error}</p>
               </CardContent>
             </Card>
           ) : applications.length === 0 ? (
@@ -694,7 +694,7 @@ export const PostulacionesRecibidas: React.FC = () => {
               <div className="mb-5">
                 <div className="flex items-center gap-3 mb-5">
                   <span className="text-sm text-[#666666]">
-                    <strong className="text-[#05073c] text-base">
+                    <strong className="text-navy text-base">
                       {applications.length}
                     </strong>{' '}
                     postulaciones
@@ -703,7 +703,7 @@ export const PostulacionesRecibidas: React.FC = () => {
                   <span className="text-[#c5c5c5]">|</span>
 
                   <span className="text-sm text-[#666666]">
-                    <strong className="text-[#05073c] text-base">
+                    <strong className="text-navy text-base">
                       {puestos.length}
                     </strong>{' '}
                     puestos
@@ -727,8 +727,8 @@ export const PostulacionesRecibidas: React.FC = () => {
                             aria-pressed={active}
                             className={`rounded-full border px-3 py-1 text-[12px] font-bold transition-colors ${
                               active
-                                ? 'bg-[#05073c] text-white border-[#05073c]'
-                                : 'bg-white text-[#05073c] border-gray-200 hover:bg-gray-50'
+                                ? 'bg-navy text-white border-navy'
+                                : 'bg-white text-navy border-gray-200 hover:bg-gray-50'
                             }`}
                           >
                             {title || 'Todas'}
@@ -745,7 +745,7 @@ export const PostulacionesRecibidas: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-[340px_1fr] bg-white border border-gray-200 rounded-[14px] overflow-hidden">
                 <div className="border-b md:border-b-0 md:border-r border-gray-200 md:max-h-[680px] overflow-y-auto">
                   <div className="px-[18px] py-4 border-b border-gray-200">
-                    <h2 className="font-bold text-[#05073c] text-base">
+                    <h2 className="font-bold text-navy text-base">
                       Solicitudes
                     </h2>
                   </div>
@@ -760,12 +760,12 @@ export const PostulacionesRecibidas: React.FC = () => {
                         aria-current={isSelected}
                         className={`block w-full text-left px-[18px] py-3.5 border-b border-b-gray-200 border-l-[3px] transition-colors ${
                           isSelected
-                            ? 'border-l-[#f46036] bg-[#eceef6]'
-                            : 'border-l-transparent hover:bg-[#eceef6]'
+                            ? 'border-l-brand bg-surface'
+                            : 'border-l-transparent hover:bg-surface'
                         }`}
                       >
                         <span className="flex items-center justify-between gap-2">
-                          <span className="block font-bold text-[#05073c] text-sm leading-snug">
+                          <span className="block font-bold text-navy text-sm leading-snug">
                             {app.job_title}
                           </span>
 
@@ -821,7 +821,7 @@ export const PostulacionesRecibidas: React.FC = () => {
 
                       {!detail.loading && (
                         <div className="px-5 md:px-7 py-5 border-t border-gray-200">
-                          <h4 className="font-bold text-[#05073c] text-sm mb-2.5">
+                          <h4 className="font-bold text-navy text-sm mb-2.5">
                             Decisión
                           </h4>
 
@@ -842,7 +842,7 @@ export const PostulacionesRecibidas: React.FC = () => {
                                   className={`flex-1 sm:flex-none px-4 py-2.5 text-sm font-bold border-l border-gray-200 first:border-l-0 transition-colors disabled:cursor-default ${
                                     isActive
                                       ? `${STATUS_ACTIVE_BG[code]} text-white`
-                                      : 'bg-white text-[#05073c] hover:bg-[#eceef6] disabled:opacity-60'
+                                      : 'bg-white text-navy hover:bg-surface disabled:opacity-60'
                                   }`}
                                 >
                                   {label}
@@ -871,7 +871,7 @@ export const PostulacionesRecibidas: React.FC = () => {
                                       false
                                     )
                                   }
-                                  className="font-semibold text-[#f46036] hover:underline"
+                                  className="font-semibold text-brand hover:underline"
                                 >
                                   Deshacer
                                 </button>
