@@ -21,8 +21,7 @@ import { API_CONFIG } from '../config/api.config';
 import { ERROR_CODES } from '../constants/error-codes';
 import type { Company } from '../types/employer.types';
 import { getSectorLabel } from '../constants/sectors';
-
-const CARD_CLASS = 'bg-white border border-[#dedede] shadow-sm rounded-xl';
+import { Card } from '../components/ui/card';
 
 // El color se asigna según la posición del sector (de más a menos ofertas)
 const SECTOR_PALETTE = [
@@ -78,7 +77,8 @@ const StatTile = ({
   label,
   sublabel,
 }: StatTileProps): JSX.Element => (
-  <div className={`${CARD_CLASS} p-5 flex items-center gap-4`}>
+  <Card className="p-5 flex items-center gap-4">
+
     <div className="w-11 h-11 rounded-xl bg-[#eceef6] text-[#3b4a86] flex items-center justify-center flex-shrink-0">
       {icon}
     </div>
@@ -98,7 +98,7 @@ const StatTile = ({
         </p>
       )}
     </div>
-  </div>
+  </Card>
 );
 
 interface DonutSegment {
@@ -611,12 +611,11 @@ export const HomeAdmin = (): JSX.Element => {
             }
           />
         </div>
-
         {/* Gráficos */}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div
-            className={`${CARD_CLASS} p-6`}
-          >
+
+          <Card className="p-6">
             <h3 className="font-bold text-[#05073c] text-base mb-1">
               Ofertas publicadas por sector
             </h3>
@@ -638,11 +637,9 @@ export const HomeAdmin = (): JSX.Element => {
                 segments={donutSegments}
               />
             )}
-          </div>
+          </Card>
 
-          <div
-            className={`${CARD_CLASS} p-6`}
-          >
+          <Card className="p-6">
             <h3 className="font-bold text-[#05073c] text-base mb-1">
               Tasa de éxito por sector
             </h3>
@@ -675,13 +672,13 @@ export const HomeAdmin = (): JSX.Element => {
                   ))}
               </div>
             )}
-          </div>
+          </Card>
+
         </div>
 
         {/* Empresas: lista + alta, siempre visible */}
-        <div
-          className={`${CARD_CLASS} overflow-hidden`}
-        >
+
+        <Card className="overflow-hidden">
           <div className="flex items-center gap-2 px-5 py-4 border-b border-[#f0f0f0]">
             <h3 className="font-bold text-[#05073c] text-base">
               Empresas
@@ -873,10 +870,10 @@ export const HomeAdmin = (): JSX.Element => {
               </Button>
             </form>
           </div>
-        </div>
-      </section>
+        </Card>
+      </section >
 
       <Footer />
-    </div>
+    </div >
   );
 };

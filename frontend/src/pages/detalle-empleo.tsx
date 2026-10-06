@@ -20,7 +20,6 @@ import { CandidatoSideMenu } from '../components/candidato-side-menu';
 import { formatSalary } from '../utils/format-salary';
 import { getInitials } from '../utils/initials';
 
-const CARD_CLASS = 'bg-white border border-[#dedede] shadow-sm rounded-xl';
 const MAX_OTHER_JOBS = 3;
 
 
@@ -318,14 +317,14 @@ export const JobDetail: React.FC = () => {
 
 
           {loading ? (
-            <Card className={CARD_CLASS}>
+            <Card>
               <CardContent className="flex flex-col items-center justify-center gap-3 py-16">
                 <ClockIcon className="w-9 h-9 text-[#cccccc]" />
                 <p className="text-[#757575] text-sm">Cargando empleo...</p>
               </CardContent>
             </Card>
           ) : error ? (
-            <Card className={CARD_CLASS}>
+            <Card>
               <CardContent className="flex flex-col items-center justify-center gap-3 py-16">
                 <AlertCircleIcon className="w-9 h-9 text-[#F46036]" />
                 <p className="text-[#f46036] text-sm text-center">{error}</p>
@@ -334,7 +333,7 @@ export const JobDetail: React.FC = () => {
           ) : job ? (
             <div className="flex flex-col gap-6">
               {/* Card principal */}
-              <div className={`${CARD_CLASS} overflow-hidden`}>
+              <Card className="overflow-hidden">
                 {/* Cabecera: identidad de la oferta + acción */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-5 md:px-8 py-5 md:py-6">
                   <div className="flex items-center gap-4 min-w-0">
@@ -434,7 +433,7 @@ export const JobDetail: React.FC = () => {
                     )}
                   </div>
                 </Section>
-              </div>
+              </Card>
 
               {/* Otras ofertas de la empresa */}
               {otherJobs.length > 0 && (
@@ -444,9 +443,9 @@ export const JobDetail: React.FC = () => {
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {otherJobs.map((other) => (
-                      <div
+                      <Card
                         key={other.job_offer_id}
-                        className={`${CARD_CLASS} flex flex-col gap-1.5 p-4 hover:shadow-md transition-shadow`}
+                        className="flex flex-col gap-1.5 p-4 hover:shadow-md transition-shadow"
                       >
                         <p className="font-bold text-[#333333] text-sm leading-tight">
                           {other.job_title}
@@ -468,7 +467,7 @@ export const JobDetail: React.FC = () => {
                         >
                           Ver más
                         </button>
-                      </div>
+                      </Card>
                     ))}
                   </div>
                 </div>

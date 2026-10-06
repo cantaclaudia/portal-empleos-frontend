@@ -6,8 +6,6 @@ import {
   X as XIcon,
   MapPin as MapPinIcon,
   Plus as PlusIcon,
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
   Building2 as BuildingIcon,
   Briefcase as BriefcaseIcon,
   ChevronRight as ArrowRightIcon,
@@ -24,6 +22,7 @@ import { CandidatoSideMenu } from '../components/candidato-side-menu';
 import AuthService from '../services/auth.service';
 import { formatSalary } from '../utils/format-salary';
 import { usePagination } from '../hooks/use-pagination';
+import { Pagination } from '../components/ui/pagination';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -53,6 +52,7 @@ const AccessTile: React.FC<AccessTileProps> = ({
         <span className="font-bold text-base leading-tight text-[#05073c]">
           {label}
         </span>
+
         <span className="text-sm mt-1 text-[#757575]">
           {sublabel}
         </span>
@@ -74,9 +74,12 @@ export const HomeCandidato: React.FC = () => {
   const [locationInput, setLocationInput] = useState('');
 
   const [showAreaSuggestions, setShowAreaSuggestions] = useState(false);
-  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+  const [showLocationSuggestions, setShowLocationSuggestions] =
+    useState(false);
 
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({
     Empresa: false,
     Puesto: false,
     Ubicación: false,
@@ -298,10 +301,10 @@ export const HomeCandidato: React.FC = () => {
   });
 
   const {
-    page: currentPage,
+    page,
     totalPages,
     pageItems: paginatedJobs,
-    setPage: setCurrentPage,
+    setPage,
     resetPage,
   } = usePagination(filteredJobs, ITEMS_PER_PAGE);
 
@@ -343,8 +346,8 @@ export const HomeCandidato: React.FC = () => {
     navigate('/detalle-empleo');
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handlePageChange = (next: number) => {
+    setPage(next);
     window.scrollTo({
       top: 0,
       behavior: 'smooth',
@@ -356,8 +359,9 @@ export const HomeCandidato: React.FC = () => {
       {filterSections.map((section, index) => (
         <div
           key={section.title}
-          className={`flex flex-col bg-white ${index > 0 ? 'border-t border-[#f5f5f5]' : ''
-            }`}
+          className={`flex flex-col bg-white ${
+            index > 0 ? 'border-t border-[#f5f5f5]' : ''
+          }`}
         >
           <div className="flex items-center gap-2 px-5 pt-5 pb-2">
             <h3 className="font-bold text-[#757575] text-xs uppercase tracking-wide leading-[20px]">
@@ -372,16 +376,18 @@ export const HomeCandidato: React.FC = () => {
                 onClick={() =>
                   handleFilterChange(section.title, option)
                 }
-                className={`flex items-center gap-3 px-5 py-2.5 text-left transition-all duration-200 ${isFilterActive(section.title, option)
+                className={`flex items-center gap-3 px-5 py-2.5 text-left transition-all duration-200 ${
+                  isFilterActive(section.title, option)
                     ? 'bg-[#f0f4ff]'
                     : 'hover:bg-[#fafafa]'
-                  }`}
+                }`}
               >
                 <div
-                  className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${isFilterActive(section.title, option)
+                  className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
+                    isFilterActive(section.title, option)
                       ? 'border-[#3351A6] bg-[#3351A6] shadow-sm'
                       : 'border-[#cccccc] bg-white'
-                    }`}
+                  }`}
                 >
                   {isFilterActive(section.title, option) && (
                     <svg
@@ -403,10 +409,11 @@ export const HomeCandidato: React.FC = () => {
                 </div>
 
                 <span
-                  className={`min-w-0 text-sm tracking-[0] leading-[20px] transition-colors duration-200 ${isFilterActive(section.title, option)
+                  className={`min-w-0 text-sm tracking-[0] leading-[20px] transition-colors duration-200 ${
+                    isFilterActive(section.title, option)
                       ? 'text-[#3351A6] font-semibold'
                       : 'text-[#666666] font-normal'
-                    }`}
+                  }`}
                 >
                   {option}
                 </span>
@@ -420,10 +427,11 @@ export const HomeCandidato: React.FC = () => {
               >
                 <div className="w-[18px] h-[18px] flex items-center justify-center">
                   <PlusIcon
-                    className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-[#3351A6] ${expandedSections[section.title]
+                    className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-[#3351A6] ${
+                      expandedSections[section.title]
                         ? 'rotate-45'
                         : ''
-                      }`}
+                    }`}
                   />
                 </div>
 
@@ -439,54 +447,6 @@ export const HomeCandidato: React.FC = () => {
       ))}
     </div>
   );
-
-  const renderPagination = () => {
-    if (totalPages <= 1) return null;
-
-    const pages = Array.from(
-      { length: totalPages },
-      (_, i) => i + 1
-    );
-
-    return (
-      <div className="flex items-center justify-center gap-1 md:gap-2 mt-2 md:mt-4">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${currentPage === 1
-              ? 'text-[#757575] cursor-not-allowed'
-              : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
-            }`}
-        >
-          <ChevronLeftIcon className="w-4 h-4 md:w-5 md:h-5" />
-        </button>
-
-        {pages.map((page) => (
-          <button
-            key={page}
-            onClick={() => handlePageChange(page)}
-            className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded font-semibold text-sm md:text-base transition-colors cursor-pointer ${currentPage === page
-                ? 'bg-[#F46036] text-white'
-                : 'text-[#F46036] hover:bg-[#fff5f2]'
-              }`}
-          >
-            {page}
-          </button>
-        ))}
-
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded transition-colors ${currentPage === totalPages
-              ? 'text-[#757575] cursor-not-allowed'
-              : 'text-[#F46036] hover:bg-[#fff5f2] cursor-pointer'
-            }`}
-        >
-          <ChevronRightIcon className="w-4 h-4 md:w-5 md:h-5" />
-        </button>
-      </div>
-    );
-  };
 
   return (
     <div className="bg-background w-full flex flex-col min-h-screen">
@@ -841,7 +801,11 @@ export const HomeCandidato: React.FC = () => {
                   </Card>
                 ))}
 
-                {renderPagination()}
+                <Pagination
+                  page={page}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
               </>
             )}
           </main>

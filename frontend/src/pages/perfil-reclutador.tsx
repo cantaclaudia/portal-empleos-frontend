@@ -19,8 +19,8 @@ import { ROUTES } from '../routes';
 import { formatSalary } from '../utils/format-salary';
 import { getInitials } from '../utils/initials';
 import { getSectorLabel } from '../constants/sectors';
+import { Card } from '../components/ui/card';
 
-const CARD_CLASS = 'bg-white border border-[#dedede] shadow-sm rounded-xl';
 
 export const PerfilReclutador: React.FC = () => {
   const navigate = useNavigate();
@@ -101,7 +101,7 @@ export const PerfilReclutador: React.FC = () => {
       ? null
       : minSalary === maxSalary
         ? formatSalary(minSalary)
-        : `${formatSalary(minSalary)} a ${formatSalary(minSalary)}`;
+        : `${formatSalary(minSalary)} a ${formatSalary(maxSalary)}`
 
   return (
     <div className="bg-[#EFEFEF] w-full min-h-screen flex flex-col">
@@ -128,19 +128,19 @@ export const PerfilReclutador: React.FC = () => {
       <main className="flex-1 py-6 md:py-8">
         <div className="max-w-[1000px] mx-auto px-4 md:px-8">
           {loading ? (
-            <div className={`${CARD_CLASS} px-8 py-12 text-center`}>
+            <Card className="px-8 py-12 text-center">
               <p className="text-[#757575] text-sm">Cargando perfil...</p>
-            </div>
+            </Card>
           ) : error || !profile ? (
-            <div className={`${CARD_CLASS} px-8 py-12 text-center`}>
+            <Card className="px-8 py-12 text-center">
               <p className="text-[#f46036] text-sm">
                 No pudimos cargar tu perfil. Volvé a intentar más tarde.
               </p>
-            </div>
+            </Card>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-5 items-start">
               {/* Persona */}
-              <div className={`${CARD_CLASS} px-5 py-6 text-center lg:sticky lg:top-6`}>
+              <Card className="px-5 py-6 text-center lg:sticky lg:top-6">
                 <div className="w-16 h-16 rounded-full bg-[#F46036] text-white font-bold text-xl flex items-center justify-center mx-auto">
                   {getInitials(fullName)}
                 </div>
@@ -155,11 +155,11 @@ export const PerfilReclutador: React.FC = () => {
                   <p className="text-[11px] uppercase tracking-wide text-[#999999]">Email</p>
                   <p className="mt-1 text-sm text-[#333333] break-all">{profile.email}</p>
                 </div>
-              </div>
+              </Card>
 
               {/* Empresa */}
               <div className="flex flex-col gap-5 min-w-0">
-                <div className={`${CARD_CLASS} overflow-hidden`}>
+                <Card className="overflow-hidden">
                   <div className="flex items-center gap-4 px-5 md:px-6 py-5">
                     <div className="w-14 h-14 rounded-xl bg-[#06083C] flex items-center justify-center flex-shrink-0 shadow-sm">
                       <span className="font-bold text-white text-lg">
@@ -207,92 +207,92 @@ export const PerfilReclutador: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                </div>
+               </Card>
 
                 {/* Resumen de cómo se presenta la empresa (sale de las ofertas activas) */}
                 {jobsLoading ? (
-                  <div className={`${CARD_CLASS} px-5 md:px-6 py-6`}>
-                    <p className="text-[#757575] text-sm">Cargando resumen...</p>
-                  </div>
-                ) : jobsError ? null : jobs.length === 0 ? (
-                  <div
-                    className={`${CARD_CLASS} px-5 md:px-6 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3`}
+                <Card className="px-5 md:px-6 py-6">
+                  <p className="text-[#757575] text-sm">Cargando resumen...</p>
+                </Card>
+              ) : jobsError ? null : jobs.length === 0 ? (
+                <Card
+                  className="px-5 md:px-6 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                >
+                  <p className="text-[#757575] text-sm">
+                    Todavía no publicaste ofertas. Cuando lo hagas, acá vas a ver los puestos
+                    abiertos y dónde contratás.
+                  </p>
+                  <Button
+                    onClick={() => navigate(`${ROUTES.HOME_RECLUTADOR}?crear=1`)}
+                    className="h-9 rounded-lg bg-[#f46036] px-4 text-sm font-medium text-white hover:bg-[#d9512e] transition-colors whitespace-nowrap"
                   >
-                    <p className="text-[#757575] text-sm">
-                      Todavía no publicaste ofertas. Cuando lo hagas, acá vas a ver los puestos
-                      abiertos y dónde contratás.
+                    <PlusIcon className="w-4 h-4 mr-1.5" />
+                    Publicar oferta
+                  </Button>
+                </Card>
+              ) : (
+                <Card className="px-5 md:px-6 py-5 flex flex-col gap-5">
+                  <div>
+                    <h3 className="font-bold text-[#06083C] text-base">Así te ven los candidatos</h3>
+                    <p className="text-xs text-[#757575] mt-0.5">
+                      Resumen de tus ofertas activas.
                     </p>
-                    <Button
-                      onClick={() => navigate(`${ROUTES.HOME_RECLUTADOR}?crear=1`)}
-                      className="h-9 rounded-lg bg-[#f46036] px-4 text-sm font-medium text-white hover:bg-[#d9512e] transition-colors whitespace-nowrap"
-                    >
-                      <PlusIcon className="w-4 h-4 mr-1.5" />
-                      Publicar oferta
-                    </Button>
                   </div>
-                ) : (
-                  <div className={`${CARD_CLASS} px-5 md:px-6 py-5 flex flex-col gap-5`}>
-                    <div>
-                      <h3 className="font-bold text-[#06083C] text-base">Así te ven los candidatos</h3>
-                      <p className="text-xs text-[#757575] mt-0.5">
-                        Resumen de tus ofertas activas.
-                      </p>
-                    </div>
 
-                    <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2">
+                    <p className="text-[11px] uppercase tracking-wide text-[#999999]">
+                      Puestos abiertos
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {openPositions.map((title) => (
+                        <span
+                          key={title}
+                          className="rounded-full border border-[#dbe5fb] bg-[#eef3ff] px-3 py-1 text-[13px] font-medium text-[#3351A6]"
+                        >
+                          {title}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {cities.length > 0 && (
+                    <div className="flex flex-col gap-2 pt-4 border-t border-[#f0f0f0]">
                       <p className="text-[11px] uppercase tracking-wide text-[#999999]">
-                        Puestos abiertos
+                        Contratás en
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {openPositions.map((title) => (
+                        {cities.map((city) => (
                           <span
-                            key={title}
-                            className="rounded-full border border-[#dbe5fb] bg-[#eef3ff] px-3 py-1 text-[13px] font-medium text-[#3351A6]"
+                            key={city}
+                            className="inline-flex items-center gap-1.5 rounded-full bg-[#EFEFEF] px-3 py-1 text-[13px] font-medium text-[#555555]"
                           >
-                            {title}
+                            <MapPinIcon className="w-3.5 h-3.5 text-[#757575]" />
+                            {city}
                           </span>
                         ))}
                       </div>
                     </div>
+                  )}
 
-                    {cities.length > 0 && (
-                      <div className="flex flex-col gap-2 pt-4 border-t border-[#f0f0f0]">
-                        <p className="text-[11px] uppercase tracking-wide text-[#999999]">
-                          Contratás en
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {cities.map((city) => (
-                            <span
-                              key={city}
-                              className="inline-flex items-center gap-1.5 rounded-full bg-[#EFEFEF] px-3 py-1 text-[13px] font-medium text-[#555555]"
-                            >
-                              <MapPinIcon className="w-3.5 h-3.5 text-[#757575]" />
-                              {city}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {salaryRange && (
-                      <div className="flex flex-col gap-1 pt-4 border-t border-[#f0f0f0]">
-                        <p className="text-[11px] uppercase tracking-wide text-[#999999]">
-                          {minSalary === maxSalary ? 'Salario ofrecido' : 'Rango salarial'}
-                        </p>
-                        <p className="text-base font-semibold text-[#F46036] tabular-nums">
-                          {salaryRange}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                  {salaryRange && (
+                    <div className="flex flex-col gap-1 pt-4 border-t border-[#f0f0f0]">
+                      <p className="text-[11px] uppercase tracking-wide text-[#999999]">
+                        {minSalary === maxSalary ? 'Salario ofrecido' : 'Rango salarial'}
+                      </p>
+                      <p className="text-base font-semibold text-[#F46036] tabular-nums">
+                        {salaryRange}
+                      </p>
+                    </div>
+                  )}
+                </Card>
+              )}
             </div>
-          )}
         </div>
-      </main>
-
-      <Footer />
+          )}
     </div>
+      </main >
+
+  <Footer />
+    </div >
   );
 };
