@@ -349,7 +349,7 @@ export const HomeAdmin = (): JSX.Element => {
 
       try {
         const response =
-          await CompanyService.getCompaniesList(userId);
+          await CompanyService.getCompaniesList();
 
         if (active) {
           setCompanies(

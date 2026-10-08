@@ -126,10 +126,10 @@ export const JobDetail: React.FC = () => {
             const existingId = existingApplication.application_id;
             setApplicationId(existingId);
 
-            const statusResponse = await ApplicationService.getApplicationStatus(
-              { application_id: String(existingId) },
-              String(user.user_id)
-            );
+            const statusResponse = await ApplicationService.getApplicationStatus({
+              application_id: String(existingId),
+            });
+
             if (!active) return;
 
             setApplicationStatus(statusResponse.data.status);
@@ -201,13 +201,10 @@ export const JobDetail: React.FC = () => {
       setIsApplying(true);
       setApplicationError(null);
 
-      await ApplicationService.applyForJob(
-        {
-          job_offer_id: String(job.job_offer_id),
-          candidate_id: String(user.user_id),
-        },
-        String(user.user_id)
-      );
+      await ApplicationService.applyForJob({
+        job_offer_id: String(job.job_offer_id),
+        candidate_id: String(user.user_id),
+      });
 
       const applicationsResponse =
         await ApplicationService.getUserApplications({
@@ -222,12 +219,9 @@ export const JobDetail: React.FC = () => {
         setApplicationId(existingApplication.application_id);
 
         const statusResponse =
-          await ApplicationService.getApplicationStatus(
-            {
-              application_id: String(existingApplication.application_id),
-            },
-            String(user.user_id)
-          );
+          await ApplicationService.getApplicationStatus({
+            application_id: String(existingApplication.application_id),
+          });
 
         setApplicationStatus(statusResponse.data.status);
       } else {

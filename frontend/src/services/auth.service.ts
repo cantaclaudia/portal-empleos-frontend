@@ -3,8 +3,7 @@ import { API_CONFIG } from '../config/api.config';
 import errorHandler from './error-handler.service';
 import type { LoginRequest, UserData, ApiResponse } from '../types/auth.types';
 import type { ErrorCode } from '../constants/error-codes';
-
-const USER_STORAGE_KEY = 'portal_empleos_user';
+import { USER_STORAGE_KEY } from '../config/storage';
 
 const isUserData = (value: unknown): value is UserData => {
   if (typeof value !== 'object' || value === null) return false;

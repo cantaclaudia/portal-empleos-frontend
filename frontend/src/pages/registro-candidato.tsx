@@ -307,7 +307,7 @@ export const RegistroCandidato = (): JSX.Element => {
             </Field>
           </div>
           <p className="text-[#757575] text-xs -mt-2">
-            Máximo 30 caracteres. No admite símbolos especiales ni la letra ñ.
+            Máximo 30 caracteres. No admite símbolos especiales.
           </p>
         </FormSection>
 

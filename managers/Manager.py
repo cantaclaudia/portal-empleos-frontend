@@ -1216,7 +1216,7 @@ def get_employer_profile(cnx, cursor, final_response, user_id, request_id=None):
                     e.name AS company_name,
                     e.description AS company_description,
                     se.company_type AS company_sector,
-                    COUNT(DISTINCT ed.job_offer_id) AS total_job_offers,
+                    COUNT(DISTINCT CASE WHEN ed.status = 1 THEN ed.job_offer_id END) AS total_job_offers,
                     COUNT(DISTINCT s.application_id) AS total_applications
                 FROM Usuarios u
                 JOIN empresas_x_usuario exu ON exu.user_id = u.user_id

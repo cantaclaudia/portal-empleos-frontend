@@ -3,28 +3,27 @@ import {
   ENDPOINT_ERROR_MESSAGES,
   COMMON_ERROR_MESSAGES,
   type EndpointErrorMap,
-  type ErrorCode
 } from '../constants/error-codes';
 
 export interface ApiResponse {
-  code: ErrorCode;
+  code: string;
   description?: string;
 }
 
 class ErrorHandlerService {
   handleApiError(response: ApiResponse, endpoint: EndpointErrorMap): never {
     const errorMessages =
-      ENDPOINT_ERROR_MESSAGES[endpoint] as Partial<Record<ErrorCode, string>>;
+      ENDPOINT_ERROR_MESSAGES[endpoint] as Partial<Record<string, string>>;
 
     const errorMessage =
-      errorMessages[response.code]
-      || response.description
-      || COMMON_ERROR_MESSAGES.DEFAULT;
+      errorMessages[response.code] ||
+      response.description ||
+      COMMON_ERROR_MESSAGES.DEFAULT;
 
     throw new Error(errorMessage);
   }
 
-  isSuccess(code: ErrorCode): boolean {
+  isSuccess(code: string): boolean {
     return code === ERROR_CODES.SUCCESS;
   }
 

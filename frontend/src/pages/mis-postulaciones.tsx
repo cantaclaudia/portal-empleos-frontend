@@ -36,35 +36,35 @@ const STATUS_TILES: {
   text: string;
   border: string;
 }[] = [
-  {
-    key: APPLICATION_STATUS.RECEIVED,
-    label: 'Recibidas',
-    bg: 'bg-[#F0EBFA]',
-    text: 'text-[#7C5CBF]',
-    border: 'border-[#DCCFF0]',
-  },
-  {
-    key: APPLICATION_STATUS.IN_REVIEW,
-    label: 'En revisión',
-    bg: 'bg-surface',
-    text: 'text-[#3B4A86]',
-    border: 'border-[#D9DDEE]',
-  },
-  {
-    key: APPLICATION_STATUS.ACCEPTED,
-    label: 'Aceptadas',
-    bg: 'bg-[#EAF5F0]',
-    text: 'text-[#17835A]',
-    border: 'border-[#CBE5D9]',
-  },
-  {
-    key: APPLICATION_STATUS.REJECTED,
-    label: 'Rechazadas',
-    bg: 'bg-[#FFF4E8]',
-    text: 'text-[#B45309]',
-    border: 'border-[#F1D8B8]',
-  },
-];
+    {
+      key: APPLICATION_STATUS.RECEIVED,
+      label: 'Recibidas',
+      bg: 'bg-[#F0EBFA]',
+      text: 'text-[#7C5CBF]',
+      border: 'border-[#DCCFF0]',
+    },
+    {
+      key: APPLICATION_STATUS.IN_REVIEW,
+      label: 'En revisión',
+      bg: 'bg-surface',
+      text: 'text-[#3B4A86]',
+      border: 'border-[#D9DDEE]',
+    },
+    {
+      key: APPLICATION_STATUS.ACCEPTED,
+      label: 'Aceptadas',
+      bg: 'bg-[#EAF5F0]',
+      text: 'text-[#17835A]',
+      border: 'border-[#CBE5D9]',
+    },
+    {
+      key: APPLICATION_STATUS.REJECTED,
+      label: 'Rechazadas',
+      bg: 'bg-[#FFF4E8]',
+      text: 'text-[#B45309]',
+      border: 'border-[#F1D8B8]',
+    },
+  ];
 
 const FILTER_TITLE: Record<string, string> = {
   all: 'Todas las postulaciones',
@@ -133,14 +133,9 @@ export const MisPostulaciones: React.FC = () => {
         // Los estados se piden en paralelo
         const results = await Promise.allSettled(
           list.map((app) =>
-            ApplicationService.getApplicationStatus(
-              {
-                application_id: String(
-                  app.application_id
-                ),
-              },
-              userId
-            )
+            ApplicationService.getApplicationStatus({
+              application_id: String(app.application_id),
+            })
           )
         );
 
@@ -325,11 +320,10 @@ export const MisPostulaciones: React.FC = () => {
                   aria-pressed={
                     activeFilter === 'all'
                   }
-                  className={`flex flex-col items-start gap-0.5 rounded-xl border-2 bg-white px-4 py-3 text-left transition-colors ${
-                    activeFilter === 'all'
+                  className={`flex flex-col items-start gap-0.5 rounded-xl border-2 bg-white px-4 py-3 text-left transition-colors ${activeFilter === 'all'
                       ? 'border-navy'
                       : 'border-[#dedede] hover:border-navy/40'
-                  }`}
+                    }`}
                 >
                   <span className="text-2xl font-bold leading-none text-navy tabular-nums">
                     {applications.length}
@@ -349,11 +343,10 @@ export const MisPostulaciones: React.FC = () => {
                     aria-pressed={
                       activeFilter === tile.key
                     }
-                    className={`flex flex-col items-start gap-0.5 rounded-xl border-2 px-4 py-3 text-left transition-colors ${tile.bg} ${tile.text} ${
-                      activeFilter === tile.key
+                    className={`flex flex-col items-start gap-0.5 rounded-xl border-2 px-4 py-3 text-left transition-colors ${tile.bg} ${tile.text} ${activeFilter === tile.key
                         ? 'border-navy'
                         : `${tile.border} hover:border-navy/40`
-                    }`}
+                      }`}
                   >
                     <span className="text-2xl font-bold leading-none tabular-nums">
                       {tileCount(tile.key)}

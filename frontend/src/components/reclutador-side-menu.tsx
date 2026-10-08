@@ -50,7 +50,7 @@ export const ReclutadorSideMenu: React.FC<ReclutadorSideMenuProps> = ({
 
     const loadCompany = async () => {
       try {
-        const result = await CompanyService.getCompaniesList(userId);
+        const result = await CompanyService.getCompaniesList();
         if (!active) return;
         const mine = (result.data || []).find(
           (c) => String(c.company_id) === String(companyId)

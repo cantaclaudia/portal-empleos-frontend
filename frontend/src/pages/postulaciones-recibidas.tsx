@@ -344,9 +344,8 @@ const ApplicantBlock = ({
                 >
                   <div className="flex flex-col items-center">
                     <span
-                      className={`w-3 h-3 rounded-full ${
-                        exp.end_date ? 'bg-[#3b4a86]' : 'bg-[#17835a]'
-                      }`}
+                      className={`w-3 h-3 rounded-full ${exp.end_date ? 'bg-[#3b4a86]' : 'bg-[#17835a]'
+                        }`}
                     />
 
                     {!isLast && <div className="w-px flex-1 bg-gray-300" />}
@@ -413,10 +412,9 @@ export const PostulacionesRecibidas: React.FC = () => {
 
     const loadApplications = async () => {
       try {
-        const response = await ApplicationService.getApplicationsWithCompanyId(
-          { company_id: companyId },
-          userId
-        );
+        const response = await ApplicationService.getApplicationsWithCompanyId({
+          company_id: companyId,
+        });
 
         if (active) {
           setRealApplications(response.data || []);
@@ -506,14 +504,12 @@ export const PostulacionesRecibidas: React.FC = () => {
 
     const loadDetail = async () => {
       const [applicantsResult, statusResult] = await Promise.allSettled([
-        ApplicationService.getApplicantsInformation(
-          { job_offer_id: String(selectedApp.job_offer_id) },
-          userId
-        ),
-        ApplicationService.getApplicationStatus(
-          { application_id: String(selectedId) },
-          userId
-        ),
+        ApplicationService.getApplicantsInformation({
+          job_offer_id: String(selectedApp.job_offer_id),
+        }),
+        ApplicationService.getApplicationStatus({
+          application_id: String(selectedId),
+        }),
       ]);
 
       if (!active) return;
@@ -605,16 +601,16 @@ export const PostulacionesRecibidas: React.FC = () => {
       setMessage(
         offerUndo && previous !== null
           ? {
-              text: `Marcada como ${APPLICATION_STATUS_LABEL[
-                newStatus
-              ].toLowerCase()}.`,
-              undoTo: previous,
-            }
+            text: `Marcada como ${APPLICATION_STATUS_LABEL[
+              newStatus
+            ].toLowerCase()}.`,
+            undoTo: previous,
+          }
           : {
-              text: `Estado restaurado a ${APPLICATION_STATUS_LABEL[
-                newStatus
-              ].toLowerCase()}.`,
-            }
+            text: `Estado restaurado a ${APPLICATION_STATUS_LABEL[
+              newStatus
+            ].toLowerCase()}.`,
+          }
       );
     } catch (err) {
       if (selectedIdRef.current !== target) return;
@@ -725,11 +721,10 @@ export const PostulacionesRecibidas: React.FC = () => {
                             key={title || 'todas'}
                             onClick={() => setFilter(title)}
                             aria-pressed={active}
-                            className={`rounded-full border px-3 py-1 text-[12px] font-bold transition-colors ${
-                              active
-                                ? 'bg-navy text-white border-navy'
-                                : 'bg-white text-navy border-gray-200 hover:bg-gray-50'
-                            }`}
+                            className={`rounded-full border px-3 py-1 text-[12px] font-bold transition-colors ${active
+                              ? 'bg-navy text-white border-navy'
+                              : 'bg-white text-navy border-gray-200 hover:bg-gray-50'
+                              }`}
                           >
                             {title || 'Todas'}
 
@@ -758,11 +753,10 @@ export const PostulacionesRecibidas: React.FC = () => {
                         key={app.application_id}
                         onClick={() => handleSelect(app.application_id)}
                         aria-current={isSelected}
-                        className={`block w-full text-left px-[18px] py-3.5 border-b border-b-gray-200 border-l-[3px] transition-colors ${
-                          isSelected
-                            ? 'border-l-brand bg-surface'
-                            : 'border-l-transparent hover:bg-surface'
-                        }`}
+                        className={`block w-full text-left px-[18px] py-3.5 border-b border-b-gray-200 border-l-[3px] transition-colors ${isSelected
+                          ? 'border-l-brand bg-surface'
+                          : 'border-l-transparent hover:bg-surface'
+                          }`}
                       >
                         <span className="flex items-center justify-between gap-2">
                           <span className="block font-bold text-navy text-sm leading-snug">
@@ -839,11 +833,10 @@ export const PostulacionesRecibidas: React.FC = () => {
                                   onClick={() => void applyStatus(code, true)}
                                   disabled={changing || isActive}
                                   aria-pressed={isActive}
-                                  className={`flex-1 sm:flex-none px-4 py-2.5 text-sm font-bold border-l border-gray-200 first:border-l-0 transition-colors disabled:cursor-default ${
-                                    isActive
-                                      ? `${STATUS_ACTIVE_BG[code]} text-white`
-                                      : 'bg-white text-navy hover:bg-surface disabled:opacity-60'
-                                  }`}
+                                  className={`flex-1 sm:flex-none px-4 py-2.5 text-sm font-bold border-l border-gray-200 first:border-l-0 transition-colors disabled:cursor-default ${isActive
+                                    ? `${STATUS_ACTIVE_BG[code]} text-white`
+                                    : 'bg-white text-navy hover:bg-surface disabled:opacity-60'
+                                    }`}
                                 >
                                   {label}
                                 </button>
@@ -852,11 +845,10 @@ export const PostulacionesRecibidas: React.FC = () => {
                           </div>
 
                           <p
-                            className={`text-[13px] mt-2 min-h-[1.5em] ${
-                              message?.isError
-                                ? 'text-[#b45309]'
-                                : 'text-[#666666]'
-                            }`}
+                            className={`text-[13px] mt-2 min-h-[1.5em] ${message?.isError
+                              ? 'text-[#b45309]'
+                              : 'text-[#666666]'
+                              }`}
                             aria-live="polite"
                           >
                             {message?.text}

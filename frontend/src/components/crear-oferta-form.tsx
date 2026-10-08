@@ -57,9 +57,8 @@ const StepIndicator = ({ step }: { step: Step }): React.ReactElement => {
               aria-current={active ? 'step' : undefined}
             >
               <span
-                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                  active || done ? 'bg-brand text-white' : 'bg-surface text-[#757575]'
-                }`}
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${active || done ? 'bg-brand text-white' : 'bg-surface text-[#757575]'
+                  }`}
               >
                 {done ? '✓' : item.n}
               </span>
@@ -141,8 +140,8 @@ export const CrearOfertaForm = ({
         }
 
         const [companiesResp, jobsResp, locationsResp] = await Promise.all([
-          CompanyService.getCompaniesList(userId),
-          JobService.getJobTypeList(userId),
+          CompanyService.getCompaniesList(),
+          JobService.getJobTypeList(),
           LocationsService.getLocations(),
         ]);
 
@@ -211,15 +210,14 @@ export const CrearOfertaForm = ({
 
     setTypeLoading(true);
     try {
-      await JobService.createNewJob(
-        { name, description: desc, requirements: req },
-        userId
-      );
+      await JobService.createNewJob({
+        name,
+        description: desc,
+        requirements: req,
+      });
 
-      // createNewJob no devuelve el job_id: se recarga la lista y se busca el nuevo.
-      // Hay nombres repetidos en el catálogo, así que se compara nombre + descripción
-      // y, si hay más de uno, se toma el job_id más alto (el más reciente).
-      const resp = await JobService.getJobTypeList(userId);
+
+      const resp = await JobService.getJobTypeList();
       const list = resp.data || [];
       setJobTypes(list);
 
@@ -275,16 +273,13 @@ export const CrearOfertaForm = ({
     setLoading(true);
 
     try {
-      await JobService.createJobOffer(
-        {
-          company_id: companyId,
-          job_id: jobId,
-          description: description.trim(),
-          salary: salary.trim(),
-          location: locationId,
-        },
-        userId
-      );
+      await JobService.createJobOffer({
+        company_id: companyId,
+        job_id: jobId,
+        description: description.trim(),
+        salary: salary.trim(),
+        location: locationId,
+      });
 
       setSuccess(true);
 

@@ -49,13 +49,12 @@ const AccessTile = ({
   <button
     onClick={disabled ? undefined : onClick}
     disabled={disabled}
-    className={`flex flex-col gap-1.5 rounded-[14px] border p-[18px] text-left transition-colors ${
-      primary
+    className={`flex flex-col gap-1.5 rounded-[14px] border p-[18px] text-left transition-colors ${primary
         ? "bg-brand border-brand text-white hover:bg-brand-dark"
         : disabled
           ? "bg-white border-gray-100 opacity-60 cursor-default"
           : "bg-white border-gray-100 hover:border-brand/40 hover:shadow-sm"
-    }`}
+      }`}
   >
     <Icon className="w-[22px] h-[22px]" />
 
@@ -67,9 +66,8 @@ const AccessTile = ({
 
     {sublabel && (
       <span
-        className={`text-xs ${
-          primary ? "text-white/85" : "text-[#666666]"
-        }`}
+        className={`text-xs ${primary ? "text-white/85" : "text-[#666666]"
+          }`}
       >
         {sublabel}
       </span>
@@ -271,10 +269,9 @@ export const HomeReclutador = (): JSX.Element => {
     const load = async () => {
       try {
         const result =
-          await ApplicationService.getApplicationsWithCompanyId(
-            { company_id: companyId },
-            String(user?.user_id ?? "")
-          );
+          await ApplicationService.getApplicationsWithCompanyId({
+            company_id: companyId,
+          });
 
         if (!active) return;
 
@@ -443,7 +440,6 @@ export const HomeReclutador = (): JSX.Element => {
                   </p>
 
                   <p className="text-[#666666] text-xs">
-                    Solicitud #{app.application_id},{" "}
                     {formatDate(app.application_date)}
                   </p>
                 </div>
@@ -507,8 +503,8 @@ export const HomeReclutador = (): JSX.Element => {
                   onAction={() =>
                     job.job_offer_id !== undefined
                       ? goToApplications({
-                          jobOfferId: job.job_offer_id,
-                        })
+                        jobOfferId: job.job_offer_id,
+                      })
                       : goToApplications()
                   }
                 />
