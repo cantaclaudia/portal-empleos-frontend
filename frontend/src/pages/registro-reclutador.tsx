@@ -19,7 +19,8 @@ import {
   SelectItem,
   SelectTrigger,
 } from "../components/ui/select";
-import { sanitizePassword, encryptPassword } from "../utils/password";
+import { sanitizePassword } from "../utils/password";
+import { ROUTES } from "../routes";
 
 export const RegistroReclutador = (): JSX.Element => {
   const navigate = useNavigate();
@@ -142,18 +143,19 @@ export const RegistroReclutador = (): JSX.Element => {
     setLoading(true);
 
     try {
-      const encryptedPassword = encryptPassword(password);
-
       const requestBody = {
         name: name.trim(),
         last_name: lastName.trim(),
         email: email.trim(),
-        password: encryptedPassword,
+        password,
         company_id: parseInt(companyId),
       };
 
       await EmployerService.registerEmployer(requestBody);
-      navigate('/login');
+      navigate(ROUTES.LOGIN, {
+        replace: true,
+        state: { registered: true, email: email.trim() },
+      });
     } catch (err) {
       console.error('Error during registration:', err);
       setError(err instanceof Error ? err.message : 'Error al registrar usuario');

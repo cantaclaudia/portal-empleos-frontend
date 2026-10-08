@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Separator } from '../components/ui/separator';
 import { PageHeader } from '../components/ui/page-header';
@@ -9,9 +8,14 @@ import AuthService from '../services/auth.service';
 import { AuthAside } from '../components/ui/auth-aside';
 import { LOGIN_ERRORS } from '../constants/error-codes';
 import { ROUTES } from '../routes';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { SuccessMessage } from '../components/ui/success-message';
+
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const justRegistered = (location.state as { registered?: boolean; email?: string } | null) ?? null;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,6 +26,12 @@ export const Login: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
 
   useEffect(() => {
+    // Si viene de registrarse, se precarga el email recién usado
+    if (justRegistered?.email) {
+      setEmail(justRegistered.email);
+      return;
+    }
+
     const savedEmail = localStorage.getItem('rememberedEmail');
     const savedRemember = localStorage.getItem('rememberMe');
 
@@ -141,6 +151,10 @@ export const Login: React.FC = () => {
               title="Iniciar sesión"
               subtitle="Conectá con oportunidades y talento."
             />
+
+            {justRegistered?.registered && !loginError && (
+              <SuccessMessage message="¡Cuenta creada! Iniciá sesión con tu correo y contraseña." />
+            )}
 
             {loginError && (
               <ErrorMessage message={loginError} />

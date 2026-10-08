@@ -4,9 +4,10 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { ErrorMessage } from "../components/ui/error-message";
 import CandidateService from "../services/candidate.service";
-import validator from 'validator';
-import { sanitizePassword, encryptPassword } from "../utils/password";
 import SkillService from "../services/skill.service";
+import { sanitizePassword } from "../utils/password";
+import { normalizeUrl, isValidWebUrl } from "../utils/url";
+import { ROUTES } from "../routes";
 
 import {
   RegistroLayout,
@@ -14,7 +15,7 @@ import {
   Field,
   PasswordInput,
   inputClass,
-} from "../components/registro-layout"; // NUEVO
+} from "../components/registro-layout";
 
 import {
   Select,
@@ -23,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-
 
 export const RegistroCandidato = (): JSX.Element => {
   const navigate = useNavigate();
@@ -73,12 +73,12 @@ export const RegistroCandidato = (): JSX.Element => {
           }))
         );
       } catch (err) {
-        console.error('Error loading skills:', err);
+        console.error("Error loading skills:", err);
 
         setSkillsLoadError(
           err instanceof Error
             ? err.message
-            : 'Error al cargar las habilidades. Por favor, recargá la página.'
+            : "Error al cargar las habilidades. Por favor, recargá la página."
         );
       } finally {
         setLoadingSkills(false);
@@ -96,24 +96,21 @@ export const RegistroCandidato = (): JSX.Element => {
     setSelectedSkills(selectedSkills.filter((skill) => skill !== value));
   };
 
-  const isValidUrl = (url: string) => {
-    return validator.isURL(url, { protocols: ['http', 'https'], require_protocol: true });
+  const handleCvLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCvLink(e.target.value);
+    if (cvError) setCvError(false);
   };
 
-  const handleCvLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setCvLink(value);
-    if (value.trim() === "") setCvError(false);
-    else setCvError(!isValidUrl(value));
+  // Se valida al salir del campo para que no se ponga rojo mientras escribe
+  const handleCvLinkBlur = () => {
+    if (cvLink.trim() !== "") setCvError(!isValidWebUrl(cvLink));
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(sanitizePassword(e.target.value));
   };
 
-  const handleConfirmPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setConfirmPassword(sanitizePassword(e.target.value));
   };
 
@@ -148,7 +145,7 @@ export const RegistroCandidato = (): JSX.Element => {
       hasError = true;
     } else setPasswordMismatchError(false);
 
-    if (cvLink.trim() === "" || !isValidUrl(cvLink) || cvLink.length > 100) {
+    if (!isValidWebUrl(cvLink)) {
       setCvError(true);
       hasError = true;
     } else setCvError(false);
@@ -163,22 +160,21 @@ export const RegistroCandidato = (): JSX.Element => {
     setLoading(true);
 
     try {
-      const encryptedPassword = encryptPassword(password);
-
-      const requestBody = {
+      await CandidateService.registerCandidate({
         name: name.trim(),
         last_name: lastName.trim(),
         email: email.trim(),
-        password: encryptedPassword,
-        resume_url: cvLink.trim(),
+        password,
+        resume_url: normalizeUrl(cvLink),
         skill_list: selectedSkills,
-      };
+      });
 
-      await CandidateService.registerCandidate(requestBody);
-
-      navigate('/login');
+      navigate(ROUTES.LOGIN, {
+        replace: true,
+        state: { registered: true, email: email.trim() },
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al registrar usuario');
+      setError(err instanceof Error ? err.message : "Error al registrar usuario");
     } finally {
       setLoading(false);
     }
@@ -296,14 +292,15 @@ export const RegistroCandidato = (): JSX.Element => {
             required
             error={
               cvError
-                ? "Ingresá un link válido (http o https), máximo 100 caracteres"
+                ? "Ingresá un link válido (ej: www.linkedin.com/in/tu-perfil o https://...). Máximo 100 caracteres."
                 : undefined
             }
           >
             <Input
               value={cvLink}
               onChange={handleCvLinkChange}
-              placeholder="Link a tu CV en PDF o Drive"
+              onBlur={handleCvLinkBlur}
+              placeholder="Ej: www.linkedin.com/in/tu-perfil"
               className={inputClass(cvError)}
               maxLength={100}
               disabled={loading}
@@ -320,27 +317,35 @@ export const RegistroCandidato = (): JSX.Element => {
                 <ErrorMessage message={skillsLoadError} />
               </div>
             ) : (
-              <Select onValueChange={handleSkillSelect} disabled={loadingSkills || loading} value="">
+              <Select
+                onValueChange={handleSkillSelect}
+                disabled={loadingSkills || loading}
+                value=""
+              >
                 <SelectTrigger
                   className={`h-auto min-h-[42px] bg-white rounded-lg border px-4 py-2 font-normal text-base text-[#b3b3b3] ${skillsError ? "border-[#cc2222]" : "border-[#d9d9d9]"
                     }`}
                 >
-                  <SelectValue placeholder={loadingSkills ? "Cargando habilidades..." : "Seleccioná habilidades"} />
+                  <SelectValue
+                    placeholder={
+                      loadingSkills ? "Cargando habilidades..." : "Seleccioná habilidades"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {loadingSkills ? (
-                    <div className="px-2 py-1.5 text-sm text-[#757575] ">
-                      Cargando...
-                    </div>
+                    <div className="px-2 py-1.5 text-sm text-[#757575]">Cargando...</div>
                   ) : availableSkills.length > 0 ? (
                     availableSkills.map((option) => (
-                      <SelectItem key={option.value} value={option.value} className="">
+                      <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
                     ))
                   ) : (
-                    <div className="px-2 py-1.5 text-sm text-[#757575] ">
-                      {skillOptions.length === 0 ? 'No hay habilidades disponibles' : 'Todas las habilidades seleccionadas'}
+                    <div className="px-2 py-1.5 text-sm text-[#757575]">
+                      {skillOptions.length === 0
+                        ? "No hay habilidades disponibles"
+                        : "Todas las habilidades seleccionadas"}
                     </div>
                   )}
                 </SelectContent>
@@ -378,7 +383,7 @@ export const RegistroCandidato = (): JSX.Element => {
           disabled={loading}
           className="h-11 w-full rounded-lg font-medium text-base"
         >
-          {loading ? 'Registrando...' : 'Registrarse'}
+          {loading ? "Registrando..." : "Registrarse"}
         </Button>
       </form>
     </RegistroLayout>
