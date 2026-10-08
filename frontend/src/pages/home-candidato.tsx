@@ -16,7 +16,6 @@ import { Card, CardContent } from '../components/ui/card';
 import { HeaderLogo } from '../components/ui/header-logo';
 import AvailableJobsService from '../services/available-jobs.service';
 import type { AvailableJob } from '../services/available-jobs.service';
-import { ERROR_CODES } from '../constants/error-codes';
 import { Footer } from '../components/ui/footer';
 import { CandidatoSideMenu } from '../components/candidato-side-menu';
 import AuthService from '../services/auth.service';
@@ -109,16 +108,11 @@ export const HomeCandidato: React.FC = () => {
       try {
         const result = await AvailableJobsService.getAvailableJobs();
 
-        if (result.code !== ERROR_CODES.SUCCESS) {
-          setError(result.description);
-          setJobs([]);
-        } else {
-          setJobs(result.data);
-          setError(null);
-        }
+        setJobs(result.data);
+        setError(null);
       } catch (err) {
         console.error(err);
-        setError('Error inesperado');
+        setError(err instanceof Error ? err.message : 'Error inesperado');
         setJobs([]);
       } finally {
         setLoading(false);
@@ -359,9 +353,8 @@ export const HomeCandidato: React.FC = () => {
       {filterSections.map((section, index) => (
         <div
           key={section.title}
-          className={`flex flex-col bg-white ${
-            index > 0 ? 'border-t border-[#f5f5f5]' : ''
-          }`}
+          className={`flex flex-col bg-white ${index > 0 ? 'border-t border-[#f5f5f5]' : ''
+            }`}
         >
           <div className="flex items-center gap-2 px-5 pt-5 pb-2">
             <h3 className="font-bold text-[#757575] text-xs uppercase tracking-wide leading-[20px]">
@@ -376,18 +369,16 @@ export const HomeCandidato: React.FC = () => {
                 onClick={() =>
                   handleFilterChange(section.title, option)
                 }
-                className={`flex items-center gap-3 px-5 py-2.5 text-left transition-all duration-200 ${
-                  isFilterActive(section.title, option)
+                className={`flex items-center gap-3 px-5 py-2.5 text-left transition-all duration-200 ${isFilterActive(section.title, option)
                     ? 'bg-[#f0f4ff]'
                     : 'hover:bg-[#fafafa]'
-                }`}
+                  }`}
               >
                 <div
-                  className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
-                    isFilterActive(section.title, option)
+                  className={`w-[18px] h-[18px] rounded-[4px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${isFilterActive(section.title, option)
                       ? 'border-accent bg-accent shadow-sm'
                       : 'border-[#cccccc] bg-white'
-                  }`}
+                    }`}
                 >
                   {isFilterActive(section.title, option) && (
                     <svg
@@ -409,11 +400,10 @@ export const HomeCandidato: React.FC = () => {
                 </div>
 
                 <span
-                  className={`min-w-0 text-sm tracking-[0] leading-[20px] transition-colors duration-200 ${
-                    isFilterActive(section.title, option)
+                  className={`min-w-0 text-sm tracking-[0] leading-[20px] transition-colors duration-200 ${isFilterActive(section.title, option)
                       ? 'text-accent font-semibold'
                       : 'text-[#666666] font-normal'
-                  }`}
+                    }`}
                 >
                   {option}
                 </span>
@@ -427,11 +417,10 @@ export const HomeCandidato: React.FC = () => {
               >
                 <div className="w-[18px] h-[18px] flex items-center justify-center">
                   <PlusIcon
-                    className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-accent ${
-                      expandedSections[section.title]
+                    className={`w-3.5 h-3.5 text-[#999999] transition-all duration-200 group-hover:text-accent ${expandedSections[section.title]
                         ? 'rotate-45'
                         : ''
-                    }`}
+                      }`}
                   />
                 </div>
 

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { ErrorMessage } from "../components/ui/error-message";
-import { ERROR_CODES, COMMON_ERROR_MESSAGES } from "../constants/error-codes";
 import EmployerService from "../services/employer.service";
 import CompanyService from "../services/company.service";
 import {
@@ -57,18 +56,21 @@ export const RegistroReclutador = (): JSX.Element => {
 
         const result = await CompanyService.getCompaniesList();
 
-        if (result.code === ERROR_CODES.SUCCESS && Array.isArray(result.data)) {
+        if (Array.isArray(result.data)) {
           const formattedCompanies = result.data.map(
             (company) => ({
               value: company.company_id.toString(),
               label: company.name,
             })
           );
+
           setCompanyOptions(formattedCompanies);
         }
       } catch (err) {
         console.error("Error loading companies:", err);
-        setCompaniesLoadError(err instanceof Error ? err.message : COMMON_ERROR_MESSAGES.CONNECTION_ERROR);
+        setCompaniesLoadError(
+          err instanceof Error ? err.message : "Error al cargar las empresas."
+        );
       } finally {
         setLoadingCompanies(false);
       }

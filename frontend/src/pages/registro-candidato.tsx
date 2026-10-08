@@ -4,12 +4,9 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { ErrorMessage } from "../components/ui/error-message";
 import CandidateService from "../services/candidate.service";
-import { apiService } from "../services/api.service";
-import { API_CONFIG } from "../config/api.config";
-import type { ErrorCode } from "../constants/error-codes";
-import errorHandler from "../services/error-handler.service";
 import validator from 'validator';
 import { sanitizePassword, encryptPassword } from "../utils/password";
+import SkillService from "../services/skill.service";
 
 import {
   RegistroLayout,
@@ -27,16 +24,6 @@ import {
   SelectValue,
 } from "../components/ui/select";
 
-interface Skill {
-  skill_id: number;
-  name: string;
-}
-
-interface SkillsResponse {
-  code: ErrorCode;
-  description?: string;
-  data: Skill[];
-}
 
 export const RegistroCandidato = (): JSX.Element => {
   const navigate = useNavigate();
@@ -77,22 +64,14 @@ export const RegistroCandidato = (): JSX.Element => {
         setLoadingSkills(true);
         setSkillsLoadError(null);
 
-        const response = await apiService.post<SkillsResponse>(
-          API_CONFIG.ENDPOINTS.GET_SKILLS_LIST,
-          {}
-        );
+        const response = await SkillService.getSkillsList();
 
-        if (!errorHandler.isSuccess(response.code)) {
-          errorHandler.handleApiError(response, 'GET_SKILLS');
-        }
-
-        if (response.data && Array.isArray(response.data)) {
-          const formattedSkills = response.data.map((skill) => ({
+        setSkillOptions(
+          response.data.map((skill) => ({
             value: skill.skill_id.toString(),
             label: skill.name,
-          }));
-          setSkillOptions(formattedSkills);
-        }
+          }))
+        );
       } catch (err) {
         console.error('Error loading skills:', err);
 

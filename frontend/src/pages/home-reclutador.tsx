@@ -19,7 +19,6 @@ import { ROUTES } from "../routes";
 import { formatDate } from "../utils/format-date";
 import AvailableJobsService from "../services/available-jobs.service";
 import type { Job } from "../types/job.types";
-import { ERROR_CODES } from "../constants/error-codes";
 import { ReclutadorSideMenu } from "../components/reclutador-side-menu";
 import { CrearOfertaModal } from "../components/crear-oferta-modal";
 import { usePagination } from "../hooks/use-pagination";
@@ -50,10 +49,10 @@ const AccessTile = ({
     onClick={disabled ? undefined : onClick}
     disabled={disabled}
     className={`flex flex-col gap-1.5 rounded-[14px] border p-[18px] text-left transition-colors ${primary
-        ? "bg-brand border-brand text-white hover:bg-brand-dark"
-        : disabled
-          ? "bg-white border-gray-100 opacity-60 cursor-default"
-          : "bg-white border-gray-100 hover:border-brand/40 hover:shadow-sm"
+      ? "bg-brand border-brand text-white hover:bg-brand-dark"
+      : disabled
+        ? "bg-white border-gray-100 opacity-60 cursor-default"
+        : "bg-white border-gray-100 hover:border-brand/40 hover:shadow-sm"
       }`}
   >
     <Icon className="w-[22px] h-[22px]" />
@@ -237,13 +236,8 @@ export const HomeReclutador = (): JSX.Element => {
 
         if (!active) return;
 
-        if (result.code === ERROR_CODES.SUCCESS) {
-          setJobs(Array.isArray(result.data) ? result.data : []);
-          setJobsError(false);
-        } else {
-          setJobs([]);
-          setJobsError(true);
-        }
+        setJobs(Array.isArray(result.data) ? result.data : []);
+        setJobsError(false);
       } catch {
         if (!active) return;
 

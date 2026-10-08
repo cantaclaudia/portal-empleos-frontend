@@ -14,7 +14,6 @@ import EmployerService from '../services/employer.service';
 import AvailableJobsService from '../services/available-jobs.service';
 import type { EmployerProfile } from '../types/employer.types';
 import type { Job } from '../types/job.types';
-import { ERROR_CODES } from '../constants/error-codes';
 import { ROUTES } from '../routes';
 import { formatSalary } from '../utils/format-salary';
 import { getInitials } from '../utils/initials';
@@ -68,14 +67,16 @@ export const PerfilReclutador: React.FC = () => {
       // 2) Ofertas activas para el resumen de la empresa
       try {
         const result = await AvailableJobsService.getAvailableJobs(companyId);
+
         if (!active) return;
-        if (result.code === ERROR_CODES.SUCCESS) {
-          setJobs(Array.isArray(result.data) ? result.data : []);
-        } else {
-          setJobsError(true);
-        }
+
+        setJobs(Array.isArray(result.data) ? result.data : []);
+        setJobsError(false);
       } catch {
-        if (active) setJobsError(true);
+        if (!active) return;
+
+        setJobs([]);
+        setJobsError(true);
       } finally {
         if (active) setJobsLoading(false);
       }
@@ -207,92 +208,92 @@ export const PerfilReclutador: React.FC = () => {
                       </p>
                     </div>
                   </div>
-               </Card>
+                </Card>
 
                 {/* Resumen de cómo se presenta la empresa (sale de las ofertas activas) */}
                 {jobsLoading ? (
-                <Card className="px-5 md:px-6 py-6">
-                  <p className="text-[#757575] text-sm">Cargando resumen...</p>
-                </Card>
-              ) : jobsError ? null : jobs.length === 0 ? (
-                <Card
-                  className="px-5 md:px-6 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-                >
-                  <p className="text-[#757575] text-sm">
-                    Todavía no publicaste ofertas. Cuando lo hagas, acá vas a ver los puestos
-                    abiertos y dónde contratás.
-                  </p>
-                  <Button
-                    onClick={() => navigate(`${ROUTES.HOME_RECLUTADOR}?crear=1`)}
-                    className="h-9 rounded-lg bg-brand px-4 text-sm font-medium text-white hover:bg-brand-dark transition-colors whitespace-nowrap"
+                  <Card className="px-5 md:px-6 py-6">
+                    <p className="text-[#757575] text-sm">Cargando resumen...</p>
+                  </Card>
+                ) : jobsError ? null : jobs.length === 0 ? (
+                  <Card
+                    className="px-5 md:px-6 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
                   >
-                    <PlusIcon className="w-4 h-4 mr-1.5" />
-                    Publicar oferta
-                  </Button>
-                </Card>
-              ) : (
-                <Card className="px-5 md:px-6 py-5 flex flex-col gap-5">
-                  <div>
-                    <h3 className="font-bold text-navy text-base">Así te ven los candidatos</h3>
-                    <p className="text-xs text-[#757575] mt-0.5">
-                      Resumen de tus ofertas activas.
+                    <p className="text-[#757575] text-sm">
+                      Todavía no publicaste ofertas. Cuando lo hagas, acá vas a ver los puestos
+                      abiertos y dónde contratás.
                     </p>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <p className="text-[11px] uppercase tracking-wide text-[#999999]">
-                      Puestos abiertos
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {openPositions.map((title) => (
-                        <span
-                          key={title}
-                          className="rounded-full border border-[#dbe5fb] bg-[#eef3ff] px-3 py-1 text-[13px] font-medium text-accent"
-                        >
-                          {title}
-                        </span>
-                      ))}
+                    <Button
+                      onClick={() => navigate(`${ROUTES.HOME_RECLUTADOR}?crear=1`)}
+                      className="h-9 rounded-lg bg-brand px-4 text-sm font-medium text-white hover:bg-brand-dark transition-colors whitespace-nowrap"
+                    >
+                      <PlusIcon className="w-4 h-4 mr-1.5" />
+                      Publicar oferta
+                    </Button>
+                  </Card>
+                ) : (
+                  <Card className="px-5 md:px-6 py-5 flex flex-col gap-5">
+                    <div>
+                      <h3 className="font-bold text-navy text-base">Así te ven los candidatos</h3>
+                      <p className="text-xs text-[#757575] mt-0.5">
+                        Resumen de tus ofertas activas.
+                      </p>
                     </div>
-                  </div>
 
-                  {cities.length > 0 && (
-                    <div className="flex flex-col gap-2 pt-4 border-t border-[#f0f0f0]">
+                    <div className="flex flex-col gap-2">
                       <p className="text-[11px] uppercase tracking-wide text-[#999999]">
-                        Contratás en
+                        Puestos abiertos
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {cities.map((city) => (
+                        {openPositions.map((title) => (
                           <span
-                            key={city}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-page px-3 py-1 text-[13px] font-medium text-[#555555]"
+                            key={title}
+                            className="rounded-full border border-[#dbe5fb] bg-[#eef3ff] px-3 py-1 text-[13px] font-medium text-accent"
                           >
-                            <MapPinIcon className="w-3.5 h-3.5 text-[#757575]" />
-                            {city}
+                            {title}
                           </span>
                         ))}
                       </div>
                     </div>
-                  )}
 
-                  {salaryRange && (
-                    <div className="flex flex-col gap-1 pt-4 border-t border-[#f0f0f0]">
-                      <p className="text-[11px] uppercase tracking-wide text-[#999999]">
-                        {minSalary === maxSalary ? 'Salario ofrecido' : 'Rango salarial'}
-                      </p>
-                      <p className="text-base font-semibold text-brand tabular-nums">
-                        {salaryRange}
-                      </p>
-                    </div>
-                  )}
-                </Card>
-              )}
+                    {cities.length > 0 && (
+                      <div className="flex flex-col gap-2 pt-4 border-t border-[#f0f0f0]">
+                        <p className="text-[11px] uppercase tracking-wide text-[#999999]">
+                          Contratás en
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {cities.map((city) => (
+                            <span
+                              key={city}
+                              className="inline-flex items-center gap-1.5 rounded-full bg-page px-3 py-1 text-[13px] font-medium text-[#555555]"
+                            >
+                              <MapPinIcon className="w-3.5 h-3.5 text-[#757575]" />
+                              {city}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {salaryRange && (
+                      <div className="flex flex-col gap-1 pt-4 border-t border-[#f0f0f0]">
+                        <p className="text-[11px] uppercase tracking-wide text-[#999999]">
+                          {minSalary === maxSalary ? 'Salario ofrecido' : 'Rango salarial'}
+                        </p>
+                        <p className="text-base font-semibold text-brand tabular-nums">
+                          {salaryRange}
+                        </p>
+                      </div>
+                    )}
+                  </Card>
+                )}
+              </div>
             </div>
-        </div>
           )}
-    </div>
+        </div>
       </main >
 
-  <Footer />
+      <Footer />
     </div >
   );
 };
