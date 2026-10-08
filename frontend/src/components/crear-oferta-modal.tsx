@@ -35,7 +35,7 @@ export const CrearOfertaModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#05073c]/55 md:p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-navy/55 md:p-6"
       onClick={onClose}
     >
       <div
@@ -46,7 +46,7 @@ export const CrearOfertaModal = ({
         className="flex flex-col w-full h-full md:h-auto md:max-h-[90vh] md:max-w-[480px] bg-white md:rounded-2xl shadow-xl overflow-hidden"
       >
         <div className="flex items-center justify-between gap-3 px-5 md:px-6 py-4 border-b border-gray-100">
-          <h2 id="crear-oferta-title" className="font-bold text-[#05073c] text-lg">
+          <h2 id="crear-oferta-title" className="font-bold text-navy text-lg">
             Publicar oferta
           </h2>
           <button

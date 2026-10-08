@@ -1,46 +1,27 @@
 import { apiService } from './api.service';
 import { API_CONFIG } from '../config/api.config';
-import errorHandler from './error-handler.service';
-import type { GetCompaniesResponse, CreateCompanyRequest, CreateCompanyResponse } from '../types/employer.types';
-import type { ErrorCode } from '../constants/error-codes';
-import type { ApiResponse } from './error-handler.service';
+import type {
+  GetCompaniesResponse,
+  CreateCompanyRequest,
+  CreateCompanyResponse,
+} from '../types/employer.types';
+
+const { ENDPOINTS } = API_CONFIG;
 
 class CompanyService {
-  async getCompaniesList(userId: string): Promise<GetCompaniesResponse> {
-    try {
-      const response = await apiService.post<GetCompaniesResponse>(
-        API_CONFIG.ENDPOINTS.GET_COMPANIES_LIST,
-        {},
-        {
-          user_id: userId,
-        }
-      );
-
-      if (errorHandler.isSuccess(response.code as ErrorCode)) {
-        return response;
-      }
-
-      throw errorHandler.handleApiError( response as ApiResponse,'GET_COMPANIES');
-    } catch (error) {
-      throw errorHandler.wrapConnectionError(error);
-    }
+  getCompaniesList() {
+    return apiService.call<GetCompaniesResponse>(
+      ENDPOINTS.GET_COMPANIES_LIST,
+      'GET_COMPANIES'
+    );
   }
 
-  async createNewCompany(data: CreateCompanyRequest): Promise<CreateCompanyResponse> {
-    try {
-      const response = await apiService.post<CreateCompanyResponse>(
-        API_CONFIG.ENDPOINTS.CREATE_NEW_COMPANY,
-        data
-      );
-
-      if (errorHandler.isSuccess(response.code as ErrorCode)) {
-        return response;
-      }
-
-      throw errorHandler.handleApiError(response as ApiResponse, 'CREATE_NEW_COMPANY');
-    } catch (error) {
-      throw errorHandler.wrapConnectionError(error);
-    }
+  createNewCompany(data: CreateCompanyRequest) {
+    return apiService.call<CreateCompanyResponse>(
+      ENDPOINTS.CREATE_NEW_COMPANY,
+      'CREATE_NEW_COMPANY',
+      data
+    );
   }
 }
 

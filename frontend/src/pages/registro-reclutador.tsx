@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { ErrorMessage } from "../components/ui/error-message";
-import JSEncrypt from "jsencrypt";
-import { ERROR_CODES, COMMON_ERROR_MESSAGES } from "../constants/error-codes";
 import EmployerService from "../services/employer.service";
 import CompanyService from "../services/company.service";
 import {
@@ -13,7 +11,7 @@ import {
   Field,
   PasswordInput,
   inputClass,
-} from "../components/registro-layout"; // NUEVO
+} from "../components/registro-layout";
 
 import {
   Select,
@@ -21,6 +19,8 @@ import {
   SelectItem,
   SelectTrigger,
 } from "../components/ui/select";
+import { sanitizePassword } from "../utils/password";
+import { ROUTES } from "../routes";
 
 export const RegistroReclutador = (): JSX.Element => {
   const navigate = useNavigate();
@@ -57,18 +57,21 @@ export const RegistroReclutador = (): JSX.Element => {
 
         const result = await CompanyService.getCompaniesList();
 
-        if (result.code === ERROR_CODES.SUCCESS && Array.isArray(result.data)) {
+        if (Array.isArray(result.data)) {
           const formattedCompanies = result.data.map(
             (company) => ({
               value: company.company_id.toString(),
               label: company.name,
             })
           );
+
           setCompanyOptions(formattedCompanies);
         }
       } catch (err) {
         console.error("Error loading companies:", err);
-        setCompaniesLoadError(err instanceof Error ? err.message : COMMON_ERROR_MESSAGES.CONNECTION_ERROR);
+        setCompaniesLoadError(
+          err instanceof Error ? err.message : "Error al cargar las empresas."
+        );
       } finally {
         setLoadingCompanies(false);
       }
@@ -78,31 +81,13 @@ export const RegistroReclutador = (): JSX.Element => {
   }, []);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-      .replace(/[!"#$%/()=?¡¨*[\];:_¿´+{},.\-><°|¬\\~`^Ññ\r\n]/g, "")
-      .slice(0, 30);
-    setPassword(value);
+    setPassword(sanitizePassword(e.target.value));
   };
 
-  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-      .replace(/[!"#$%/()=?¡¨*[\];:_¿´+{},.\-><°|¬\\~`^Ññ\r\n]/g, "")
-      .slice(0, 30);
-    setConfirmPassword(value);
-  };
-
-  const encryptPassword = (password: string) => {
-    const publicKey = import.meta.env.VITE_RSA_PUBLIC_KEY;
-
-    if (!publicKey) return password;
-
-    try {
-      const jsEncrypt = new JSEncrypt();
-      jsEncrypt.setPublicKey(publicKey);
-      return jsEncrypt.encrypt(password) || password;
-    } catch {
-      return password;
-    }
+  const handleConfirmPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setConfirmPassword(sanitizePassword(e.target.value));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -110,54 +95,67 @@ export const RegistroReclutador = (): JSX.Element => {
     setError(null);
 
     let hasError = false;
-    setNameError(false);
-    setLastNameError(false);
-    setEmailError(false);
-    setPasswordFormatError(false);
-    setPasswordMismatchError(false);
-    setCompanyError(false);
 
     if (name.trim() === "" || name.length > 20) {
       setNameError(true);
       hasError = true;
+    } else {
+      setNameError(false);
     }
+
     if (lastName.trim() === "" || lastName.length > 20) {
       setLastNameError(true);
       hasError = true;
+    } else {
+      setLastNameError(false);
     }
+
     if (email.trim() === "" || email.length > 60) {
       setEmailError(true);
       hasError = true;
+    } else {
+      setEmailError(false);
     }
+
     if (password.trim() === "" || password.length > 30) {
       setPasswordFormatError(true);
       hasError = true;
+    } else {
+      setPasswordFormatError(false);
     }
+
     if (password !== confirmPassword) {
       setPasswordMismatchError(true);
       hasError = true;
+    } else {
+      setPasswordMismatchError(false);
     }
+
     if (companyId.trim() === "") {
       setCompanyError(true);
       hasError = true;
+    } else {
+      setCompanyError(false);
     }
+
     if (hasError) return;
 
     setLoading(true);
 
     try {
-      const encryptedPassword = encryptPassword(password);
-
       const requestBody = {
         name: name.trim(),
         last_name: lastName.trim(),
         email: email.trim(),
-        password: encryptedPassword,
+        password,
         company_id: parseInt(companyId),
       };
 
       await EmployerService.registerEmployer(requestBody);
-      navigate('/login');
+      navigate(ROUTES.LOGIN, {
+        replace: true,
+        state: { registered: true, email: email.trim() },
+      });
     } catch (err) {
       console.error('Error during registration:', err);
       setError(err instanceof Error ? err.message : 'Error al registrar usuario');
@@ -268,7 +266,7 @@ export const RegistroReclutador = (): JSX.Element => {
             </Field>
           </div>
           <p className="text-[#757575] text-xs -mt-2">
-            Máximo 30 caracteres. No admite símbolos especiales ni la letra ñ.
+            Máximo 30 caracteres. No admite símbolos especiales.
           </p>
         </FormSection>
 
@@ -291,9 +289,8 @@ export const RegistroReclutador = (): JSX.Element => {
                 disabled={loadingCompanies || loading}
               >
                 <SelectTrigger
-                  className={`h-auto min-h-[42px] bg-white rounded-lg border px-4 py-2 font-normal text-base text-[#b3b3b3] ${
-                    companyError ? "border-[#cc2222]" : "border-[#d9d9d9]"
-                  }`}
+                  className={`h-auto min-h-[42px] bg-white rounded-lg border px-4 py-2 font-normal text-base text-[#b3b3b3] ${companyError ? "border-[#cc2222]" : "border-[#d9d9d9]"
+                    }`}
                 >
                   {companyId
                     ? companyOptions.find(option => option.value === companyId)?.label
@@ -322,7 +319,7 @@ export const RegistroReclutador = (): JSX.Element => {
         <Button
           type="submit"
           disabled={loading}
-          className="h-11 w-full bg-[#f46036] hover:bg-[#d9512e] rounded-lg font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="h-11 w-full rounded-lg font-medium text-base"
         >
           {loading ? 'Registrando...' : 'Registrarse'}
         </Button>

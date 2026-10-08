@@ -3,20 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { ErrorMessage } from "../components/ui/error-message";
-import JSEncrypt from "jsencrypt";
 import CandidateService from "../services/candidate.service";
-import { apiService } from "../services/api.service";
-import { API_CONFIG } from "../config/api.config";
-import type { ErrorCode } from "../constants/error-codes";
-import errorHandler from "../services/error-handler.service";
-import validator from 'validator';
+import SkillService from "../services/skill.service";
+import { sanitizePassword } from "../utils/password";
+import { normalizeUrl, isValidWebUrl } from "../utils/url";
+import { ROUTES } from "../routes";
+
 import {
   RegistroLayout,
   FormSection,
   Field,
   PasswordInput,
   inputClass,
-} from "../components/registro-layout"; // NUEVO
+} from "../components/registro-layout";
 
 import {
   Select,
@@ -25,17 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-
-interface Skill {
-  skill_id: number;
-  name: string;
-}
-
-interface SkillsResponse {
-  code: ErrorCode;
-  description?: string;
-  data: Skill[];
-}
 
 export const RegistroCandidato = (): JSX.Element => {
   const navigate = useNavigate();
@@ -76,32 +64,21 @@ export const RegistroCandidato = (): JSX.Element => {
         setLoadingSkills(true);
         setSkillsLoadError(null);
 
-        const response = await apiService.post<SkillsResponse>(
-          API_CONFIG.ENDPOINTS.GET_SKILLS_LIST,
-          {}
-        );
+        const response = await SkillService.getSkillsList();
 
-        console.log('Skills API Response:', response);
-
-        if (!errorHandler.isSuccess(response.code)) {
-          errorHandler.handleApiError(response, 'GET_SKILLS');
-        }
-
-        if (response.data && Array.isArray(response.data)) {
-          const formattedSkills = response.data.map((skill) => ({
+        setSkillOptions(
+          response.data.map((skill) => ({
             value: skill.skill_id.toString(),
             label: skill.name,
-          }));
-          console.log('Formatted skills:', formattedSkills);
-          setSkillOptions(formattedSkills);
-        }
+          }))
+        );
       } catch (err) {
-        console.error('Error loading skills:', err);
+        console.error("Error loading skills:", err);
 
         setSkillsLoadError(
           err instanceof Error
             ? err.message
-            : 'Error al cargar las habilidades. Por favor, recargá la página.'
+            : "Error al cargar las habilidades. Por favor, recargá la página."
         );
       } finally {
         setLoadingSkills(false);
@@ -119,48 +96,22 @@ export const RegistroCandidato = (): JSX.Element => {
     setSelectedSkills(selectedSkills.filter((skill) => skill !== value));
   };
 
-  const isValidUrl = (url: string) => {
-    return validator.isURL(url, { protocols: ['http', 'https'], require_protocol: true });
+  const handleCvLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCvLink(e.target.value);
+    if (cvError) setCvError(false);
   };
 
-  const handleCvLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setCvLink(value);
-    if (value.trim() === "") setCvError(false);
-    else setCvError(!isValidUrl(value));
+  // Se valida al salir del campo para que no se ponga rojo mientras escribe
+  const handleCvLinkBlur = () => {
+    if (cvLink.trim() !== "") setCvError(!isValidWebUrl(cvLink));
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-      .replace(/[!"#$%/()=?¡¨*[\];:_¿´+{},.\-><°|¬\\~`^Ññ\r\n]/g, "")
-      .slice(0, 30);
-    setPassword(value);
+    setPassword(sanitizePassword(e.target.value));
   };
 
   const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-      .replace(/[!"#$%/()=?¡¨*[\];:_¿´+{},.\-><°|¬\\~`^Ññ\r\n]/g, "")
-      .slice(0, 30);
-    setConfirmPassword(value);
-  };
-
-  const encryptPassword = (password: string) => {
-    const publicKey = import.meta.env.VITE_RSA_PUBLIC_KEY;
-
-    if (!publicKey) {
-      console.warn('No RSA public key found, password will be sent as plain text');
-      return password;
-    }
-
-    try {
-      const jsEncrypt = new JSEncrypt();
-      jsEncrypt.setPublicKey(publicKey);
-      const encrypted = jsEncrypt.encrypt(password);
-      return encrypted || password;
-    } catch (error) {
-      console.error('Error encrypting password:', error);
-      return password;
-    }
+    setConfirmPassword(sanitizePassword(e.target.value));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -194,7 +145,7 @@ export const RegistroCandidato = (): JSX.Element => {
       hasError = true;
     } else setPasswordMismatchError(false);
 
-    if (cvLink.trim() === "" || !isValidUrl(cvLink) || cvLink.length > 100) {
+    if (!isValidWebUrl(cvLink)) {
       setCvError(true);
       hasError = true;
     } else setCvError(false);
@@ -209,22 +160,21 @@ export const RegistroCandidato = (): JSX.Element => {
     setLoading(true);
 
     try {
-      const encryptedPassword = encryptPassword(password);
-
-      const requestBody = {
+      await CandidateService.registerCandidate({
         name: name.trim(),
         last_name: lastName.trim(),
         email: email.trim(),
-        password: encryptedPassword,
-        resume_url: cvLink.trim(),
+        password,
+        resume_url: normalizeUrl(cvLink),
         skill_list: selectedSkills,
-      };
+      });
 
-      await CandidateService.registerCandidate(requestBody);
-
-      navigate('/login');
+      navigate(ROUTES.LOGIN, {
+        replace: true,
+        state: { registered: true, email: email.trim() },
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al registrar usuario');
+      setError(err instanceof Error ? err.message : "Error al registrar usuario");
     } finally {
       setLoading(false);
     }
@@ -332,7 +282,7 @@ export const RegistroCandidato = (): JSX.Element => {
             </Field>
           </div>
           <p className="text-[#757575] text-xs -mt-2">
-            Máximo 30 caracteres. No admite símbolos especiales ni la letra ñ.
+            Máximo 30 caracteres. No admite símbolos especiales.
           </p>
         </FormSection>
 
@@ -342,14 +292,15 @@ export const RegistroCandidato = (): JSX.Element => {
             required
             error={
               cvError
-                ? "Ingresá un link válido (http o https), máximo 100 caracteres"
+                ? "Ingresá un link válido (ej: www.linkedin.com/in/tu-perfil o https://...). Máximo 100 caracteres."
                 : undefined
             }
           >
             <Input
               value={cvLink}
               onChange={handleCvLinkChange}
-              placeholder="Link a tu CV en PDF o Drive"
+              onBlur={handleCvLinkBlur}
+              placeholder="Ej: www.linkedin.com/in/tu-perfil"
               className={inputClass(cvError)}
               maxLength={100}
               disabled={loading}
@@ -366,28 +317,35 @@ export const RegistroCandidato = (): JSX.Element => {
                 <ErrorMessage message={skillsLoadError} />
               </div>
             ) : (
-              <Select onValueChange={handleSkillSelect} disabled={loadingSkills || loading} value="">
+              <Select
+                onValueChange={handleSkillSelect}
+                disabled={loadingSkills || loading}
+                value=""
+              >
                 <SelectTrigger
-                  className={`h-auto min-h-[42px] bg-white rounded-lg border px-4 py-2 font-normal text-base text-[#b3b3b3] ${
-                    skillsError ? "border-[#cc2222]" : "border-[#d9d9d9]"
-                  }`}
+                  className={`h-auto min-h-[42px] bg-white rounded-lg border px-4 py-2 font-normal text-base text-[#b3b3b3] ${skillsError ? "border-[#cc2222]" : "border-[#d9d9d9]"
+                    }`}
                 >
-                  <SelectValue placeholder={loadingSkills ? "Cargando habilidades..." : "Seleccioná habilidades"} />
+                  <SelectValue
+                    placeholder={
+                      loadingSkills ? "Cargando habilidades..." : "Seleccioná habilidades"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {loadingSkills ? (
-                    <div className="px-2 py-1.5 text-sm text-[#757575] ">
-                      Cargando...
-                    </div>
+                    <div className="px-2 py-1.5 text-sm text-[#757575]">Cargando...</div>
                   ) : availableSkills.length > 0 ? (
                     availableSkills.map((option) => (
-                      <SelectItem key={option.value} value={option.value} className="">
+                      <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
                     ))
                   ) : (
-                    <div className="px-2 py-1.5 text-sm text-[#757575] ">
-                      {skillOptions.length === 0 ? 'No hay habilidades disponibles' : 'Todas las habilidades seleccionadas'}
+                    <div className="px-2 py-1.5 text-sm text-[#757575]">
+                      {skillOptions.length === 0
+                        ? "No hay habilidades disponibles"
+                        : "Todas las habilidades seleccionadas"}
                     </div>
                   )}
                 </SelectContent>
@@ -401,7 +359,7 @@ export const RegistroCandidato = (): JSX.Element => {
                   return (
                     <div
                       key={skillValue}
-                      className="bg-[#3351A6] text-white px-3 py-1.5 rounded-md flex items-center gap-2 font-normal text-sm"
+                      className="bg-accent text-white px-3 py-1.5 rounded-md flex items-center gap-2 font-normal text-sm"
                     >
                       <span>{skill?.label}</span>
                       <button
@@ -423,9 +381,9 @@ export const RegistroCandidato = (): JSX.Element => {
         <Button
           type="submit"
           disabled={loading}
-          className="h-11 w-full bg-[#f46036] hover:bg-[#d9512e] rounded-lg font-medium text-white text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="h-11 w-full rounded-lg font-medium text-base"
         >
-          {loading ? 'Registrando...' : 'Registrarse'}
+          {loading ? "Registrando..." : "Registrarse"}
         </Button>
       </form>
     </RegistroLayout>

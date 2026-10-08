@@ -6,7 +6,7 @@ interface SelectContextValue {
   onValueChange: (value: string) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
-  triggerRef: React.RefObject<HTMLButtonElement | null>;
+  triggerRef: React.RefObject<HTMLButtonElement>;
 }
 
 const SelectContext = createContext<SelectContextValue | undefined>(undefined);
@@ -53,7 +53,7 @@ export const Select: React.FC<SelectProps> = ({
       <div className="relative w-full">
         {React.Children.map(children, (child) =>
           React.isValidElement(child)
-            ? React.cloneElement(child, { disabled })
+            ? React.cloneElement(child as React.ReactElement<{ disabled?: boolean }>, { disabled })
             : child
         )}
       </div>
@@ -80,15 +80,13 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = ({
       type="button"
       onClick={() => !disabled && setOpen(!open)}
       disabled={disabled}
-      className={`w-full flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-[#f46036] focus:border-transparent transition-all ${className} ${
-        disabled ? 'opacity-50 cursor-not-allowed' : ''
-      }`}
+      className={`w-full flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''
+        }`}
     >
       {children}
       <ChevronDown
-        className={`w-4 h-4 transition-transform ${
-          open ? 'rotate-180' : ''
-        }`}
+        className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''
+          }`}
       />
     </button>
   );
@@ -200,7 +198,7 @@ export const SelectItem: React.FC<SelectItemProps> = ({
   return (
     <div
       onClick={() => onValueChange(value)}
-      className={`px-3 py-2 cursor-pointer hover:bg-[#f2f2f2] [font-family:'Nunito',Helvetica] font-normal text-base text-[#333333] transition-colors ${className}`}
+      className={`px-3 py-2 cursor-pointer hover:bg-[#f2f2f2] font-normal text-base text-[#333333] transition-colors ${className}`}
     >
       {children}
     </div>

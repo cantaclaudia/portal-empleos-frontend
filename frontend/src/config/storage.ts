@@ -1,0 +1,1 @@
+export const USER_STORAGE_KEY = 'portal_empleos_user';

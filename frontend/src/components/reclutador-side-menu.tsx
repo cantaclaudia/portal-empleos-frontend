@@ -3,6 +3,7 @@ import {
   Home as HomeIcon,
   Plus as PlusIcon,
   Users as UsersIcon,
+  User as UserIcon,
 } from "lucide-react";
 import { SideMenu, type SideMenuItem } from "./ui/side-menu";
 import { ROUTES } from "../routes";
@@ -11,8 +12,9 @@ import CompanyService from "../services/company.service";
 
 const RECLUTADOR_ITEMS: SideMenuItem[] = [
   { icon: HomeIcon, label: "Inicio", path: ROUTES.HOME_RECLUTADOR },
-  { icon: PlusIcon, label: "Crear nueva oferta", path: `${ROUTES.HOME_RECLUTADOR}?crear=1` }, // CAMBIO
+  { icon: PlusIcon, label: "Crear nueva oferta", path: `${ROUTES.HOME_RECLUTADOR}?crear=1` }, 
   { icon: UsersIcon, label: "Postulaciones recibidas", path: ROUTES.POSTULACIONES_RECIBIDAS },
+  { icon: UserIcon, label: "Mi perfil", path: ROUTES.PERFIL_RECLUTADOR },
 ];
 
 interface ReclutadorSideMenuProps {
@@ -48,7 +50,7 @@ export const ReclutadorSideMenu: React.FC<ReclutadorSideMenuProps> = ({
 
     const loadCompany = async () => {
       try {
-        const result = await CompanyService.getCompaniesList(userId);
+        const result = await CompanyService.getCompaniesList();
         if (!active) return;
         const mine = (result.data || []).find(
           (c) => String(c.company_id) === String(companyId)

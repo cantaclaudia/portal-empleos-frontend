@@ -164,7 +164,7 @@ def candidate_or_employer_validation():
             current_user = None
 
             # probamos primero como candidato y despues como empleador
-            for is_candidate in (True, False):
+            for is_candidate in (True, False, None):
                 user_response = Manager.get_user_data_login(user_id=g.user_id,
                                                             is_candidate=is_candidate,
                                                             request_id=g.request_id)

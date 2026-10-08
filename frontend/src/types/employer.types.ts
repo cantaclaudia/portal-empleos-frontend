@@ -28,8 +28,27 @@ export interface CreateCompanyRequest {
   tax_id: string;
 }
 
-export interface CreateCompanyResponse {
-  code: string;
+export interface CreateCompanyRequest {
+  name: string;
   description: string;
-  data?: { company_id: number };
+  tax_id: string;
+  company_type: number; 
+}
+
+export interface EmployerProfile {
+  first_name: string;
+  last_name: string;
+  email: string;
+  company_id: number;
+  company_name: string;
+  company_description: string | null;
+  company_sector: string | null;
+  total_job_offers: number;
+  total_applications: number;
+}
+
+export interface GetEmployerProfileResponse {
+  code: string;
+  data: EmployerProfile;
+  description: string;
 }

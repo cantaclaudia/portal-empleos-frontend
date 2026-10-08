@@ -96,7 +96,7 @@ def create_new_company(data_request):
         name = data_request['name']
         description = data_request['description']
         tax_id = data_request['tax_id']
-        company_type = data_request['company_type']
+        company_type = data_request.get('company_type', 1)
     except:
         logger.exception(f"{g.request_id} - mensaje malformado")
         return {"code": "0400", "description": "bad request"}, 400
@@ -196,6 +196,23 @@ def get_applicants_information(data_request):
     logger.info(f"{g.request_id} - validacion de datos exitosa")
     return Controller.get_applicants_information(job_offer_id=job_offer_id)
 
+# 8.1)
+# Obtener perfil completo del candidato logueado
+# (datos personales, habilidades y experiencia laboral)
+@bp.route('/getCandidateProfile', methods=['POST'])
+@AuthController.token_required(endpoint='getCandidateProfile', service_required=False)
+@AuthController.candidate_validation()
+def get_candidate_profile(data_request):
+    logger.info(f"{g.request_id} - ingresando a /getCandidateProfile")
+
+    try:
+        candidate_id = data_request['candidate_id']
+    except:
+        logger.exception(f"{g.request_id} - mensaje malformado")
+        return {"code": "0400", "description": "bad request"}, 400
+
+    logger.info(f"{g.request_id} - validacion de datos exitosa")
+    return Controller.get_candidate_profile(candidate_id=candidate_id)
 
 # 9)
 # Obtener los empleos disponibles
@@ -408,3 +425,14 @@ def get_locations(data_request):
     logger.info(f"{g.request_id} - consultando ubicaciones")
 
     return Controller.get_locations()
+
+#19)
+# Obtener el perfil del reclutador logueado (datos personales, empresa y totales)
+@bp.route('/getEmployerProfile', methods=['POST'])
+@AuthController.token_required(endpoint='getEmployerProfile', service_required=False)
+@AuthController.employer_validation()
+def get_employer_profile(data_request):
+    logger.info(f"{g.request_id} - ingresando a /getEmployerProfile")
+
+    # el reclutador solo puede ver su propio perfil: el id sale del header, no del body
+    return Controller.get_employer_profile(user_id=g.user_id)
