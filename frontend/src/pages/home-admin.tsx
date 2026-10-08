@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, type JSX } from 'react';
+
 import {
   Menu as MenuIcon,
   Building2 as BuildingIcon,
@@ -7,6 +8,7 @@ import {
   Search as SearchIcon,
   CheckCircle as CheckCircleIcon,
 } from 'lucide-react';
+
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -14,15 +16,19 @@ import { HeaderLogo } from '../components/ui/header-logo';
 import { Footer } from '../components/ui/footer';
 import { ErrorMessage } from '../components/ui/error-message';
 import { AdminSideMenu } from '../components/admin-side-menu';
+
 import AuthService from '../services/auth.service';
 import CompanyService from '../services/company.service';
 import StatsService from '../services/stats.service';
+import AvailableJobsService from '../services/available-jobs.service';
+
 import type { Company } from '../types/employer.types';
 import { getSectorLabel } from '../constants/sectors';
 import { Card } from '../components/ui/card';
 import { AdminStats } from '../types/stats.types';
+import type { Job } from '../types/job.types';
 
-// El color se asigna según la posición del sector (de más a menos ofertas)
+// *El color se asigna según la posición del sector (de más a menos ofertas)*
 const SECTOR_PALETTE = [
   '#f46036',
   '#3351A6',
@@ -35,6 +41,25 @@ const SECTOR_PALETTE = [
 const OTHERS_COLOR = '#c4c4c4';
 const DONUT_MAX_SEGMENTS = 5;
 const RATE_MAX_ROWS = 6;
+
+const SECTORS: { id: number; label: string }[] = [
+  { id: 1, label: 'Tecnología' },
+  { id: 2, label: 'Diseño' },
+  { id: 3, label: 'Finanzas' },
+  { id: 4, label: 'Salud' },
+  { id: 5, label: 'Educación' },
+  { id: 6, label: 'Retail' },
+  { id: 7, label: 'Manufactura' },
+  { id: 8, label: 'Inmobiliario' },
+  { id: 9, label: 'Transporte' },
+  { id: 10, label: 'Energía' },
+  { id: 11, label: 'Entretenimiento' },
+  { id: 12, label: 'Agricultura' },
+  { id: 13, label: 'Hotelería' },
+  { id: 14, label: 'Telecomunicaciones' },
+  { id: 15, label: 'Construcción' },
+  { id: 16, label: 'Gobierno' },
+];
 
 interface StatTileProps {
   icon: JSX.Element;
@@ -50,7 +75,6 @@ const StatTile = ({
   sublabel,
 }: StatTileProps): JSX.Element => (
   <Card className="p-5 flex items-center gap-4">
-
     <div className="w-11 h-11 rounded-xl bg-surface text-[#3b4a86] flex items-center justify-center flex-shrink-0">
       {icon}
     </div>
@@ -211,6 +235,7 @@ const RateBar = ({
 
 export const HomeAdmin = (): JSX.Element => {
   const user = AuthService.getUser();
+
   const userId =
     user?.user_id != null
       ? String(user.user_id)
@@ -218,21 +243,23 @@ export const HomeAdmin = (): JSX.Element => {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Estadísticas
+  const [companyType, setCompanyType] = useState<number>(1);
+
+  // *Estadísticas*
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState(false);
 
-  // Empresas
+  // *Empresas*
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companiesLoading, setCompaniesLoading] = useState(true);
   const [companiesError, setCompaniesError] = useState(false);
   const [search, setSearch] = useState('');
 
-  // Se incrementa después de crear una empresa para recargar todo
+  // *Se incrementa después de crear una empresa para recargar todo*
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Formulario de alta
+  // *Formulario de alta*
   const [name, setName] = useState('');
   const [taxId, setTaxId] = useState('');
   const [description, setDescription] = useState('');
@@ -240,10 +267,17 @@ export const HomeAdmin = (): JSX.Element => {
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  // *Ofertas*
+  const [allJobs, setAllJobs] = useState<Job[]>([]);
+  const [allJobsLoading, setAllJobsLoading] = useState(true);
+  const [allJobsError, setAllJobsError] = useState(false);
+  const [jobSearch, setJobSearch] = useState('');
+
   const [fieldErrors, setFieldErrors] = useState({
     name: false,
     taxId: false,
     description: false,
+    companyType: false,
   });
 
   useEffect(() => {
@@ -302,8 +336,37 @@ export const HomeAdmin = (): JSX.Element => {
       }
     };
 
+    const loadAllJobs = async () => {
+      try {
+        console.log('Usuario actual:', userId);
+
+        const result =
+          await AvailableJobsService.getAvailableJobs();
+
+        console.log('Respuesta getAvailableJobs:', result);
+
+        if (active) {
+          setAllJobs(
+            Array.isArray(result.data)
+              ? result.data
+              : []
+          );
+          setAllJobsError(false);
+        }
+      } catch {
+        if (active) {
+          setAllJobsError(true);
+        }
+      } finally {
+        if (active) {
+          setAllJobsLoading(false);
+        }
+      }
+    };
+
     void loadStats();
     void loadCompanies();
+    void loadAllJobs();
 
     return () => {
       active = false;
@@ -324,8 +387,8 @@ export const HomeAdmin = (): JSX.Element => {
       )
       : null;
 
-  // Sectores ordenados de más a menos ofertas,
-  // con su tasa de éxito
+  // *Sectores ordenados de más a menos ofertas,*
+  // *con su tasa de éxito*
   const sectorRows = useMemo(() => {
     if (!stats) return [];
 
@@ -356,8 +419,8 @@ export const HomeAdmin = (): JSX.Element => {
       }));
   }, [stats]);
 
-  // Dona: los sectores principales y
-  // el resto agrupado en "Otros"
+  // *Dona: los sectores principales y*
+  // *el resto agrupado en "Otros"*
   const donutSegments: DonutSegment[] =
     useMemo(() => {
       const main =
@@ -407,19 +470,16 @@ export const HomeAdmin = (): JSX.Element => {
       );
   }, [companies, search]);
 
-  const handleSubmit = async (
-    e: React.FormEvent
-  ) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setFormError(null);
     setSuccess(false);
 
     const errors = {
       name: name.trim() === '',
       taxId: taxId.trim() === '',
-      description:
-        description.trim() === '',
+      description: description.trim() === '',
+      companyType: companyType === 0,
     };
 
     setFieldErrors(errors);
@@ -435,15 +495,16 @@ export const HomeAdmin = (): JSX.Element => {
         name: name.trim(),
         description: description.trim(),
         tax_id: taxId.trim(),
+        company_type: companyType,
       });
 
       setSuccess(true);
       setName('');
       setTaxId('');
       setDescription('');
-      setRefreshKey(
-        (key) => key + 1
-      );
+      setCompanyType(1);
+
+      setRefreshKey((key) => key + 1);
     } catch (err) {
       setFormError(
         err instanceof Error
@@ -500,7 +561,7 @@ export const HomeAdmin = (): JSX.Element => {
           </div>
         )}
 
-        {/* Indicadores */}
+        {/* *Indicadores* */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatTile
             icon={
@@ -545,10 +606,9 @@ export const HomeAdmin = (): JSX.Element => {
             }
           />
         </div>
-        {/* Gráficos */}
 
+        {/* *Gráficos* */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
           <Card className="p-6">
             <h3 className="font-bold text-navy text-base mb-1">
               Ofertas publicadas por sector
@@ -607,11 +667,78 @@ export const HomeAdmin = (): JSX.Element => {
               </div>
             )}
           </Card>
-
         </div>
 
-        {/* Empresas: lista + alta, siempre visible */}
+        {/* Ofertas publicadas en la plataforma */}
+        <Card className="overflow-hidden">
+          <div className="flex items-center gap-2 px-5 py-4 border-b border-[#f0f0f0]">
+            <h3 className="font-bold text-navy text-base">Ofertas publicadas</h3>
+            {!allJobsLoading && !allJobsError && (
+              <span className="rounded-full bg-surface px-2 py-0.5 text-xs font-semibold text-[#3b4a86]">
+                {allJobs.length}
+              </span>
+            )}
+          </div>
 
+          <div className="p-5 flex flex-col gap-3">
+            <div className="relative">
+              <SearchIcon className="w-4 h-4 text-[#999999] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Input
+                value={jobSearch}
+                onChange={(e) => setJobSearch(e.target.value)}
+                placeholder="Buscar por puesto o empresa"
+                className="h-auto min-h-[40px] bg-white rounded-lg border border-[#d9d9d9] pl-9 pr-3 py-2 text-sm"
+              />
+            </div>
+
+            {allJobsLoading ? (
+              <p className="py-6 text-center text-sm text-[#757575]">Cargando ofertas...</p>
+            ) : allJobsError ? (
+              <p className="py-6 text-center text-sm text-brand">
+                No pudimos cargar las ofertas. Volvé a intentar más tarde.
+              </p>
+            ) : allJobs.length === 0 ? (
+              <p className="py-6 text-center text-sm text-[#757575]">
+                Todavía no hay ofertas publicadas.
+              </p>
+            ) : (
+              <div className="max-h-[420px] overflow-y-auto flex flex-col">
+                {allJobs
+                  .filter((job) => {
+                    const term = jobSearch.trim().toLowerCase();
+                    return (
+                      !term ||
+                      job.job_title.toLowerCase().includes(term) ||
+                      job.company_name.toLowerCase().includes(term)
+                    );
+                  })
+                  .sort((a, b) => (b.job_offer_id ?? 0) - (a.job_offer_id ?? 0))
+                  .map((job) => (
+                    <div
+                      key={job.job_offer_id}
+                      className="flex items-start gap-3.5 py-3.5 border-t border-[#f0f0f0] first:border-t-0"
+                    >
+                      <div className="w-9 h-9 rounded-[9px] bg-surface text-[#3b4a86] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <BriefcaseIcon className="w-[18px] h-[18px]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-navy text-sm truncate">{job.job_title}</p>
+                        <p className="text-[#757575] text-xs mt-0.5">{job.company_name}</p>
+                        <p className="font-semibold text-brand text-xs mt-0.5">
+                          {job.location}{job.salary ? ` · $${parseFloat(job.salary).toLocaleString('es-AR')}` : ''}
+                        </p>
+                        {job.job_description && (
+                          <p className="text-[#666666] text-xs mt-1 line-clamp-2">{job.job_description}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* *Empresas: lista + alta, siempre visible* */}
         <Card className="overflow-hidden">
           <div className="flex items-center gap-2 px-5 py-4 border-b border-[#f0f0f0]">
             <h3 className="font-bold text-navy text-base">
@@ -627,7 +754,7 @@ export const HomeAdmin = (): JSX.Element => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr]">
-            {/* Lista */}
+            {/* *Lista* */}
             <div className="flex flex-col p-5 gap-3 min-w-0">
               <div className="relative">
                 <SearchIcon className="w-4 h-4 text-[#999999] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -682,7 +809,7 @@ export const HomeAdmin = (): JSX.Element => {
               </div>
             </div>
 
-            {/* Alta */}
+            {/* *Alta* */}
             <form
               onSubmit={handleSubmit}
               className="flex flex-col gap-4 p-5 bg-[#fafafa] border-t lg:border-t-0 lg:border-l border-[#f0f0f0]"
@@ -763,6 +890,33 @@ export const HomeAdmin = (): JSX.Element => {
               </div>
 
               <div className="flex flex-col gap-1.5">
+                <Label htmlFor="company-type" className="font-normal text-sm">
+                  Sector <span className="text-[#cc2222]">*</span>
+                </Label>
+
+                <select
+                  id="company-type"
+                  name="company_type"
+                  value={companyType}
+                  onChange={(e) => setCompanyType(Number(e.target.value))}
+                  disabled={submitting}
+                  className="h-auto min-h-[40px] bg-white rounded-lg border border-[#d9d9d9] px-3 py-2 text-sm text-[#333333] focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
+                >
+                  {SECTORS.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+
+                {fieldErrors.companyType && (
+                  <p className="text-[#cc2222] text-xs">
+                    El sector es obligatorio
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
                 <Label
                   htmlFor="company-description"
                   className="font-normal text-sm"
@@ -805,9 +959,10 @@ export const HomeAdmin = (): JSX.Element => {
             </form>
           </div>
         </Card>
-      </section >
+
+      </section>
 
       <Footer />
-    </div >
+    </div>
   );
 };

@@ -16,6 +16,12 @@ export const ERROR_CODES = {
 
   CONNECTION_ERROR: '0600',
 
+  INVALID_JOB_ID: '0405',
+
+  INVALID_CANDIDATE_ID: '0406',
+
+  INVALID_COMPANY_ID: '0407',
+
 } as const;
 
 export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
@@ -266,6 +272,20 @@ export const ENDPOINT_ERROR_MESSAGES = {
 
     [ERROR_CODES.INTERNAL_ERROR]: COMMON_ERROR_MESSAGES[ERROR_CODES.INTERNAL_ERROR],
 
+  },
+
+  UPLOAD_WORK_EXPERIENCE: {
+    [ERROR_CODES.SUCCESS]: 'Experiencia cargada correctamente',
+
+    [ERROR_CODES.BAD_REQUEST]: COMMON_ERROR_MESSAGES[ERROR_CODES.BAD_REQUEST],
+
+    [ERROR_CODES.INVALID_JOB_ID]: 'El puesto seleccionado no es válido',
+
+    [ERROR_CODES.INVALID_CANDIDATE_ID]: 'No se pudo identificar al candidato',
+
+    [ERROR_CODES.INVALID_COMPANY_ID]: 'La empresa seleccionada no es válida',
+
+    [ERROR_CODES.INTERNAL_ERROR]: COMMON_ERROR_MESSAGES[ERROR_CODES.INTERNAL_ERROR],
   },
 
 } as const;

@@ -5,50 +5,50 @@ import {
   Briefcase as BriefcaseIcon,
   CheckCircle as CheckCircleIcon,
   Circle as CircleIcon,
+  Plus as PlusIcon,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { HeaderLogo } from "../components/ui/header-logo";
 import { Footer } from "../components/ui/footer";
 import { CandidatoSideMenu } from "../components/candidato-side-menu";
+import { Label } from "../components/ui/label";
 import AuthService from "../services/auth.service";
 import CandidateProfileService from "../services/candidate-profile.service";
-import type {
-  CandidateProfile,
-} from "../types/candidate-profile.types";
+import type { CandidateProfile } from "../types/candidate-profile.types";
 import type { WorkExperience } from "../types/experience.types";
 import { parseSkills } from "../utils/parse-skills";
 import { getInitials } from "../utils/initials";
 import { formatMonthYear } from "../utils/format-date";
+import { AddExperienceForm } from "../components/add-experience-form";
 
 const CARD_CLASS = "bg-white border border-[#dedede] shadow-sm rounded-xl";
 
 const formatRange = (exp: WorkExperience): string | null => {
   if (!exp.start_date && !exp.end_date) return null;
 
-  const start = exp.start_date ? formatMonthYear(exp.start_date) : '?';
+  const start = exp.start_date ? formatMonthYear(exp.start_date) : "?";
   // end_date null = trabajo actual
-  const end = exp.end_date ? formatMonthYear(exp.end_date) : 'actual';
+  const end = exp.end_date ? formatMonthYear(exp.end_date) : "actual";
 
   return `${start} – ${end}`;
 };
 
 const SectionCard = ({
   title,
+  action,
   children,
 }: {
   title: string;
+  action?: React.ReactNode;
   children: React.ReactNode;
 }): JSX.Element => (
   <section className={`${CARD_CLASS} px-5 md:px-6 py-5`}>
-    <h3 className="font-bold text-navy text-base mb-4">{title}</h3>
+    <div className="flex items-center justify-between gap-3 mb-4">
+      <h3 className="font-bold text-navy text-base">{title}</h3>
+      {action}
+    </div>
     {children}
   </section>
-);
-
-const Label = ({ children }: { children: React.ReactNode }): JSX.Element => (
-  <p className="text-[11px] uppercase tracking-wide text-[#999999]">
-    {children}
-  </p>
 );
 
 export const PerfilCandidato = (): JSX.Element => {
@@ -59,6 +59,9 @@ export const PerfilCandidato = (): JSX.Element => {
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [showExpForm, setShowExpForm] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -72,9 +75,7 @@ export const PerfilCandidato = (): JSX.Element => {
 
       try {
         // Perfil propio: candidate_id coincide con user_id
-        const result = await CandidateProfileService.getCandidateProfile(
-          userId
-        );
+        const result = await CandidateProfileService.getCandidateProfile(userId);
 
         if (!active) return;
 
@@ -101,12 +102,17 @@ export const PerfilCandidato = (): JSX.Element => {
     return () => {
       active = false;
     };
-  }, [userId]);
+  }, [userId, reloadKey]);
+
+  const handleExperienceSaved = () => {
+    setShowExpForm(false);
+    setReloadKey((k) => k + 1);
+  };
 
   const skills = parseSkills(profile?.skills);
 
   const experience = [
-    ...(Array.isArray(profile?.experience) ? profile!.experience! : []),
+    ...(Array.isArray(profile?.experience) ? profile.experience : []),
   ].sort((a, b) => (b.start_date ?? "").localeCompare(a.start_date ?? ""));
 
   const hasResume = !!profile?.resume_url;
@@ -124,7 +130,9 @@ export const PerfilCandidato = (): JSX.Element => {
     (checklist.filter((c) => c.done).length / checklist.length) * 100
   );
 
-  const fullName = profile ? `${profile.first_name} ${profile.last_name}` : "";
+  const fullName = profile
+    ? `${profile.first_name} ${profile.last_name}`
+    : "";
 
   return (
     <div className="bg-page w-full min-h-screen flex flex-col">
@@ -137,6 +145,7 @@ export const PerfilCandidato = (): JSX.Element => {
         >
           <MenuIcon className="w-6 h-6 text-white" />
         </Button>
+
         <HeaderLogo />
       </nav>
 
@@ -174,9 +183,11 @@ export const PerfilCandidato = (): JSX.Element => {
                   <div className="w-16 h-16 rounded-full bg-brand text-white font-bold text-xl flex items-center justify-center mx-auto">
                     {getInitials(profile.first_name, profile.last_name)}
                   </div>
+
                   <h2 className="mt-3 font-bold text-navy text-base leading-tight">
                     {fullName}
                   </h2>
+
                   <span className="inline-block mt-2 rounded-full bg-surface px-3 py-0.5 text-xs font-semibold text-[#3b4a86]">
                     Candidato
                   </span>
@@ -207,6 +218,7 @@ export const PerfilCandidato = (): JSX.Element => {
                     <h3 className="font-bold text-navy text-base">
                       Perfil completo
                     </h3>
+
                     <span className="font-bold text-brand-dark text-sm tabular-nums">
                       {completion}%
                     </span>
@@ -236,6 +248,7 @@ export const PerfilCandidato = (): JSX.Element => {
                         ) : (
                           <CircleIcon className="w-4 h-4 text-[#999999] flex-shrink-0" />
                         )}
+
                         <span
                           className={
                             item.done ? "text-navy" : "text-[#757575]"
@@ -271,7 +284,30 @@ export const PerfilCandidato = (): JSX.Element => {
                   )}
                 </SectionCard>
 
-                <SectionCard title="Experiencia">
+                <SectionCard
+                  title="Experiencia"
+                  action={
+                    !showExpForm && (
+                      <button
+                        type="button"
+                        onClick={() => setShowExpForm(true)}
+                        className="inline-flex items-center gap-1 font-bold text-accent text-sm hover:opacity-80 transition-opacity"
+                      >
+                        <PlusIcon className="w-4 h-4" />
+                        Agregar experiencia
+                      </button>
+                    )
+                  }
+                >
+                  {showExpForm && (
+                    <div className="mb-5 rounded-xl border border-[#dbe5fb] bg-[#f7f9ff] p-4">
+                      <AddExperienceForm
+                        onSaved={handleExperienceSaved}
+                        onCancel={() => setShowExpForm(false)}
+                      />
+                    </div>
+                  )}
+
                   {hasExperience ? (
                     <ol>
                       {experience.map((exp, index) => {
@@ -285,23 +321,33 @@ export const PerfilCandidato = (): JSX.Element => {
                           >
                             <div className="flex flex-col items-center">
                               <span
-                                className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${index === 0 ? "bg-brand" : "bg-[#cfd3e6]"
-                                  }`}
+                                className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${
+                                  index === 0
+                                    ? "bg-brand"
+                                    : "bg-[#cfd3e6]"
+                                }`}
                               />
+
                               {!isLast && (
                                 <span className="w-px flex-1 bg-[#e5e5e5] mt-1" />
                               )}
                             </div>
 
-                            <div className={`min-w-0 ${isLast ? "" : "pb-5"}`}>
+                            <div
+                              className={`min-w-0 ${
+                                isLast ? "" : "pb-5"
+                              }`}
+                            >
                               <p className="font-bold text-navy text-sm leading-tight">
                                 {exp.job_name ?? "Puesto sin especificar"}
                               </p>
+
                               {exp.company_name && (
                                 <p className="text-[#757575] text-sm mt-0.5">
                                   {exp.company_name}
                                 </p>
                               )}
+
                               {range && (
                                 <p className="text-[#757575] text-xs mt-1">
                                   {range}
@@ -313,12 +359,15 @@ export const PerfilCandidato = (): JSX.Element => {
                       })}
                     </ol>
                   ) : (
-                    <div className="rounded-xl border border-dashed border-[#d9d9d9] bg-[#fafafa] px-5 py-6 text-center">
-                      <BriefcaseIcon className="w-5 h-5 text-[#999999] mx-auto mb-1.5" />
-                      <p className="text-[#757575] text-sm">
-                        Todavía no hay experiencia cargada.
-                      </p>
-                    </div>
+                    !showExpForm && (
+                      <div className="rounded-xl border border-dashed border-[#d9d9d9] bg-[#fafafa] px-5 py-6 text-center">
+                        <BriefcaseIcon className="w-5 h-5 text-[#999999] mx-auto mb-1.5" />
+
+                        <p className="text-[#757575] text-sm">
+                          Todavía no hay experiencia cargada.
+                        </p>
+                      </div>
+                    )
                   )}
                 </SectionCard>
               </div>

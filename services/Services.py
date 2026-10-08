@@ -96,7 +96,7 @@ def create_new_company(data_request):
         name = data_request['name']
         description = data_request['description']
         tax_id = data_request['tax_id']
-        company_type = data_request['company_type']
+        company_type = data_request.get('company_type', 1)
     except:
         logger.exception(f"{g.request_id} - mensaje malformado")
         return {"code": "0400", "description": "bad request"}, 400

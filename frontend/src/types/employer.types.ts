@@ -28,10 +28,11 @@ export interface CreateCompanyRequest {
   tax_id: string;
 }
 
-export interface CreateCompanyResponse {
-  code: string;
+export interface CreateCompanyRequest {
+  name: string;
   description: string;
-  data?: { company_id: number };
+  tax_id: string;
+  company_type: number; 
 }
 
 export interface EmployerProfile {
