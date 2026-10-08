@@ -89,16 +89,3 @@ export interface GetApplicantsInformationResponse {
   description: string;
   data: ApplicantInfo[];
 }
-
-export interface Stats {
-  total_candidates: number;
-  total_companies: number;
-  total_job_offers: number;
-  successful_job_offers: number;
-}
-
-export interface GetStatsResponse {
-  code: string;
-  description: string;
-  data: Stats;
-}

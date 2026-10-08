@@ -1,26 +1,13 @@
 import { apiService } from './api.service';
 import { API_CONFIG } from '../config/api.config';
-import errorHandler from './error-handler.service';
-import type { ErrorCode } from '../constants/error-codes';
-import type { ApiResponse } from './error-handler.service';
 import type { GetSkillsResponse } from '../types/skill.types';
 
 class SkillService {
-  async getSkillsList(): Promise<GetSkillsResponse> {
-    try {
-      const response = await apiService.post<GetSkillsResponse>(
-        API_CONFIG.ENDPOINTS.GET_SKILLS_LIST,
-        {}
-      );
-
-      if (errorHandler.isSuccess(response.code as ErrorCode)) {
-        return response;
-      }
-
-      throw errorHandler.handleApiError(response as ApiResponse, 'GET_SKILLS');
-    } catch (error) {
-      throw errorHandler.wrapConnectionError(error);
-    }
+  getSkillsList() {
+    return apiService.call<GetSkillsResponse>(
+      API_CONFIG.ENDPOINTS.GET_SKILLS_LIST,
+      'GET_SKILLS'
+    );
   }
 }
 

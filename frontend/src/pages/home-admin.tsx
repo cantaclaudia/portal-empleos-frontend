@@ -16,12 +16,11 @@ import { ErrorMessage } from '../components/ui/error-message';
 import { AdminSideMenu } from '../components/admin-side-menu';
 import AuthService from '../services/auth.service';
 import CompanyService from '../services/company.service';
-import { apiService } from '../services/api.service';
-import { API_CONFIG } from '../config/api.config';
-import { ERROR_CODES } from '../constants/error-codes';
+import StatsService from '../services/stats.service';
 import type { Company } from '../types/employer.types';
 import { getSectorLabel } from '../constants/sectors';
 import { Card } from '../components/ui/card';
+import { AdminStats } from '../types/stats.types';
 
 // El color se asigna según la posición del sector (de más a menos ofertas)
 const SECTOR_PALETTE = [
@@ -36,33 +35,6 @@ const SECTOR_PALETTE = [
 const OTHERS_COLOR = '#c4c4c4';
 const DONUT_MAX_SEGMENTS = 5;
 const RATE_MAX_ROWS = 6;
-
-// Forma real de la respuesta de getStats
-interface StatsResponse {
-  code: string;
-  description: string;
-  data?: {
-    total_companies?: {
-      number_of_companies?: number;
-    }[];
-    total_job_offers?: {
-      number_of_job_offers?: number;
-      business_sector?: Record<string, number>;
-    };
-    successful_job_offers?: {
-      number_of_successful_job_offers?: number;
-      business_sector?: Record<string, number>;
-    };
-  };
-}
-
-interface StatsData {
-  totalCompanies: number;
-  totalOffers: number;
-  totalSuccess: number;
-  offersBySector: Record<string, number>;
-  successBySector: Record<string, number>;
-}
 
 interface StatTileProps {
   icon: JSX.Element;
@@ -247,7 +219,7 @@ export const HomeAdmin = (): JSX.Element => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Estadísticas
-  const [stats, setStats] = useState<StatsData | null>(null);
+  const [stats, setStats] = useState<AdminStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState(false);
 
@@ -285,48 +257,10 @@ export const HomeAdmin = (): JSX.Element => {
       }
 
       try {
-        // Se piden solo las secciones que usa esta pantalla
-        const response = await apiService.post<StatsResponse>(
-          API_CONFIG.ENDPOINTS.GET_STATS,
-          {
-            total_companies: true,
-            total_job_offers: true,
-            successful_job_offers: true,
-          },
-          { user_id: userId }
-        );
-
-        if (response.code !== ERROR_CODES.SUCCESS) {
-          throw new Error(response.description);
-        }
-
-        const d = response.data ?? {};
+        const response = await StatsService.getAdminStats();
 
         if (active) {
-          setStats({
-            totalCompanies:
-              Number(
-                d.total_companies?.[0]?.number_of_companies
-              ) || 0,
-
-            totalOffers:
-              Number(
-                d.total_job_offers?.number_of_job_offers
-              ) || 0,
-
-            totalSuccess:
-              Number(
-                d.successful_job_offers
-                  ?.number_of_successful_job_offers
-              ) || 0,
-
-            offersBySector:
-              d.total_job_offers?.business_sector ?? {},
-
-            successBySector:
-              d.successful_job_offers?.business_sector ?? {},
-          });
-
+          setStats(response);
           setStatsError(false);
         }
       } catch {

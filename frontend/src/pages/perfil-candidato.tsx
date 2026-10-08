@@ -73,7 +73,6 @@ export const PerfilCandidato = (): JSX.Element => {
       try {
         // Perfil propio: candidate_id coincide con user_id
         const result = await CandidateProfileService.getCandidateProfile(
-          userId,
           userId
         );
 

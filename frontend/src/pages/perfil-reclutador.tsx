@@ -52,7 +52,7 @@ export const PerfilReclutador: React.FC = () => {
       // 1) Perfil: es lo principal de la pantalla
       let companyId: number;
       try {
-        const response = await EmployerService.getEmployerProfile(userId);
+        const response = await EmployerService.getEmployerProfile();
         if (!active) return;
         setProfile(response.data);
         companyId = response.data.company_id;

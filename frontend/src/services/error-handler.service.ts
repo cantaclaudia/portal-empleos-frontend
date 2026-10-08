@@ -27,13 +27,6 @@ class ErrorHandlerService {
     return code === ERROR_CODES.SUCCESS;
   }
 
-  wrapConnectionError(error: unknown): never {
-    if (error instanceof Error) {
-      throw error;
-    }
-
-    throw new Error(COMMON_ERROR_MESSAGES.CONNECTION_ERROR);
-  }
 }
 
 export default new ErrorHandlerService();
