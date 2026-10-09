@@ -321,11 +321,10 @@ export const PerfilCandidato = (): JSX.Element => {
                           >
                             <div className="flex flex-col items-center">
                               <span
-                                className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${
-                                  index === 0
-                                    ? "bg-brand"
-                                    : "bg-[#cfd3e6]"
-                                }`}
+                                className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${index === 0
+                                  ? "bg-brand"
+                                  : "bg-[#cfd3e6]"
+                                  }`}
                               />
 
                               {!isLast && (
@@ -334,9 +333,8 @@ export const PerfilCandidato = (): JSX.Element => {
                             </div>
 
                             <div
-                              className={`min-w-0 ${
-                                isLast ? "" : "pb-5"
-                              }`}
+                              className={`min-w-0 ${isLast ? "" : "pb-5"
+                                }`}
                             >
                               <p className="font-bold text-navy text-sm leading-tight">
                                 {exp.job_name ?? "Puesto sin especificar"}
@@ -351,6 +349,11 @@ export const PerfilCandidato = (): JSX.Element => {
                               {range && (
                                 <p className="text-[#757575] text-xs mt-1">
                                   {range}
+                                </p>
+                              )}
+                              {exp.description && (
+                                <p className="text-[#555555] text-sm mt-2 leading-relaxed whitespace-pre-line">
+                                  {exp.description}
                                 </p>
                               )}
                             </div>

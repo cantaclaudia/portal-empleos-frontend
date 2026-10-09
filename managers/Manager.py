@@ -605,10 +605,11 @@ def get_applicants_information(cnx, cursor, final_response, job_offer_id, reques
                 (
                     SELECT JSON_ARRAYAGG(
                         JSON_OBJECT(
-                            'job_name', e2.title,
+                            'job_name', COALESCE(ex2.job_title, e2.title),
                             'start_date', ex2.start_date,
                             'end_date', ex2.end_date,
-                            'company_name', em2.name
+                            'company_name', COALESCE(ex2.company_name, em2.name),
+                            'description', ex2.description
                         )
                     )
                     FROM Experiencias ex2
@@ -1062,34 +1063,31 @@ def get_companies_list(cnx, cursor, final_response, request_id=None):
     return final_response
 
 @manage_db_connection
-def upload_work_experience(cnx, cursor, final_response, candidate_id, job_id, company_id, start_date, end_date, request_id=None):
+def upload_work_experience(cnx, cursor, final_response, candidate_id, job_name, company_name,
+                           description, start_date, end_date, request_id=None):
     final_response = {'ok': True,
                       'data': {}}
     try:
-
         query = """
-                    INSERT INTO 
-                    Experiencias
+                    INSERT INTO
+                    experiencias
                             (candidate_id,
-                            job_id,
-                            company_id,
+                            job_title,
+                            company_name,
+                            description,
                             start_date,
-                            end_date) 
-                    VALUES  (%s, 
-                            %s,
-                            %s,
-                            %s,
-                            %s)
+                            end_date)
+                    VALUES  (%s, %s, %s, %s, %s, %s)
                     """
 
-        values = (candidate_id, job_id, company_id, start_date, end_date)
+        values = (candidate_id, job_name, company_name, description, start_date, end_date)
 
         cursor.execute(query, values)
         cnx.commit()
 
-        logger.info(f"{request_id} - se cargo correctamente la experiencia del candidato {candidate_id}")
+        logger.info(f"{request_id} - se cargo la experiencia del candidato {candidate_id}")
         final_response['data'] = True
-    except:
+    except Exception:
         logger.exception(f"{request_id} - error al acceder a la base de datos")
         final_response['ok'] = False
 
@@ -1165,10 +1163,11 @@ def get_candidate_profile(cnx, cursor, final_response, candidate_id, request_id=
                         (
                             SELECT JSON_ARRAYAGG(
                                 JSON_OBJECT(
-                                    'job_name', e2.title,
+                                    'job_name', COALESCE(ex2.job_title, e2.title),
                                     'start_date', ex2.start_date,
                                     'end_date', ex2.end_date,
-                                    'company_name', em2.name
+                                    'company_name', COALESCE(ex2.company_name, em2.name),
+                                    'description', ex2.description
                                 )
                             )
                             FROM Experiencias ex2
