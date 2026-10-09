@@ -362,6 +362,11 @@ const ApplicantBlock = ({
                       {' a '}
                       {exp.end_date ? formatMonthYear(exp.end_date) : 'Actualidad'}
                     </p>
+                    {exp.description && (
+                      <p className="text-[13px] text-[#555555] mt-1 leading-relaxed whitespace-pre-line">
+                        {exp.description}
+                      </p>
+                    )}
                   </div>
                 </li>
               );

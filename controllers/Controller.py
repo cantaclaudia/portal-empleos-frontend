@@ -2,9 +2,28 @@ from config import ServerConfig, ServiceConfig
 from managers import Manager
 from utils import Utils
 from flask import g
+from datetime import date, datetime
 
 logger = ServerConfig.rootLogger.getChild(__name__)
 
+NAME_MAX = 100
+DESC_MAX = 300
+
+
+def _parse_date(value):
+    """Devuelve un date o None si no es AAAA-MM-DD."""
+    try:
+        return datetime.strptime(str(value), "%Y-%m-%d").date()
+    except (TypeError, ValueError):
+        return None
+
+
+def _clean_text(value):
+    """Texto sin espacios en los bordes; None si no es string o queda vacío."""
+    if not isinstance(value, str):
+        return None
+    value = value.strip()
+    return value or None
 
 def register_candidate_user(name, last_name, email, password, resume_url, skill_list):
     lenght_validation = Utils.register_user_lenght_validation(name=name,
@@ -543,67 +562,72 @@ def get_companies_list():
             'data': companies_list_response['data']}
 
 
-def upload_work_experience(candidate_id, job_id, company_id, start_date, end_date):
-    # todo validar job_id, company_id
+def upload_work_experience(candidate_id, job_name, company_name, description, start_date, end_date):
+    bad_request = {'code': '0400',
+                   'description': ServiceConfig.upload_experience_response['0400']}
 
-    # validamos que el usuario exista
-    candidate_is_registered_response = Manager.user_registered(candidate_id=candidate_id,request_id=g.request_id)
+    # --- Validación de formato (antes de tocar la base) ---
+    job_name = _clean_text(job_name)
+    company_name = _clean_text(company_name)
+    description = _clean_text(description)
 
-    if not candidate_is_registered_response['data']:
+    if job_name is None or len(job_name) > NAME_MAX:
+        logger.error(f"{g.request_id} - job_name invalido")
+        return bad_request
+
+    if company_name is None or len(company_name) > NAME_MAX:
+        logger.error(f"{g.request_id} - company_name invalido")
+        return bad_request
+
+    if description is None or len(description) > DESC_MAX:
+        logger.error(f"{g.request_id} - description invalida")
+        return bad_request
+
+    today = date.today()
+    start = _parse_date(start_date)
+    if start is None or start > today:
+        logger.error(f"{g.request_id} - start_date invalida")
+        return bad_request
+
+    end = None
+    if end_date is not None:
+        end = _parse_date(end_date)
+        if end is None or end > today or end < start:
+            logger.error(f"{g.request_id} - end_date invalida")
+            return bad_request
+
+    # --- Validamos que el candidato exista ---
+    candidate_response = Manager.user_registered(candidate_id=candidate_id,
+                                                 request_id=g.request_id)
+
+    if not candidate_response['ok']:
         logger.error(f"{g.request_id} - error al validar existencia del candidato")
         return {'code': '0500',
                 'description': ServiceConfig.upload_experience_response['0500']}
 
-    if not candidate_is_registered_response['data']:
-        logger.error(f"{g.request_id} - no se encontro que el usuario este registrado en bd")
+    if not candidate_response['data']:
+        logger.error(f"{g.request_id} - el candidato no esta registrado en bd")
         return {'code': '0406',
                 'description': ServiceConfig.upload_experience_response['0406']}
 
-    # validamos el id del trabajo exista
-    job_exists_response = Manager.job_exists(job_id=job_id,
-                                             request_id=g.request_id)
-
-    if not job_exists_response['data']:
-        logger.error(f"{g.request_id} - error al validar existencia del trabajo")
-        return {'code': '0500',
-                'description': ServiceConfig.upload_experience_response['0500']}
-
-    if not job_exists_response['data']:
-        logger.error(f"{g.request_id} - no se encontro que el trabajo este registrado en bd")
-        return {'code': '0405',
-                'description': ServiceConfig.upload_experience_response['0405']}
-
-    # validamos el id de compania exista
-    company_exists_response = Manager.company_exists(company_id=company_id,
+    # --- Insertamos la experiencia (sin tocar Empresas ni Empleos) ---
+    upload_response = Manager.upload_work_experience(candidate_id=candidate_id,
+                                                     job_name=job_name,
+                                                     company_name=company_name,
+                                                     description=description,
+                                                     start_date=start,
+                                                     end_date=end,
                                                      request_id=g.request_id)
 
-    if not company_exists_response['data']:
-        logger.error(f"{g.request_id} - error al validar existencia del trabajo")
+    if not upload_response['ok'] or not upload_response['data']:
+        logger.error(f"{g.request_id} - error al cargar la experiencia")
         return {'code': '0500',
                 'description': ServiceConfig.upload_experience_response['0500']}
 
-    if not company_exists_response['data']:
-        logger.error(f"{g.request_id} - no se encontro que la compania este registrada en bd")
-        return {'code': '0407',
-                'description': ServiceConfig.upload_experience_response['0407']}
-
-    # una vez esta tdo validado, insetamos la experiencia
-    upload_experience_response = Manager.upload_work_experience(candidate_id=candidate_id,
-                                                                job_id=job_id,
-                                                                company_id=company_id,
-                                                                start_date=start_date,
-                                                                end_date=end_date,
-                                                                request_id=g.request_id)
-
-    if not upload_experience_response['data']:
-        logger.error(f"{g.request_id} - error al obtener lista de empresas")
-        return {'code': '0500',
-                'description': ServiceConfig.upload_experience_response['0500']}
-
-    logger.info(f"{g.request_id} - experiencia de usuario cargada correctamente")
+    logger.info(f"{g.request_id} - experiencia cargada correctamente")
 
     return {'code': '0200',
-            'description': ServiceConfig.get_stats_code_map['0200']}
+            'description': ServiceConfig.upload_experience_response['0200']}
 
 
 def get_job_type_list():

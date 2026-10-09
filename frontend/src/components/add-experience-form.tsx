@@ -1,23 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { ErrorMessage } from './ui/error-message';
-import { Select, SelectContent, SelectItem, SelectTrigger } from './ui/select';
 import AuthService from '../services/auth.service';
-import JobService from '../services/job.service';
-import CompanyService from '../services/company.service';
 import WorkExperienceService from '../services/work-experience.service';
-import type { JobType } from '../types/job.types';
-import type { Company } from '../types/employer.types';
+
+const NAME_MAX = 100;
+const DESC_MAX = 300;
 
 interface AddExperienceFormProps {
   onSaved: () => void;
   onCancel: () => void;
 }
 
-const triggerClass =
-  'h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-4 py-2 font-normal text-base text-[#333333]';
 const inputClass =
   'h-auto min-h-[42px] bg-white rounded-lg border border-[#d9d9d9] px-3 py-2';
 
@@ -30,13 +26,9 @@ export const AddExperienceForm = ({
   const user = AuthService.getUser();
   const candidateId = user?.user_id != null ? String(user.user_id) : '';
 
-  const [jobs, setJobs] = useState<JobType[]>([]);
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [loadingData, setLoadingData] = useState(true);
-  const [dataError, setDataError] = useState<string | null>(null);
-
-  const [jobId, setJobId] = useState('');
-  const [companyId, setCompanyId] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [jobName, setJobName] = useState('');
+  const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isCurrent, setIsCurrent] = useState(false);
@@ -45,40 +37,13 @@ export const AddExperienceForm = ({
   const [saving, setSaving] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let active = true;
-
-    const load = async () => {
-      try {
-        const [jobsResp, companiesResp] = await Promise.all([
-          JobService.getJobTypeList(),
-          CompanyService.getCompaniesList(),
-        ]);
-        if (!active) return;
-        setJobs(jobsResp.data || []);
-        setCompanies(companiesResp.data || []);
-      } catch (err) {
-        if (!active) return;
-        setDataError(
-          err instanceof Error ? err.message : 'No se pudieron cargar los datos.'
-        );
-      } finally {
-        if (active) setLoadingData(false);
-      }
-    };
-
-    void load();
-    return () => {
-      active = false;
-    };
-  }, []);
-
   const validate = (): boolean => {
     const next: Record<string, string> = {};
     const today = todayISO();
 
-    if (!jobId) next.job = 'Seleccioná un puesto';
-    if (!companyId) next.company = 'Seleccioná una empresa';
+    if (!companyName.trim()) next.company = 'El nombre de la empresa es obligatorio';
+    if (!jobName.trim()) next.job = 'El puesto es obligatorio';
+    if (!description.trim()) next.description = 'La descripción es obligatoria';
 
     if (!startDate) next.start = 'La fecha de inicio es obligatoria';
     else if (startDate > today) next.start = 'La fecha de inicio no puede ser futura';
@@ -108,8 +73,9 @@ export const AddExperienceForm = ({
     try {
       await WorkExperienceService.uploadWorkExperience({
         candidate_id: candidateId,
-        job_id: jobId,
-        company_id: companyId,
+        job_name: jobName.trim(),
+        company_name: companyName.trim(),
+        description: description.trim(),
         start_date: startDate,
         end_date: isCurrent ? null : endDate,
       });
@@ -123,64 +89,65 @@ export const AddExperienceForm = ({
     }
   };
 
-  if (loadingData) {
-    return <p className="text-[#757575] text-sm">Cargando...</p>;
-  }
-
-  if (dataError) {
-    return (
-      <div className="flex flex-col gap-3">
-        <ErrorMessage message={dataError} />
-        <Button type="button" variant="ghost" onClick={onCancel} className="self-start">
-          Cerrar
-        </Button>
-      </div>
-    );
-  }
-
-  const selectedJob = jobs.find((j) => j.job_id.toString() === jobId);
-  const selectedCompany = companies.find((c) => c.company_id.toString() === companyId);
-
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
       {submitError && <ErrorMessage message={submitError} />}
 
       <div className="flex flex-col gap-2">
-        <Label className="font-normal text-sm">
+        <Label htmlFor="exp-company" className="font-normal text-sm">
+          Empresa <span className="text-[#cc2222]">*</span>
+        </Label>
+        <Input
+          id="exp-company"
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
+          placeholder="Ej: Panadería López"
+          maxLength={NAME_MAX}
+          className={inputClass}
+          disabled={saving}
+        />
+        {errors.company && <p className="text-[#cc2222] text-sm">{errors.company}</p>}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="exp-job" className="font-normal text-sm">
           Puesto <span className="text-[#cc2222]">*</span>
         </Label>
-        <Select value={jobId} onValueChange={setJobId} disabled={saving}>
-          <SelectTrigger className={triggerClass}>
-            {selectedJob ? selectedJob.name : 'Seleccioná un puesto'}
-          </SelectTrigger>
-          <SelectContent>
-            {jobs.map((j) => (
-              <SelectItem key={j.job_id} value={j.job_id.toString()}>
-                {j.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Input
+          id="exp-job"
+          value={jobName}
+          onChange={(e) => setJobName(e.target.value)}
+          placeholder="Ej: Analista de datos"
+          maxLength={NAME_MAX}
+          className={inputClass}
+          disabled={saving}
+        />
         {errors.job && <p className="text-[#cc2222] text-sm">{errors.job}</p>}
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label className="font-normal text-sm">
-          Empresa <span className="text-[#cc2222]">*</span>
+        <Label htmlFor="exp-desc" className="font-normal text-sm">
+          Descripción <span className="text-[#cc2222]">*</span>
         </Label>
-        <Select value={companyId} onValueChange={setCompanyId} disabled={saving}>
-          <SelectTrigger className={triggerClass}>
-            {selectedCompany ? selectedCompany.name : 'Seleccioná una empresa'}
-          </SelectTrigger>
-          <SelectContent>
-            {companies.map((c) => (
-              <SelectItem key={c.company_id} value={c.company_id.toString()}>
-                {c.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.company && <p className="text-[#cc2222] text-sm">{errors.company}</p>}
+        <textarea
+          id="exp-desc"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          maxLength={DESC_MAX}
+          placeholder="Ej: Armé los reportes de ventas semanales y automaticé la carga de datos."
+          className="min-h-[90px] bg-white rounded-lg border border-[#d9d9d9] px-3 py-2 text-base text-[#333333] focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
+          disabled={saving}
+        />
+        <div className="flex items-start justify-between gap-3">
+          {errors.description ? (
+            <p className="text-[#cc2222] text-sm">{errors.description}</p>
+          ) : (
+            <span />
+          )}
+          <span className="text-[#999999] text-xs tabular-nums whitespace-nowrap">
+            {description.length}/{DESC_MAX}
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

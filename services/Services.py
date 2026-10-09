@@ -374,22 +374,23 @@ def upload_work_experience(data_request):
 
     try:
         candidate_id = data_request['candidate_id']
-        job_id = data_request['job_id']
-        company_id = data_request['company_id']
+        job_name = data_request['job_name']
+        company_name = data_request['company_name']
+        description = data_request['description']
         start_date = data_request['start_date']
-        end_date = data_request['end_date']
-    except:
+        end_date = data_request['end_date']  # debe venir, puede ser null
+    except Exception:
         logger.exception(f"{g.request_id} - mensaje malformado")
         return {"code": "0400", "description": "bad request"}, 400
 
     logger.info(f"{g.request_id} - validacion de datos exitosa")
 
     return Controller.upload_work_experience(candidate_id=candidate_id,
-                                             job_id=job_id,
-                                             company_id=company_id,
+                                             job_name=job_name,
+                                             company_name=company_name,
+                                             description=description,
                                              start_date=start_date,
                                              end_date=end_date)
-
 
 # 17)
 # Obtener lista de tipos de trabajos
