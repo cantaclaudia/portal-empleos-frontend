@@ -31,7 +31,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
 
   const handleLogout = () => {
     AuthService.logout();
-    navigate(ROUTES.LOGIN);
+    navigate(ROUTES.LOGIN, { replace: true });
   };
 
   const handleItemClick = (item: SideMenuItem) => {

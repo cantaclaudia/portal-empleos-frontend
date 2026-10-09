@@ -7,8 +7,8 @@ import { ErrorMessage } from '../components/ui/error-message';
 import AuthService from '../services/auth.service';
 import { AuthAside } from '../components/ui/auth-aside';
 import { LOGIN_ERRORS } from '../constants/error-codes';
-import { ROUTES } from '../routes';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { getHomeRoute } from '../utils/roles';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { SuccessMessage } from '../components/ui/success-message';
 
 
@@ -107,7 +107,6 @@ export const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      // Envío en texto plano tal como requiere el backend
       const userData = await AuthService.login(email.trim(), password);
 
       AuthService.saveUser(userData);
@@ -120,21 +119,25 @@ export const Login: React.FC = () => {
         localStorage.removeItem('rememberMe');
       }
 
-      if (userData.role === 'candidate') {
-        navigate(ROUTES.HOME_CANDIDATO, { replace: true });
-      } else if (userData.role === 'employer') {
-        navigate(ROUTES.HOME_RECLUTADOR, { replace: true });
-      } else if (userData.role === 'admin') {
-        navigate(ROUTES.HOME_ADMIN, { replace: true });
-      } else {
+      if (!['candidate', 'employer', 'admin'].includes(userData.role)) {
+        AuthService.logout();
         setLoginError('Tipo de usuario no válido');
+        return;
       }
+
+      navigate(getHomeRoute(userData.role), { replace: true });
     } catch {
       setLoginError('No se pudo iniciar sesión. Verificá tus datos.');
     } finally {
       setLoading(false);
     }
   };
+
+  const existingUser = AuthService.getUser();
+
+  if (existingUser) {
+    return <Navigate to={getHomeRoute(existingUser.role)} replace />;
+  }
 
   return (
     <div className="bg-[#f2f2f2] flex min-h-screen w-full flex-col md:flex-row">
