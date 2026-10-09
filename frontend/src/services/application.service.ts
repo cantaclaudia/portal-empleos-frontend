@@ -26,12 +26,29 @@ class ApplicationService {
     );
   }
 
-  getUserApplications(data: GetUserApplicationsRequest) {
-    return apiService.call<GetUserApplicationsResponse>(
-      ENDPOINTS.GET_USER_APPLICATIONS,
-      'GET_USER_APPLICATIONS',
-      data
-    );
+  async getUserApplications(
+    data: GetUserApplicationsRequest
+  ): Promise<GetUserApplicationsResponse> {
+    try {
+      return await apiService.call<GetUserApplicationsResponse>(
+        ENDPOINTS.GET_USER_APPLICATIONS,
+        'GET_USER_APPLICATIONS',
+        data
+      );
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === 'No hay postulaciones registradas'
+      ) {
+        return {
+          code: '0201',
+          description: error.message,
+          data: [],
+        };
+      }
+
+      throw error;
+    }
   }
 
   getApplicationStatus(data: GetApplicationStatusRequest) {
