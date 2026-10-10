@@ -164,7 +164,7 @@ const DonutChart = ({
           textAnchor="middle"
           fontSize="18"
           fontWeight="700"
-          fill="#05073c"
+          fill="#06083C"
         >
           {total}
         </text>

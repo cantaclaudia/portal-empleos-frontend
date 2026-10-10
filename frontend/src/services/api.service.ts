@@ -55,10 +55,6 @@ class ApiService {
     return response.json();
   }
 
-  /**
-   * Llamada autenticada: manda el user_id del usuario logueado, valida el
-   * código de respuesta y lanza Error con el mensaje correcto si falló.
-   */
   async call<T extends ApiResponse>(
     endpoint: string,
     errorKey: EndpointErrorMap,
