@@ -4,13 +4,13 @@ export default {
     extend: {
       colors: {
         brand: {
-          DEFAULT: '#f46036',
+          DEFAULT: '#F46036',
           dark: '#d9512e',
           light: '#fff3ec',
         },
         navy: {
-          DEFAULT: '#05073c',
-          light: '#1e2749',
+          DEFAULT: '#06083C',
+          light: '#1E2749',
         },
         accent: '#3351a6',
         surface: '#eceef6',
